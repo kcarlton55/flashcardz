@@ -8,60 +8,31 @@ correctly remembered the definition of.  Cards are removed once the tally
 reaches a maximum value.  (The word "Cards" actually means words and defintions
 that are stored in a file on the user's computer.)
 
-The program runs from python's command line terminal.  That is, with python
-installed on the user's computer (discussed in detail later), the user start's
-up python from the command line by typing either *py* or *python* (depending
-how python gets installed on your computer); and then, after python's terminal
-opens up, typing:
-
-```
->>> from flashcardz import *
-```
-
-This loads the program into memory.  Add words and definitions by using
-flashcardz' add() function:
-
-```
->>> add("correr", "to run (to move quickly on two feet)")
-
->>> add("soplar", "to blow (produce an air current)")
-
->>> add("silla", "chair (a structure on which to sit onself")
-```
-
-Words and definitions can also be imported from an Excel file (discussed
-later).
-
-Once this word/definition data is established within a data file, start viewing
-the cards by using flashcardz's go() command:
+The program runs from python's command line terminal.  Use flashcardz primary
+function to show the cards:
 
 ```
 >>> go()
-
-------------------------- tally: 0 -------------------------
-
-1 of 3. soplar
 ```
 
-The program then pauses giving you some time to try to figure out what the word
-means.  Next, when you push the Enter key, the definition is shown:
+Adding words words to your deck of cards is easy.  Use flashcardz's add()
+fuction:
 
 ```
-to blow (produce an air current)
-
-Meaning known? (Y/n)
+>>> add("correr", "to run (to move quickly on two feet)")
 ```
 
-After you answer the question, the next word is presented, and so on.
+Words and defintionions can also be imported from an Excel file.
 
 
-## **Features
+## **Features**
 * Cost: Free (as the wind).
 * Easy addition of words and defintions via copy and paste.
+* Can add links to urls into cards
 * Can import word and definitions from an Excel file.
 * Deck of cards shuffled before each viewing.
 * Score kept of number of times the word's definitions correcty known.
-* Card removed once max score has been reached.
+* Card automatically removed once max score has been reached.
 
 
 ## **How to install**
@@ -79,7 +50,7 @@ To install flashcardz.py, open a Window's command prompt (references:
 or  open the equavalent for your operating system, and enter:
 
 ```
-pip install flashcardz
+pip install flashcardz    <<< UNDER CONSTRUCTION.  This has not been set up yet for flashcardz
 ```
 
 This installs flashcardz within your python installation.  Pip is a program
@@ -168,19 +139,26 @@ add a multiline defintion, do so like this:
 >>> add("""amigo, amiga nm, nf""",
     """(camarada) friend n buddy n
 
-    Nuestro primer viaje a Cuzco lo organizamos entre cuatro amigos.
-    We organized our first trip, to Cuzco, among four friends.""")
+    Nuestro primer viaje, a Cuzco, lo organizamos entre cuatro amigos.
+    We organized our first trip, to Cuzco, among four friends.
+
+    [how to pronounce](https://www.wordreference.com/es/en/translation.asp?spen=amigo)""")
 ```
 
 You'll notice, to enter a multiline definition, use three quotation marks, """,
-at the beginning and the end of the text.  And don't forget to close the
-function by adding a prenthesis at the end.  When you run the go() function,
-the defintion will show as four different lines, including the second line,
-which is blank.  Also note, it is not necessary to type all this data in
-manually.  The easiest thing to do is to copy and paste from a site that has a
-dictionary for the language you are learning.
+at the beginning and the end of the word and defintion.  Don't forget to close
+the function by adding a prenthesis at the end.  When you run the go() function,
+the defintion will show as six different lines, including black lines.  Also
+note, it is not necessary to type all this data in manually.  The easiest thing
+to do is to copy and paste from the site that has a dictionary for the language
+you are learning.
 
-When you're ready to view the cards, one-by-one, and ready to try to figure out
+Notice the last line in the defintion.  It is a URL link.  URL links are
+inserted into a word's definition using brackets and parenthesis using the
+format ```[link description](URL)```
+
+
+When you're ready to view the cards one-by-one, and ready to try to figure out
 the definition of each word, run the go() function:
 
 ```
@@ -189,18 +167,18 @@ go()
 
 When the go() function is run, it automatically opens up the data file that
 contains your words and definions so that the information from it can be
-presented to you.  When  the go() function completes its task, tallies are
+presented to you.  When the go() function completes its task, tallies are
 updated, and if that maximum tally for any word has been reached, that card is
 removed.
 
-When you want to exit python, enter either quit() or exit() (quit or exit for
-python 3.13 and up):
+When you want to exit python, enter either quit() or exit() (or quit or exit
+for python 3.13 and up):
 
 ```
 quit()
 ```
 
-## Convert an Excel file to a flashcardz data file.
+## **Convert an Excel file to a flashcardz data file**
 
 Words and definitions can be created in an Excel and then exported to a text
 file that flashcardz can open and read.  First, in cells A1 and B1 of the Excel
@@ -229,7 +207,7 @@ change to a different delimiter when exporting.  But there is a relatively easy
 ework-around.  See this youtube video for how to do it:
 [Export Data with Pipe Delimiters Instead of Commas](https://www.youtube.com/watch?v=jieWzHJjVBU)
 
-## Opening a flashcardz data file into Excel.
+## **Opening a flashcardz data file into Excel**
 
 Opening a flashcardz data file into Excel is relatively easy.  When you open a
 flashcardz data file (with a csv or txt extension), you will be given the
