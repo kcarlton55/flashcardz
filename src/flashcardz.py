@@ -39,7 +39,12 @@ import os
 import ast
 import re
 import webbrowser
+import readline  # https://docs.python.org/3/library/readline.html
+import code
+import atexit
 
+
+__version__ = '0.1.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, save any pipe symbols as semicolons
 
@@ -197,11 +202,7 @@ def _setpathname():
     print(f'(current working directory is: {Path().cwd()})')
 
     _currently_at('pathname')
-    #ans = input('\nUse this file? (Y/n) ')
-
-    #if ans and ans[0].lower() == 'n':
     print("\nEnter pathname for new or existing file (e.g. C:\\mypath\\myfile.txt)")
-
     userinput = input(r'    Pathname (Enter nothing for no change) = ').strip()
     fn = Path(userinput)
     fn_resolved = fn.resolve()
@@ -225,33 +226,6 @@ def _setpathname():
         _changed_to('pathname')
     else:
         _remains_at('pathname')
-    #elif ans and ans[0].lower() == 'y':
-    #    _remains_at('pathname')
-    #else:
-    #    print('\nOnly appropriate response is y or n')
-
-
-def _setshow_startup_intro():
-    """    When flashcardz is first loaded, and introduction is shown that gives some
-    information about how to run the flashcardza program.  If you do not want this
-    introduction to be shown, set the "show_startup_intro" setting to False.
-    """
-    global _settings
-    print(_setshow_startup_intro.__doc__)
-    _currently_at('show_startup_intro')
-    show_startup_intro = input('\n    show_startup_intro = ').strip().title()
-    if show_startup_intro == "0" or show_startup_intro == 'False':
-        show_startup_intro = False
-    else:
-        show_startup_intro = True
-    if _settings['show_startup_intro'] == show_startup_intro:
-        _remains_at('show_startup_intro')
-    elif show_startup_intro == False or show_startup_intro == True:
-        _settings['show_startup_intro'] = show_startup_intro
-        _changed_to('show_startup_intro')
-    else:
-        print('\nTrue or False are the only valid responses')
-        _remains_at('show_startup_intro')
 
 
 def settings():
@@ -287,8 +261,6 @@ def settings():
         _settallypenalty()
     elif chgkey == 'date_format':
         _setdateformat()
-    elif chgkey == 'show_startup_intro':
-        _setshow_startup_intro()
 
 
 def functions():
@@ -298,8 +270,8 @@ def functions():
     The primary functions are add(), cards(), and go().
 
     Enter help(functionname) to learn more about a function.  Enter
-    print(__doc__) to see overview docs.  See user instructions at
-    https://github.com/kcarlton55/flashcardz
+    print(__doc__) to see overview docs.  Instructions on how to use flashcardz
+    can be found at https://github.com/kcarlton55/flashcardz
 
     Examples
     --------
@@ -816,23 +788,6 @@ def go(shuffle=True):
                 loop = False
     print("\n             === The End ===")
 
-    if missed:
-        print('\n\n' + 50*'_')
-        percent_correct = str(
-            int(100 * (len(_cards) - len(missed))/len(_cards)))
-        if int(percent_correct) >= 80:
-            print(f'{percent_correct}% answered correctly!')
-        else:
-            print(f'{percent_correct}% answered correctly')
-        print('These are the words you missed: \n')
-        for m in missed:
-            print(f'=== {m[0]} ===\n{m[1]}\n')
-    else:
-        print('\n\n' + 50*'_')
-        if len(_cards) == 0:
-            print('Card deck is empty.  Please add data.')
-        else:
-            print('100% of list answered correctly!')
 
     if unwanted:
         print('\n\n' + 50*'_')
@@ -846,15 +801,40 @@ def go(shuffle=True):
             # ele is an element of the _cards list
             print(f'    {_cards[ele][0]}')
             del _cards[ele]
+        print()
         if not abort:
-            print(f'\nNumber of cards is now {len(_cards)}')
+            print(f'\nNumber of cards is now {len(_cards)}\n')
+
+    # sort _cards by date for storage
+    try:
+        _cards = sorted(_cards, key=lambda x: datetime.strptime(x[2], date_format))
+    except:
+        pass
+
+    if missed:
+        print('\n\n' + 50*'_')
+        percent_correct = str(
+            int(100 * (len(_cards) - len(missed))/len(_cards)))
+        if int(percent_correct) >= 80:
+            print(f'{percent_correct}% answered correctly!')
+        else:
+            print(f'{percent_correct}% answered correctly')
+        print('These are the words you missed: \n')
+        for m in missed:
+            #print(f'=== {m[0]} ===\n{m[1]}\n')
+            for i, c in enumerate( _cards):
+                if c[0] == m[0]:
+                    break
+            print(f'{i}. {m[0]}')
+    else:
+        print('\n\n' + 50*'_')
+        if len(_cards) == 0:
+            print('Card deck is empty.  Please add data.')
+        else:
+            print('100% of list answered correctly!')
+
 
     if not abort:
-        # sort _cards by date for storage
-        try:
-            _cards = sorted(_cards, key=lambda x: datetime.strptime(x[2], date_format))
-        except:
-            pass
         _save(_cards)
 
 
@@ -908,7 +888,6 @@ def _get_settingsfn():
         with open(settingsfn, 'w') as file:
             file.write(f'{{"pathname": "{fn}", "maxtally": "10", ' +
                        '"tallypenalty": "10", ' +
-                       '"show_startup_intro": "True", ' +
                        '"date_format": "%x", "abort": "False"}')
     return settingsfn
 
@@ -922,8 +901,6 @@ def _read_settingsfn():
         _settings = ast.literal_eval(x)
         _settings['maxtally'] = int(_settings['maxtally'])
         _settings['tallypenalty'] = int(_settings['tallypenalty'])
-        #_settings['abort'] = True if _settings['abort'] == 'True' else False
-        #_settings['show_startup_intro'] = True if _settings['show_startup_intro'] == 'True' else False
     except Exception as e:
         msg = ("\n\n\n !!! Error at _read_settingsfn() function:\n"
                " !!! Unable to open settings.txt file which allows the program to remember user\n"
@@ -1007,14 +984,57 @@ def _url_at(text, i):
         print("    list index out of range")
         return None
 
+
+class HistoryConsole(code.InteractiveConsole):
+    """ This class copied from "https://docs.python.org/3/library/readline.html.
+    This class extends the code.InteractiveConsole class to support history
+    save/restore.
+    """
+    def __init__(self, locals=None, filename="<console>",
+                 histfile=os.path.expanduser("~/.console-history")):
+        code.InteractiveConsole.__init__(self, locals, filename)
+        self.init_history(histfile)
+
+    def init_history(self, histfile):
+        readline.parse_and_bind("tab: complete")
+        if hasattr(readline, "read_history_file"):
+            try:
+                readline.read_history_file(histfile)
+            except FileNotFoundError:
+                pass
+            atexit.register(self.save_history, histfile)
+
+    def save_history(self, histfile):
+        readline.set_history_length(1000)
+        readline.write_history_file(histfile)
+
+
 _read_settingsfn()
 
+
 if __name__=='__main__':
-    if 'show_startup_intro' in _settings and _settings['show_startup_intro'] == False:
-        pass
-    else:
-        print('\n\nWelcome to flashcardz.py')
-        print('How-to instructions can be found at https://github.com/kcarlton55/flashcardz')
-        functions()
+    try:
+        __IPYTHON__
+        _in_ipython_session = True
+    except NameError:
+        _in_ipython_session = False
+
+    if _in_ipython_session:
+        print(chr(128073) + ' For ipython do either "ipython -i flashcardz" or "from flashcardz import *"\n')
+
+    if not sys.flags.interactive and not _in_ipython_session :
+        vi = sys.version_info
+        banner = (f"\nflashcardz running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+                  'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
+                  'Excecute "functions()" (w/o quotes) for info about running this program.\n')
+        variables = {**globals(), **locals()}
+        #shell = code.InteractiveConsole(variables)
+        shell = HistoryConsole(variables)
+        shell.interact(banner=banner)
+
+
+
+
+
 
 
