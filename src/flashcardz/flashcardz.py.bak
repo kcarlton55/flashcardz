@@ -823,9 +823,10 @@ def go(shuffle=True):
         for m in missed:
             #print(f'=== {m[0]} ===\n{m[1]}\n')
             for i, c in enumerate( _cards):
+                print(i, c[0])
                 if c[0] == m[0]:
-                    break
-            print(f'{i}. {m[0]}')
+                    j = i
+            print(f'{j}. {m[0]}')
     else:
         print('\n\n' + 50*'_')
         if len(_cards) == 0:
