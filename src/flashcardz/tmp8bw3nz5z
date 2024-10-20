@@ -200,20 +200,6 @@ def _setpathname():
 
 def settings():
     """Adjust program's settings to tailer the behavior to fit your needs.
-
-    Examples
-    --------
-
-    >>> settings()
-
-    -    Current settngs are:
-    -        pathname: /media/sf_shared/Documents/spanish/flashcardz.txt
-    -        maxtally: 10
-    -        tallypenalty: 10
-    -        abort: False
-    -
-    -    Setting to change (Enter nothing for no change):  tallypenalty
-
     """
     global _settings
     print(settings.__doc__)
@@ -364,8 +350,6 @@ def add(word, definition):
                 _cards.pop(i)
                 _cards.append([word, definition, x[2]])
                 break
-        else:
-            _cards.append([word, definition, 0])
         print(f'\n{word}\n\n{definition}\n')
         print('Number of cards now at: ', len(_cards))
         _save(_cards)
@@ -693,7 +677,7 @@ def go(shuffle=True):
         flag = True
         hide_url = True
         while loop:
-            print(35*'-' + ' tally: ' + str(_cards[k][2]) + ' ' + 35*'-')
+            print(25*'-' + ' tally: ' + str(_cards[k][2]) + ' ' + 25*'-')
             print(f'{number} of {number_of_cards}.  {_cards[k][0]}')  # _cards[k][0] is "word"
             if flag:  # pause after word shown, but pause only once.
                 flag = False
@@ -944,7 +928,7 @@ def _url_at(text, i):
 
 class HistoryConsole(code.InteractiveConsole):
     """ This class copied from "https://docs.python.org/3/library/readline.html.
-    This class extends the "code.InteractiveConsole" class to support history
+    This class extends the code.InteractiveConsole class to support history
     save/restore.
     """
     def __init__(self, locals=None, filename="<console>",
@@ -981,7 +965,7 @@ if __name__=='__main__':
 
     if not sys.flags.interactive and not _in_ipython_session :
         vi = sys.version_info
-        banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+        banner = (f"\nflashcardz running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
                   'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
                   'Excecute "functions()" (w/o quotes) for info about running this program.\n')
         variables = {**globals(), **locals()}

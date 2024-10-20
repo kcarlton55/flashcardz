@@ -8,14 +8,15 @@ Created on Wed July 13, 2024
 A simple flashcards program used to, among other things, learn another
 language.  Flash cards are saved in a local file.  The file has the form:
 
-word1 | definition1 | tally1
-word2 | definition2 | tally2
+word1 | definition1 | date | viewed | tally
+word2 | definition2 | date | viewed | tally
            ...
-wordN | definitionN | tallyN
+wordN | definitionN | date | viewed | tally
 
-Tally is the number of times the user correctly knew the definition of a word
-without a miss. Tally is reset to zero anytime the user did not rememember the
-definition.
+Date is the date that a particular card was created.  Viewed is the number of
+times that the card has been viewed.  Tally is the number of times the user
+correctly knew the definition of a word without a miss. Tally is reset to zero
+anytime the user did not rememember the definition.
 
 Once the maximum tally value has been reached (default is 10), the word is
 removed from the card set.  To run the program, run the go() function.
@@ -27,6 +28,7 @@ python is installed on your PC.
 """
 
 #import pdb  # use with pdb.set_trace()
+from datetime import date, datetime
 import random
 import time
 from pathlib import Path
@@ -162,6 +164,34 @@ def _setmaxtally():
         _remains_at('maxtally')
 
 
+def _setdateformat():
+    """
+    Info on date_formats can be found at https://strftime.org/
+
+    date_format %x represents "Locale’s appropriate date representation".
+    With %x, in the US the date will look like 09/17/24.
+    Options to consider: %m-%d-%Y (09-17-2024), %Y-%m-%d (2024-09-17)
+                         %m-%d-%y (09-17-24), %m/%d/%y (09/17/24).
+
+    Once a card's file has a particular format established within it, it is
+    best not to change it.  If changed, when the data file is opened, and the
+    format of the date does not match the current setting, that date will be
+    erased and replaced with the current date.
+    """
+    global _settings
+    print(_setdateformat.__doc__)
+    _currently_at('date_format')
+    current_date = datetime.now()
+    date_format = input('\n    date_format (Enter nothing for no change) = ')
+    if date_format.strip() and date_format.strip('"') != _settings['date_format']:
+        _settings['date_format'] = date_format.strip('"')
+        _changed_to('date_format')
+        current_date_formatted = current_date.strftime(_settings['date_format'])
+        print(f'\nExammple: {current_date_formatted}')
+    else:
+        _remains_at('date_format')
+
+
 def _setpathname():
     '''
     Set the pathname (filename prepended by a path) for where your set of cards is
@@ -200,20 +230,6 @@ def _setpathname():
 
 def settings():
     """Adjust program's settings to tailer the behavior to fit your needs.
-
-    Examples
-    --------
-
-    >>> settings()
-
-    -    Current settngs are:
-    -        pathname: /media/sf_shared/Documents/spanish/flashcardz.txt
-    -        maxtally: 10
-    -        tallypenalty: 10
-    -        abort: False
-    -
-    -    Setting to change (Enter nothing for no change):  tallypenalty
-
     """
     global _settings
     print(settings.__doc__)
@@ -243,6 +259,8 @@ def settings():
         _setabort()
     elif chgkey == 'tallypenalty':
         _settallypenalty()
+    elif chgkey == 'date_format':
+        _setdateformat()
 
 
 def functions():
@@ -353,6 +371,8 @@ def add(word, definition):
     '''
     if word and definition and type(word) == str and type(definition) == str:
         _cards = _open()
+        today = date.today()
+        today = today.strftime(_settings['date_format'])
         word = word.replace(delimiter, substitute)
         definition = definition.replace(delimiter, substitute)
         for i, x in enumerate(_cards):
@@ -362,10 +382,10 @@ def add(word, definition):
             word0 = ''.join(word.split()).lower()
             if x0 == word0:  # if word already in _cards, delete it to replace with new
                 _cards.pop(i)
-                _cards.append([word, definition, x[2]])
+                _cards.append([word, definition, x[2], x[3], x[4]])
                 break
         else:
-            _cards.append([word, definition, 0])
+            _cards.append([word, definition, today, 0, 0])
         print(f'\n{word}\n\n{definition}\n')
         print('Number of cards now at: ', len(_cards))
         _save(_cards)
@@ -434,18 +454,19 @@ def _save(_cards):
     ----------
     _cards : list
         list of cards that has the format:
-        cards = [['word1', 'definition1', 'tally'],
-                 ['word2', 'definition2', 'tally'],
+        cards = [['word1', 'definition1', 'date', 'viewed', 'tally'],
+                 ['word2', 'definition2', 'date', 'viewed', 'tally'],
                    ...,
-                 ['wordN', 'definitionN', 'tally']]
+                 ['wordN', 'definitionN', 'date', 'viewed', 'tally']]
 
-    Elements of the list are strings execept for 'tally' which are integers.
+    Elements of the list are strings execept for 'viewed' (no. of times
+    viewed) and 'tally' which are integers.
 
     '''
     if ('pathname' not in _settings or _settings['pathname'] == None
             or _settings['pathname'] == ""):
         _setpathname()
-    fields = ['word', 'definition', 'tally']
+    fields = ['word', 'definition', 'date', 'viewed', 'tally']
     try:
         fn = Path(_settings['pathname'])
         with open(fn, 'w', newline='', encoding='utf-8', errors='replace') as csvfile:  # w/o newline='', blank lines inserted with MS Windows
@@ -469,11 +490,13 @@ def _open():
     Returns
     -------
     _cards : list
-        List of words and their difinitions; included is the tally for that
-        word. (tally: number of times a user has correctly known the defintion
-        of a word.)
+        List of words and their difinitions; included is the create date,
+        how many times a word has been viewed, and the tally for that word.
+        (tally: number of times a user has correctly known the defintion of a
+         word.)
 
     '''
+    today = date.today().strftime(_settings['date_format'])
     try:
         if ('pathname' not in _settings or _settings['pathname'] == None
                 or _settings['pathname'] == ""):
@@ -486,10 +509,10 @@ def _open():
             csvreader = csv.reader(csvfile, delimiter=delimiter)
             for _card in csvreader:
                 ln = len(_card)
-                if 1 < ln < 3:
+                if 1 < ln < 5:
                     del _card[2:]
-                    #_card.append(today)
-                    #_card.append('0')
+                    _card.append(today)
+                    _card.append('0')
                     _card.append('0')
                 elif ln == 1:
                     print('\nSomething is wrong with your data file.  At least one line in the file contains\n'
@@ -498,8 +521,16 @@ def _open():
                            'saved in a csv file format suitable for the flachcardz program.   The file\n'
                            'should be a csv file that uses a pipe/vertical bar character, |, as a delimiter.')
                     sys.exit()
-                if not _card[2].isnumeric():
-                    _card[2] = '0'
+                try:    # is date in a legitimate format?
+                    legit_date = bool(datetime.strptime(_card[2], _settings['date_format']))
+                except ValueError:
+                    legit_date = False
+                if not legit_date:
+                    _card[2] = today
+                if not _card[3].isnumeric():
+                    _card[3] = '0'
+                if not _card[4].isnumeric():
+                    _card[4] = '0'
                 if not _card[0] == 'word':
                     _cards.append(_card)
     except Exception as e:
@@ -563,7 +594,7 @@ def cards(cmd=True, i=None):
     """
     try:
         _cards = _open()
-        separator = 35*'-'
+        separator = 21*'-'
         if type(cmd) == int and i == None:
             j = cmd
             _card = _cards[j]
@@ -588,7 +619,7 @@ def cards(cmd=True, i=None):
             for j in lst:
                 _card = _cards[j]
                 desc = _hide_urls(_card[1])
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+                text2 = (f'{separator} {_card[2]}, viewed: {_card[3]}, tally: {_card[4]} {separator}\n' +
                             f'{j}. {_card[0]}\n' + f'{desc}')
                 print(text2)
         elif type(cmd) == range:
@@ -596,14 +627,14 @@ def cards(cmd=True, i=None):
             for j in rng:
                 _card = _cards[j]
                 desc = _hide_urls(_card[1])
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+                text2 = (f'{separator} {_card[2]}, viewed: {_card[3]}, tally: {_card[4]} {separator}\n' +
                             f'{j}. {_card[0]}\n' + f'{desc}')
                 print(text2)
         else:
             for j, _card in enumerate(_cards):
                 desc = _hide_urls(_card[1])
-                text1 = f'{j}. {_card[0] : <30} (tally: {_card[2] : >})'
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+                text1 = f'{j}. {_card[0] : <30} (tally: {_card[4] : >})'
+                text2 = (f'{separator} {_card[2]}, viewed: {_card[3]}, tally: {_card[4]} {separator}\n' +
                          f'{j}. {_card[0]}\n' + f'{desc}')
                 print(text1) if (cmd == 1 or cmd == True) else print(text2)
     except:
@@ -688,12 +719,13 @@ def go(shuffle=True):
                    else 'Meaning known? (Y/n/i/a/q) ')
 
     for k in index_list:
+        _cards[k][3] = int(_cards[k][3]) + 1   # _cards[k][3] is "viewed"
         number += 1
         loop = True
         flag = True
         hide_url = True
         while loop:
-            print(35*'-' + ' tally: ' + str(_cards[k][2]) + ' ' + 35*'-')
+            print(25*'-' + ' tally: ' + str(_cards[k][4]) + ' ' + 25*'-')
             print(f'{number} of {number_of_cards}.  {_cards[k][0]}')  # _cards[k][0] is "word"
             if flag:  # pause after word shown, but pause only once.
                 flag = False
@@ -735,19 +767,19 @@ def go(shuffle=True):
                 print("    " + 75*"—")
             elif ans and ans[0].lower() == 'n':
                 print()
-                _cards[k][2] = max(0,  _settings['maxtally'] - _settings['tallypenalty'])
+                _cards[k][4] = max(0,  _settings['maxtally'] - _settings['tallypenalty'])
                 missed.append(_cards[k])
                 loop = False
             elif ans and ans[0].lower() == 'y':
                 print()
-                _cards[k][2] = int(_cards[k][2]) + 1    # _cards[k][2] is "tally"
-                if _cards[k][2] >= _settings['maxtally']:
+                _cards[k][4] = int(_cards[k][4]) + 1    # _cards[k][4] is "tally"
+                if _cards[k][4] >= _settings['maxtally']:
                     unwanted.append(k)
                 loop = False
             else:
                 print()
-                _cards[k][2] = int(_cards[k][2]) + 1
-                if _cards[k][2] >= _settings['maxtally']:
+                _cards[k][4] = int(_cards[k][4]) + 1
+                if _cards[k][4] >= _settings['maxtally']:
                     unwanted.append(k)
                 loop = False
     print("\n             === The End ===")
@@ -944,7 +976,7 @@ def _url_at(text, i):
 
 class HistoryConsole(code.InteractiveConsole):
     """ This class copied from "https://docs.python.org/3/library/readline.html.
-    This class extends the "code.InteractiveConsole" class to support history
+    This class extends the code.InteractiveConsole class to support history
     save/restore.
     """
     def __init__(self, locals=None, filename="<console>",
@@ -981,7 +1013,7 @@ if __name__=='__main__':
 
     if not sys.flags.interactive and not _in_ipython_session :
         vi = sys.version_info
-        banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+        banner = (f"\nflashcardz running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
                   'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
                   'Excecute "functions()" (w/o quotes) for info about running this program.\n')
         variables = {**globals(), **locals()}
