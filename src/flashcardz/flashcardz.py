@@ -14,8 +14,8 @@ word2 | definition2 | tally2
 wordN | definitionN | tallyN
 
 Tally is the number of times the user correctly knew the definition of a word
-without a miss. Tally is reset to zero anytime the user did not rememember the
-definition.
+without a miss. Tally is reset to zero (the default) anytime the user did not
+rememember the definition.
 
 Once the maximum tally value has been reached (default is 10), the word is
 removed from the card set.  To run the program, run the go() function.
@@ -37,15 +37,18 @@ import os
 import ast
 import re
 import webbrowser
-import readline  # https://docs.python.org/3/library/readline.html
-import code
-import atexit
+#import readline  # https://docs.python.org/3/library/readline.html
+#import code
+#import atexit
 
 
 __version__ = '0.1.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, save any pipe symbols as semicolons
 
+
+def version():
+    print(__version__)
 
 def _remains_at(setting):
     """
@@ -85,9 +88,12 @@ def _currently_at(setting):
     setting : str
         Name of the setting to report info on
     """
-    s = _settings[setting]
-    print('\nSetting is currently:')
-    print(f'    _settings["{setting}"] =  {s}')
+    try:
+        s = _settings[setting]
+        print('\nSetting is currently:')
+        print(f'    _settings["{setting}"] =  {s}')
+    except:
+        pass
 
 
 def _setabort():
@@ -114,6 +120,31 @@ def _setabort():
     else:
         print('\nTrue or False are the only valid responses')
         _remains_at('abort')
+
+
+def _setshow_intro():
+    """
+    Change the setting named "show_intro" to True or False.  If set to True,
+    then flashcardz will introduce itself when the flashcardz program starts."""
+
+    global _settings
+    print(_setshow_intro.__doc__)
+    _currently_at('show_intro')
+    show_intro = input('\n    show_intro (Enter nothing for no change) = ').strip()
+    if show_intro == "1" or show_intro == 'True':
+        show_intro = True
+    elif show_intro == "0" or show_intro == 'False':
+        show_intro = False
+    else:
+        show_intro = None
+    if 'show_intro' in _settings and _settings['show_intro'] == show_intro:
+        _remains_at('show_intro')
+    elif show_intro == False or show_intro == True:
+        _settings['show_intro'] = show_intro
+        _changed_to('show_intro')
+    else:
+        print('\nTrue or False are the only valid responses')
+        _remains_at('show_intro')
 
 
 def _settallypenalty():
@@ -217,7 +248,7 @@ def settings():
     """
     global _settings
     print(settings.__doc__)
-    print(f"(Settings are saved in file {_get_settingsfn()}.")
+    print(f"(Settings are saved in file {_get_settingsfn()}).")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
     print('with settings reset to defaults.)')
     print('\nCurrent settngs are:')
@@ -225,7 +256,7 @@ def settings():
         print(f'    {key}: {value}')
     chgkey = input('\nSetting to change (Enter nothing for no change): ')
     print()
-    chgkey = str(chgkey).strip()
+    chgkey = str(chgkey).strip().lower()
     if chgkey and chgkey not in _settings.keys():
         print(f'\n"{chgkey}" not found')
         closest = get_close_matches(chgkey, _settings.keys(), 1)
@@ -243,25 +274,25 @@ def settings():
         _setabort()
     elif chgkey == 'tallypenalty':
         _settallypenalty()
+    elif chgkey == 'show_intro':
+        _setshow_intro()
 
 
 def functions():
-    '''    Functions are:  add(), cards(), delete(), functions(), go() and
-    settings().
+    ("Functions are:  add(), cards(), delete(), functions(), go(), settings()\n"
+     "and version().\n\n"
 
-    The primary functions are add(), cards(), and go().
+     "The primary functions are add(), cards(), and go().\n\n"
 
-    Enter help(functionname) to learn more about a function.  Enter
-    print(__doc__) to see overview docs.  Instructions on how to use flashcardz
-    can be found at https://github.com/kcarlton55/flashcardz
+     "Enter help(functionname) to learn more about a function.  Enter print(__doc__)\n"
+     "to see overview docs.\n\n"
 
-    Examples
-    --------
+     "Examples\n"
+     "--------\n\n"
 
-    >>> help(add)
+     ">>> help(add)\n\n"
 
-    >>> help(go)
-    '''
+     ">>> help(go)\n")
     print(f'\n{functions.__doc__}')
 
 
@@ -368,6 +399,7 @@ def add(word, definition):
             _cards.append([word, definition, 0])
         print(f'\n{word}\n\n{definition}\n')
         print('Number of cards now at: ', len(_cards))
+        print()
         _save(_cards)
     else:
         print('\nError at add function.  Here is an example of how to do it:\n')
@@ -750,11 +782,11 @@ def go(shuffle=True):
                 if _cards[k][2] >= _settings['maxtally']:
                     unwanted.append(k)
                 loop = False
-    print("\n             === The End ===")
+    print(32*" " + "=== The End ===")
 
     if unwanted:
         unwanted = sorted(unwanted)
-        print('\n\n' + 50*'_')
+        print('\n' + 80*'_')
         if not abort:
             print(
                 'Congradulations!  Max tally reached on the following.  Cards removed: \n')
@@ -770,7 +802,7 @@ def go(shuffle=True):
             print(f'\nNumber of cards is now {len(_cards)}\n')
 
     if missed:
-        print('\n\n' + 50*'_')
+        print('\n' + 80*'_')
         percent_correct = str(
             int(100 * (len(_cards) - len(missed))/len(_cards)))
         if int(percent_correct) >= 80:
@@ -783,8 +815,9 @@ def go(shuffle=True):
                 if c[0] == m[0]:
                     break
             print(f'{i}. {m[0]}')
+        print()
     else:
-        print('\n\n' + 50*'_')
+        print('\n' + 80*'_')
         if len(_cards) == 0:
             print('Card deck is empty.  Please add data.')
         else:
@@ -844,7 +877,7 @@ def _get_settingsfn():
             print(f'    _settings["[pathname"] = {fn}')
         with open(settingsfn, 'w') as file:
             file.write(f'{{"pathname": "{fn}", "maxtally": "10", ' +
-                       '"tallypenalty": "10", ' +
+                       '"tallypenalty": "10", "show_intro": True" ' +
                        '"date_format": "%x", "abort": "False"}')
     return settingsfn
 
@@ -942,52 +975,67 @@ def _url_at(text, i):
         return None
 
 
-class HistoryConsole(code.InteractiveConsole):
-    """ This class copied from "https://docs.python.org/3/library/readline.html.
-    This class extends the "code.InteractiveConsole" class to support history
-    save/restore.
-    """
-    def __init__(self, locals=None, filename="<console>",
-                 histfile=os.path.expanduser("~/.console-history")):
-        code.InteractiveConsole.__init__(self, locals, filename)
-        self.init_history(histfile)
-
-    def init_history(self, histfile):
-        readline.parse_and_bind("tab: complete")
-        if hasattr(readline, "read_history_file"):
-            try:
-                readline.read_history_file(histfile)
-            except FileNotFoundError:
-                pass
-            atexit.register(self.save_history, histfile)
-
-    def save_history(self, histfile):
-        readline.set_history_length(1000)
-        readline.write_history_file(histfile)
+# =============================================================================
+# class HistoryConsole(code.InteractiveConsole):
+#     """ This class copied from "https://docs.python.org/3/library/readline.html.
+#     This class extends the "code.InteractiveConsole" class to support history
+#     save/restore.
+#     """
+#     def __init__(self, locals=None, filename="<console>",
+#                  histfile=os.path.expanduser("~/.console-history")):
+#         code.InteractiveConsole.__init__(self, locals, filename)
+#         self.init_history(histfile)
+#
+#     def init_history(self, histfile):
+#         readline.parse_and_bind("tab: complete")
+#         if hasattr(readline, "read_history_file"):
+#             try:
+#                 readline.read_history_file(histfile)
+#             except FileNotFoundError:
+#                 pass
+#             atexit.register(self.save_history, histfile)
+#
+#     def save_history(self, histfile):
+#         readline.set_history_length(1000)
+#         readline.write_history_file(histfile)
+# =============================================================================
 
 
 _read_settingsfn()
 
 
 if __name__=='__main__':
+    vi = sys.version_info
+    banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+              'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
+              'Excecute "functions()" (w/o quotes) for info about running this program.\n')
     try:
-        __IPYTHON__
-        _in_ipython_session = True
-    except NameError:
-        _in_ipython_session = False
+        if _settings['show_intro']:
+            print(banner)
+    except:
+        print(banner)
 
-    if _in_ipython_session:
-        print(chr(128073) + ' For ipython do either "ipython -i flashcardz" or "from flashcardz import *"\n')
 
-    if not sys.flags.interactive and not _in_ipython_session :
-        vi = sys.version_info
-        banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
-                  'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
-                  'Excecute "functions()" (w/o quotes) for info about running this program.\n')
-        variables = {**globals(), **locals()}
-        #shell = code.InteractiveConsole(variables)
-        shell = HistoryConsole(variables)
-        shell.interact(banner=banner)
+# =============================================================================
+#     try:
+#         __IPYTHON__
+#         _in_ipython_session = True
+#     except NameError:
+#         _in_ipython_session = False
+#
+#     if _in_ipython_session:
+#         print(chr(128073) + ' For ipython do either "ipython -i flashcardz" or "from flashcardz import *"\n')
+#
+#     if not sys.flags.interactive and not _in_ipython_session :
+#         vi = sys.version_info
+#         banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+#                   'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
+#                   'Excecute "functions()" (w/o quotes) for info about running this program.\n')
+#         variables = {**globals(), **locals()}
+#         #shell = HistoryConsole(variables)
+#         shell = code.InteractiveConsole(variables)
+#         shell.interact(banner=banner)
+# =============================================================================
 
 
 
