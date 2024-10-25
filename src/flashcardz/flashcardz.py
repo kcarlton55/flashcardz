@@ -384,7 +384,7 @@ def add(word, definition):
     '''
     if word and definition and type(word) == str and type(definition) == str:
         _cards = _open()
-        word = word.replace(delimiter, substitute)
+        word = word.replace(delimiter, substitute).strip()
         definition = definition.replace(delimiter, substitute)
         for i, x in enumerate(_cards):
             # word from _cards (x[0]), all white space removed, & lower case
