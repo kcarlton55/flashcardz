@@ -520,8 +520,6 @@ def _open():
                 ln = len(_card)
                 if 1 < ln < 3:
                     del _card[2:]
-                    #_card.append(today)
-                    #_card.append('0')
                     _card.append('0')
                 elif ln == 1:
                     print('\nSomething is wrong with your data file.  At least one line in the file contains\n'
@@ -803,18 +801,16 @@ def go(shuffle=True):
 
     if missed:
         print('\n' + 80*'_')
-        percent_correct = str(
-            int(100 * (len(_cards) - len(missed))/len(_cards)))
-        if int(percent_correct) >= 80:
-            print(f'{percent_correct}% answered correctly!')
-        else:
-            print(f'{percent_correct}% answered correctly')
+        percent = str(int(100*(len(_cards) - len(missed))/len(_cards)))
+        print(f'{percent}% answered correctly!')
         print('These are the words you missed: \n')
+        im0 = []
         for m in missed:
-            for i, c in enumerate( _cards):
-                if c[0] == m[0]:
-                    break
-            print(f'{i}. {m[0]}')
+            i = _cards.index(m)
+            im0.append([i, m[0]])
+        im0.sort(key=lambda x: x[0])
+        for k in im0:
+            print(f'{k[1]}') if abort and unwanted else print(f'{k[0]}. {k[1]}')
         print()
     else:
         print('\n' + 80*'_')
@@ -822,8 +818,6 @@ def go(shuffle=True):
             print('Card deck is empty.  Please add data.')
         else:
             print('100% of list answered correctly!')
-
-
     if not abort:
         _save(_cards)
 
