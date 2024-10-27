@@ -386,6 +386,8 @@ def add(word, definition):
         _cards = _open()
         word = word.replace(delimiter, substitute).strip()
         definition = definition.replace(delimiter, substitute)
+        #word = add_italics(word)
+        #definition = add_italics(definition)
         for i, x in enumerate(_cards):
             # word from _cards (x[0]), all white space removed, & lower case
             x0 = ''.join(x[0].split()).lower()
@@ -561,7 +563,9 @@ def cards(cmd=True, i=None):
         URL links (see add() function) can exists in the description field of
         for a given word.  If so, then i represents the 1st, 2nd, etc. link.
         Entering that number will cause a web browser to open that link.
-        Note: this only works if "cmd" is an integer.
+        If i is a negative number, show link, and and show any codes that user
+        inputted to color any text.  Note: this only works if "cmd" is an
+        integer.
 
     Returns
     -------
@@ -594,47 +598,55 @@ def cards(cmd=True, i=None):
     try:
         _cards = _open()
         separator = 35*'-'
-        if type(cmd) == int and i == None:
+        if type(cmd) == int and i == None:  # Show one word and its decrip
             j = cmd
             _card = _cards[j]
+            word = modify_text(_card[0])
             desc = _hide_urls(_card[1])
-            print(f'\n{_card[0]}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, int) and i < 0:
+            desc = modify_text(desc)
+            print(f'\n{word}\n\n{desc}')
+        elif type(cmd) == int and isinstance(i, int) and i < 0:  # w/ urls & color codes
             j = cmd
             _card = _cards[j]
             desc = _card[1]
             print(f'\n{_card[0]}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, str) and i == '-0':
+        elif type(cmd) == int and isinstance(i, str) and i == '-0':  # w/ urls & color codes
             j = cmd
             _card = _cards[j]
             desc = _card[1]
             print(f'\n{_card[0]}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, int):
+        elif type(cmd) == int and isinstance(i, int):  # open url at position i
             j = cmd
             _card = _cards[j]
             webbrowser.open(_url_at(_card[1], i))
-        elif type(cmd) == list:
+        elif type(cmd) == list:  # show words and defintions of the list
             lst = cmd
             for j in lst:
                 _card = _cards[j]
+                word = modify_text(_card[0])
                 desc = _hide_urls(_card[1])
+                desc = modify_text(desc)
                 text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                            f'{j}. {_card[0]}\n' + f'{desc}')
+                            f'{j}. {word}\n' + f'{desc}')
                 print(text2)
-        elif type(cmd) == range:
+        elif type(cmd) == range:  # show words and defintions for a range of ints.
             rng = cmd
             for j in rng:
                 _card = _cards[j]
+                word = modify_text(_card[0])
                 desc = _hide_urls(_card[1])
+                desc = modify_text(desc)
                 text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                            f'{j}. {_card[0]}\n' + f'{desc}')
+                            f'{j}. {word}\n' + f'{desc}')
                 print(text2)
         else:
-            for j, _card in enumerate(_cards):
+            for j, _card in enumerate(_cards):  # show a list of all cards.  If cmd==False, also show definitions
+                word = modify_text(_card[0])
                 desc = _hide_urls(_card[1])
-                text1 = f'{j}. {_card[0] : <30} (tally: {_card[2] : >})'
+                desc = modify_text(desc)
+                text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
                 text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                         f'{j}. {_card[0]}\n' + f'{desc}')
+                         f'{j}. {word}\n' + f'{desc}')
                 print(text1) if (cmd == 1 or cmd == True) else print(text2)
     except:
         print('Error at function named cards.')
@@ -724,7 +736,7 @@ def go(shuffle=True):
         hide_url = True
         while loop:
             print(35*'-' + ' tally: ' + str(_cards[k][2]) + ' ' + 35*'-')
-            print(f'{number} of {number_of_cards}.  {_cards[k][0]}')  # _cards[k][0] is "word"
+            print(f'{number} of {number_of_cards}.  {modify_text(_cards[k][0])}')  # _cards[k][0] is "word"
             if flag:  # pause after word shown, but pause only once.
                 flag = False
                 ans0 = input()
@@ -732,8 +744,10 @@ def go(shuffle=True):
                     return
             if hide_url:
                 desc = _hide_urls(_cards[k][1])  # _cards[k][1] is "description"
+                desc = modify_text(desc)
             else:
                 desc = _cards[k][1]
+                desc = modify_text(desc)
             print(f'{desc}\n')
             ans = input(correcttext)
 
@@ -967,6 +981,40 @@ def _url_at(text, i):
         print('Error at function named _url_at.')
         print("    list index out of range")
         return None
+
+
+def modify_text(text):
+    # k=black, r=red, g=green, y=yellow, b=blue, m=purple, c=cyan, w=white
+    # i=italics, 1=bold, u=underline
+    colors = {'k':'30', 'r':'31', 'g':'32', 'y':'33', 'b':'34',
+              'p':'35', 'c':'36', 'w':'37'}
+    mods = {'i':'3', '1':'1', 'u':'4'}
+    backgrounds = {'K':'40','R':'41', 'G':'42', 'Y':'43', 'B':'44',
+                   'P':'45', 'C':'46', 'W':'47'}
+    dics = {**colors, **mods, **backgrounds}
+    pattern = r'<(\w+)>(.+?)<>'
+    lst = re.findall(pattern, text)
+    for l in lst:
+        code = ['\033[', '0;']
+        for x in l[0]:
+            if x in dics:
+                code.append(dics[x])
+                code.append(';')
+        code.pop()
+        code.append('m')
+        code = ''.join(code)
+        old_value = f'<{l[0]}>{l[1]}<>'
+        new_value = (code + l[1] + '\033[0m')
+        text = text.replace(old_value, new_value)
+    return text
+
+
+
+
+
+
+
+
 
 
 # =============================================================================
