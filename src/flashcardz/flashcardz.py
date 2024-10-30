@@ -50,6 +50,7 @@ substitute = ';'     # if when file saved, save any pipe symbols as semicolons
 def version():
     print(__version__)
 
+
 def _remains_at(setting):
     """
     This is subfunction called by _setpathname(), etc.
@@ -284,8 +285,8 @@ def functions():
 
      "The primary functions are add(), cards(), and go().\n\n"
 
-     "Enter help(functionname) to learn more about a function.  Enter print(__doc__)\n"
-     "to see overview docs.\n\n"
+     "Enter help(functionname) to learn more about a function.  Enter\n"
+     "print(__doc__) to see an overview of this program.\n\n"
 
      "Examples\n"
      "--------\n\n"
@@ -297,36 +298,41 @@ def functions():
 
 
 def add(word, definition):
-    ''' Add a new card to your card deck.  This function will automatically
+    """ Add a new card to your card deck.  This function will automatically
     open the file that contains your deck of cards, add your new card, and then
     save the updated data to your file.
 
     Parameters
     ----------
     word : string
-        New word to add to the deck of cards.  (A string is text surrounded
-        by quotation marks, e.g. "house (noun)"; though triple quotes make
-        working with the comannd line window easier, i.e. """house (noun)""")
+        New word to add to the deck of cards.  (A string is text surrounded by
+        quotation marks, e.g. 'house (noun)'; though triple quotes works and at
+        times aids in the task of adding and editing cards. i.e.
+        '''house (noun)''')
+
     definition : string
-        Definition of the word.  Surround your string (i.e. text) with
+        Definition of the word.  Surround your string (i.e. the text) with
         quotation marks.  If your string is multiline, surround your string by
         triple quotes, e.g.:
-        """ a building that serves as living quarters for one or a few
-        families; a shelter, refuge."""
+        ''' a building that serves as living quarters for one or a few
+        families; a shelter, refuge.'''
 
         URL links can be included within a description.  URL links must have
-        the form [some text](a url).  For example, a description may look like:
+        the form [some text](a url).  For example, a description with a URL
+        line will look like may look like: '''blah blah blah
+        [connect to google](https://www.google.com/) blah blah'''.  Therefore
+        use brackets, [], and parenthesis, (), to create a line.  See help(go)
+        and help(cards) to see how a user is to activate these links.
 
-        """blah blah blah [connect to google](https://www.google.com/) blah
-        blah [John 3:16](https://www.biblegateway.com/passage/?search=john%203%3A16&version=NKJV)
-        blah blah blah [youtube](https://www.youtube.com/)"""
-
-        See help(go) and help(cards) to see how to activate links.
+        You can portions of your text highlighted with italics, underlined,
+        or have a different color text such as red or green.  To learn how to
+        do this, read the doumentation at an internal function that flashcardz
+        uses by entering: help(_modify_text)
 
     Examples
     --------
 
-    >>> add("taza nf", "(bol pequeño con asa)  cup n, mug n")
+    >>> add('taza nf', '(bol pequeño con asa)  cup n, mug n')
 
 
     #  When go() is run, word and desription will show as:
@@ -336,11 +342,11 @@ def add(word, definition):
     #    (bol con asa)  cup n, mug n
 
 
-    >>> add("""correr vi""",
-        """(moverse deprisa)
+    >>> add('''correr vi''',
+        '''(moverse deprisa)
            run vi
            (rush) get a move on v expr
-           go quickly, go fast vi + adv""")
+           go quickly, go fast vi + adv''')
 
 
     #  When go() is run, word and desription will show as:
@@ -351,21 +357,16 @@ def add(word, definition):
     #         run vi
     #         (rush) get a move on v expr
     #         go quickly, go fast vi + adv
-    #
-    #  Note: make sure to put a closing ) at the end.
-    #  Note: \\n, and \\t are special character combinations that you can use.
-    #  \\n is a "new line" character; i.e. a new line will be entered into
-    #  your text.  \\t is a "tab" character.  It will enter a tab space.
 
 
-    >>> w = "correr vi"
+    >>> w = 'correr vi'
 
-    >>> d = """(moverse deprisa)
-    \\t run vi
-    \\t (rush) get a move on v expr
-    \\t go quickly, go fast vi + adv"""
+    >>> d = '''(moverse deprisa)
+            run vi
+            (rush) get a move on v expr
+            go quickly, go fast vi + adv'''
 
-    >>> print(d)   # shows the description and the effect of \\t
+    >>> print(d)   # Not necessary to use.  Shows a preview of output.
 
     >>> add(w, d)
 
@@ -373,29 +374,25 @@ def add(word, definition):
     #  This is another way to achieve the same result as the previous example.
     #
     #  Tip 1: If the definition you entered isn't to your satifaction, push the
-    #  up key so that the add function you previously entered reappears; then
-    #  edit it.  (When you use the add function, if you use the EXACT same word
-    #  (i.e. exact same characters, spaces in exactly the same locations, etc.),
-    #  the new defintion that you enter will replace the old definition.)
+    #  up key so that the add function you previously entered reappears, then
+    #  edit the definition. (Word cannot change, otherwise deck will be added
+    #  to instead of a card revised.)
     #
-    #  Tip 2: When pasting a word and/or its defintion, start with add(""" and
-    #  then paste.  To move the cursor within your pasted text, use the key
+    #  Tip 2: When pasting a word AND its defintion, is is recommended to start
+    #  with add(''' and then paste text that you copied from some source.  To
+    #  move the cursor within your pasted text in order to edit it, use the key
     #  board's arrow keys.
-    '''
+    """
     if word and definition and type(word) == str and type(definition) == str:
         _cards = _open()
         word = word.replace(delimiter, substitute).strip()
-        definition = definition.replace(delimiter, substitute)
-        #word = add_italics(word)
-        #definition = add_italics(definition)
+        definition = definition.replace(delimiter, substitute).strip()
+        word0 = ''.join(word.split()).lower()  # white space removed
         for i, x in enumerate(_cards):
-            # word from _cards (x[0]), all white space removed, & lower case
             x0 = ''.join(x[0].split()).lower()
-            # new word from user (word), all white space removed, & lower case
-            word0 = ''.join(word.split()).lower()
             if x0 == word0:  # if word already in _cards, delete it to replace with new
                 _cards.pop(i)
-                _cards.append([word, definition, x[2]])
+                _cards.insert(i, [word, definition, x[2]])
                 break
         else:
             _cards.append([word, definition, 0])
@@ -410,9 +407,8 @@ def add(word, definition):
 
 def delete(number=None):
     '''
-    Delete a card from the deck.  Use words(), head(), or tail() to see the
-    number associated with a particular card.  Knowing that number allows you
-    to delete that card.
+    Delete a card from the deck.  Use cards() to see the row numbers that
+    correspond to the card in your deck.
 
     Parameters
     ----------
@@ -433,7 +429,7 @@ def delete(number=None):
     if not number == None:
         number = abs(int(float(number)))
     if number == None:
-        print('Card number to delete?  (Run function cards() (or head() or tail())')
+        print('Card number to delete?  (Run function cards()')
         print('to see what word corresponds to what number.)\n')
         number = input('Number: ')
     if isinstance(number, str):
@@ -458,7 +454,7 @@ def _save(_cards):
     opened with a text editor.  Furthermore, the file is structured in csv
     format, meaning that it can opened with Microsoft Excel.  Note that if you
     open the file with Excel, Excel may ask what delimiter the csv file uses.
-    The delimiter is the vertical bar character, |.
+    The delimiter you should use is the vertical bar character, |.
 
     Since the delimiter is a |, i.e. the character used separate column
     fields, | characters are not allowed in text that you enter for a word or
@@ -547,17 +543,16 @@ def cards(cmd=True, i=None):
 
     Parameters
     ----------
-    cmd (optional) : bool | int | list | range
+    cmd (optional) : bool | int | tuple
         if cmd == True (the default); show all words, but without their
             definitions.
         if cmd == False; show all words and their definitions.
         if type(cmd) == int (i.e. integer); at position "int" show word and its
             definition. (do "cards()" to see integers that correspond to words)
-        if type(cmd) == list; where list is a list of ints, at locations of
-            ints, show words and definitions.
-        if type(cmd) == range; show words and definitions starting at the
-            beginning int value in range, up to and not including the last
-            int value.
+        if type(cmd) == tuple, and the tuple contains intergers, with the first
+            integer smaller than the second, then show a list of cards starting
+            as integer 1 and ending at, and including, integer 2.  (A tuple is
+            a set of values surround by parenthesis, e.g., (5, 9))
 
     i : int
         URL links (see add() function) can exists in the description field of
@@ -584,92 +579,89 @@ def cards(cmd=True, i=None):
     >>> cards(8)
 
     # Open a web browser and with it open the 2nd link shown in the
-    # description for card 8.  (Links are surrounded by brackets, []).
+    # description for card 8.  (Links will be seen surrounded by brackets, []).
     >>> cards(8, 2)
 
-    # Show word and its defintion at postions 5, 7 and 10:
-    >>> cards([5, 7, 10])
+    # Show card 8, but this time show the url, e.g. https://www.python.org/,
+    # and also show any code that the user entered to italicize, underline, or
+    # color an portions of text.
+    >>> cards(-8)
 
-    # Show words and their defintions starting and position 5 and ending at
-    # postion 12
-    >>> cards(range(5, 13))
+    # This is, enter card 8 as a negative number.
+
+    # Show to the user a list cards, 5 to 9:
+    >>> cards((5, 9))
 
     """
-    try:
-        _cards = _open()
-        separator = 35*'-'
-        if type(cmd) == int and i == None:  # Show one word and its decrip
-            j = cmd
+    _cards = _open()
+    separator = 35*'-'
+    if type(cmd) == int and cmd >=0 and i == None:  # Show one word and its decrip
+        j = cmd
+        _card = _cards[j]
+        word = _modify_text(_card[0])
+        desc = _hide_urls(_card[1])
+        desc = _modify_text(desc)
+        k = "'''" if  '\n' in word else "'"
+        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
+    elif type(cmd) == int and cmd < 0 and i == None:  # w/ urls & color codes
+        j = abs(cmd)
+        _card = _cards[j]
+        word = _card[0]
+        desc = _card[1]
+        k = "'''" if  '\n' in word else "'"
+        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
+    elif type(cmd) == float and (-.9999 <= cmd < 0) and i == None:  # w/ urls & color codes
+        j = 0
+        _card = _cards[j]
+        word = _card[0]
+        desc = _card[1]
+        k = "'''" if  '\n' in word else "'"
+        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
+    elif type(cmd) == int and isinstance(i, int):  # open url at position i
+        j = abs(cmd)
+        _card = _cards[j]
+        webbrowser.open(_url_at(_card[1], i))
+
+    elif (type(cmd) == tuple and len(cmd) ==  2 and cmd[0] < cmd[1]
+            and cmd[0] >= 0):
+        for j in range(cmd[0], cmd[1]+1):
             _card = _cards[j]
-            word = modify_text(_card[0])
+            word = _modify_text(_card[0])
             desc = _hide_urls(_card[1])
-            desc = modify_text(desc)
-            print(f'\n{word}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, int) and i < 0:  # w/ urls & color codes
-            j = cmd
-            _card = _cards[j]
-            desc = _card[1]
-            print(f'\n{_card[0]}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, str) and i == '-0':  # w/ urls & color codes
-            j = cmd
-            _card = _cards[j]
-            desc = _card[1]
-            print(f'\n{_card[0]}\n\n{desc}')
-        elif type(cmd) == int and isinstance(i, int):  # open url at position i
-            j = cmd
-            _card = _cards[j]
-            webbrowser.open(_url_at(_card[1], i))
-        elif type(cmd) == list:  # show words and defintions of the list
-            lst = cmd
-            for j in lst:
-                _card = _cards[j]
-                word = modify_text(_card[0])
-                desc = _hide_urls(_card[1])
-                desc = modify_text(desc)
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                            f'{j}. {word}\n' + f'{desc}')
-                print(text2)
-        elif type(cmd) == range:  # show words and defintions for a range of ints.
-            rng = cmd
-            for j in rng:
-                _card = _cards[j]
-                word = modify_text(_card[0])
-                desc = _hide_urls(_card[1])
-                desc = modify_text(desc)
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                            f'{j}. {word}\n' + f'{desc}')
-                print(text2)
-        else:
-            for j, _card in enumerate(_cards):  # show a list of all cards.  If cmd==False, also show definitions
-                word = modify_text(_card[0])
-                desc = _hide_urls(_card[1])
-                desc = modify_text(desc)
-                text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
-                text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                         f'{j}. {word}\n' + f'{desc}')
-                print(text1) if (cmd == 1 or cmd == True) else print(text2)
-    except:
-        print('Error at function named cards.')
-        print('    Data file nonexistant or corrupt?  Was csv file saved with | as delimiter?')
+            desc = _modify_text(desc)
+            text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
+            text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+                     f'{j}. {word}\n' + f'{desc}')
+            print(text1)
+    else:
+        for j, _card in enumerate(_cards):  # show a list of all cards.  If cmd==False, also show definitions
+            word = _modify_text(_card[0])
+            desc = _hide_urls(_card[1])
+            desc = _modify_text(desc)
+            text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
+            text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+                     f'{j}. {word}\n' + f'{desc}')
+            print(text1) if (cmd == 1 or cmd == True) else print(text2)
 
 
 def go(shuffle=True):
     '''
     First the deck of cards in shuffled.  Then one by one each card is shown
     to the user.  First the word is shown.  The user looks at the word and
-    tries to figure out what the word means.  Then the user hits any key.
+    tries to figure out the meaning of the word.  Then the user hits any key.
     The defintion is then shown.  The user is asked if he/she knew what the
-    word meant.  If he/she answere yes, then the tally is incremented
-    by one.  (Tally is the number of times the user knew what the word means.)
-    If the user didn't know, the the tally for that word is reset to zero
-    (or another value defined in the program's settings).
+    word means.  If he/she answers yes, then the tally is incremented by one.
+    (Tally is the number of times the user knew what the word means.)  If the
+    user didn't know, the the tally for that word is reset to zero (or another
+    value defined by the setting that the user set).
 
-    Once a max tally is reached (determined by the program's settings), the
+    Once a max tally is reached (determined by the user's settings), the
     card is removed from the deck.
 
     When go() is run, the file that contains the card deck is opened.  After
     all the cards are viewed by the user, the updated card deck is saved.  If
-    the user aborts before go() is finished, results are not saved.
+    the user aborts viewing the cards before go() is finished, results are not
+    saved.
 
     Parameters
     ----------
@@ -693,9 +685,8 @@ def go(shuffle=True):
     print("     Y or the Enter key = you knew the definition")
     print("     n = you did not know the definition")
     print("     i = input an integer instead of i.  That is, enter 1, 2, 3, etc..  i is")
-    print("         the 1st, 2nd, 3rd, etc. url link within a description; that is, if the")
-    print("         link exists.  Links are enclosed in brackets, [].  Enter a negative")
-    print("         number if you wish to see the url appear in the description.")
+    print("         the 1st, 2nd, 3rd, etc. url link within a description (that is, if the")
+    print("         link exists).  Links are enclosed in brackets, [].")
     if _settings['abort'] == True:
         abort = True
         print('     (Note: _settings["abort"] = True.  RESULTS WILL NOT BE SAVED!)')
@@ -708,11 +699,12 @@ def go(shuffle=True):
     ans1 = input("Press any key to start. ")
     if ans1 and (ans1[0].lower() == 'q' or ans1[0].lower() == 'e'):
         return
+
     print("\nHere we go!")
 
     _cards = _open()
     index_list = [i for i in range(0, len(_cards))]
-    if shuffle == True:
+    if shuffle == True and len(_cards) > 2:
         print("\nShuffling cards ", end='')
         for i in range(15):
             print(">", end='')
@@ -733,31 +725,22 @@ def go(shuffle=True):
         number += 1
         loop = True
         flag = True
-        hide_url = True
         while loop:
             print(35*'-' + ' tally: ' + str(_cards[k][2]) + ' ' + 35*'-')
-            print(f'{number} of {number_of_cards}.  {modify_text(_cards[k][0])}')  # _cards[k][0] is "word"
+            print(f'{number} of {number_of_cards}.  {_modify_text(_cards[k][0])}')  # _cards[k][0] is "word"
             if flag:  # pause after word shown, but pause only once.
                 flag = False
                 ans0 = input()
                 if ans0 and (ans0[0].lower() == 'q' or ans0[0].lower() == 'e'):
                     return
-            if hide_url:
-                desc = _hide_urls(_cards[k][1])  # _cards[k][1] is "description"
-                desc = modify_text(desc)
-            else:
-                desc = _cards[k][1]
-                desc = modify_text(desc)
+            desc = _hide_urls(_cards[k][1])  # _cards[k][1] is "description"
+            desc = _modify_text(desc)
             print(f'{desc}\n')
             ans = input(correcttext)
 
             if ans and ans.isnumeric():
-                hide_url = True
                 webbrowser.open(_url_at(_cards[k][1], int(ans)))
-            elif ans and ans[0] == '-' and ans[1:] and ans[1:].isnumeric():
-                hide_url = False
             elif ans and ans[0].lower() == 'i':
-                hide_url = True
                 print('\n    Entering "i" is inappropriate.  Instead enter 1, 2, 3, etc., depending on')
                 print('    which URL link is shown in brackets, [], that you wish to activate; i.e. the')
                 print('    1st, 2nd, 3rd.\n')
@@ -765,13 +748,12 @@ def go(shuffle=True):
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                hide_url = True
                 correcttext = 'Correctly answered? (Y/n/i/q) '
                 print("    " + 75*"—")
                 print('     Results will NOT be recorded when go() completes its run')
                 print("    " + 75*"—")
+                # loop = True is the default, so user will be asked again... Y/n/i/a/q
             elif ans and ans[0].lower() == 'a' and abort == True:
-                hide_url = True
                 abort = False
                 correcttext = 'Correctly answered? (Y/n/i/a/q) '
                 print("    " + 75*"—")
@@ -845,7 +827,7 @@ def _get_settingsfn():
 
     If the pathname does not already exists, it will be created, and default
     settings will be inserted into the file, i.e.
-    {"maxtally": "10", "abort": "False",  ...}
+    {"maxtally": "10", "abort": "False", etc. }
     '''
 
     if sys.platform[:3] == 'win':  # if a Window operating system being used.
@@ -904,7 +886,8 @@ def _read_settingsfn():
                " !!! Unable to open settings.txt file which allows the program to remember user\n"
                " !!! settings.  To fix, try deleting the file that contains these settings.\n"
                " !!! When this program sees that this file is missing, it will be recreated with\n"
-               " !!! with default settings.  This file is located at:\n !!!\n !!! ")
+               " !!! with default settings.  This file is located at:\n !!!\n"
+               + e)
         msg += _get_settingsfn()
         print(msg)
 
@@ -983,12 +966,53 @@ def _url_at(text, i):
         return None
 
 
-def modify_text(text):
-    # k=black, r=red, g=green, y=yellow, b=blue, m=purple, c=cyan, w=white
-    # i=italics, 1=bold, u=underline
+def _modify_text(text):
+    '''An internal function of flashcardz.  Facilitates the user to insert ansi
+    escape codes into his text.  This then allows the user to show selected
+    text underlined, italicized, and/or colorized.  For example, if a word
+    description is "my long, lengthy description", and the user adds special
+    coding within it like "my long, <g>lengthy<> description", then text
+    "lengthy" will be shown with green letters to the user.
+
+    The keys that may be used to alter text are:
+    k=black, r=red, g=green, y=yellow, b=blue, p=purple, c=cyan, w=white
+    i=italics, 1=bold, u=underline
+
+    Making text bold (code "1") makes colors brighter.
+
+    Background colors to text can also be added.  Background color keys are:
+    K=black, R=red, G=green, Y=yellow, B=blue, P=purple, C=cyan, W=white
+
+    More than one code can be entered at a time, for example
+    "my long, <g1ui>lengthy<> description" will make "lengthy" bright green,
+    underlined, and with italicized text.
+
+    As you will have already noticed, the syntax is:
+    <code letters>text to modify<>
+
+    Note:  Altering text as described above may not work on your system.  It
+    depends on whether the operating system, the version of the operating
+    system, and whether the console support it or not.
+
+    Parameters
+    ----------
+    text : string
+        The text to alter.  The text should include the codes that are to alter
+        the text.
+
+    Returns
+    -------
+    text : string
+        Returns the same text that was input to the function, but ansi escape
+        codes replace the user supplied codes.  These ansi escape codes will
+        look like \033[0;32mtext to modify\033[0m.  (The user will never see
+        this code.)  In this example, the text will be shown green.  If the
+        user entered no code, then the text remains unchanged.
+
+    '''
     colors = {'k':'30', 'r':'31', 'g':'32', 'y':'33', 'b':'34',
               'p':'35', 'c':'36', 'w':'37'}
-    mods = {'i':'3', '1':'1', 'u':'4'}
+    mods = {'i':'3', '1':'1', 'u':'4', '0':'22'}
     backgrounds = {'K':'40','R':'41', 'G':'42', 'Y':'43', 'B':'44',
                    'P':'45', 'C':'46', 'W':'47'}
     dics = {**colors, **mods, **backgrounds}
