@@ -28,11 +28,13 @@ Words and defintionions can also be imported from an Excel file.
 ## **Features**
 * Cost: Free (as the wind).
 * Easy addition of words and defintions via copy and paste.
-* Can add links to urls into cards
-* Can import word and definitions from an Excel file.
-* Deck of cards shuffled before each viewing.
-* Score kept of number of times the word's definitions correcty known.
+* User can add links to urls into cards.
+* Can import words and definitions from an Excel file.
+* Deck of cards is shuffled before each viewing.
+* Score kept of number of times the word's definitions are correcty known.
 * Card automatically removed once max score has been reached.
+* Can highlight portions of text with underscores, italics, or colors.
+* flashcardz needs no supporting files. Only the basic python program is needed.
 
 
 ## **How to install**
@@ -41,8 +43,8 @@ installed on your computer.  By the way, both are free to install and
 use.
 
 To install python, download the program from its home site,
-[python.org](https://www.python.org/).  Then install it.  Please download the
-latest version of python, 3.8 or later.
+[python.org](https://www.python.org/).  Then install it.  Download version 3.8
+or later.
 
 To install flashcardz.py, open a Window's command prompt (references:
 1. [youtube video](https://www.youtube.com/watch?v=uE9WgNr3OjM),
@@ -72,7 +74,7 @@ Here is how to update flashcardz to the latest version, or uninstall it:
 ```
 
 If you do not wish to use pip to install, there is an alternative method
-(requires and alternative method to start up flashcardz... see below).
+(requires an alternative method to start up flashcardz... see below).
 Download flashcardz from its home on github:
 [github.com/kcarlton55/flashcardz](https://github.com/kcarlton55/flashcardz).
 Click the "Code" button,and then pick "Download zip".  In the zip file that you
@@ -94,25 +96,24 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-In the above example, C:\Users\Ken> is the prompt that automatically appears on
+In the above example, C:\Users\Ken> is the Windows command prompt that shows on
 my computer.  It will be different on yours.  When you execute *py*, python
 will show some information reguarding the python version you are using (i.e.
-Python 3.12.2 (tags/v3.12.2:6abddd9, and so forth) You can ignore this.  Then
-python shows its prompt, i.e. a chevron (>>>), and waits for you to enter data
-or a command.  Enter your first command in order to load flashcardz into
-memory:
+Python 3.12.2 (tags, etc.) You can ignore this.  Then python shows its prompt,
+i.e. a chevron (>>>), and then waits for you to enter a command.  Enter your
+first command in order to load flashcardz into memory:
 
 ```
 >>> from flashcardz import *
 ```
 
 This imports a number of functions that can be used to control the flashcardz
-program including add(), cards(), and  go().  Typing help(functionname) will
-show information about what a particular function does; for example help(go).
+program including add(), cards(), and  go().  Typing help(functions), help(go),
+help(cards) etc. will information about what a particular function does.
 
 If you did not use pip to install flashcardz, and instead obtained it from
-github.com (described above), then do the following: open up a command prompt
-(cmd) window in the location where flashcardz is located
+github.com (described above), then do the following: open up a command prompt,
+i.e. a cmd window in the file location where flashcardz.py is located
 ([Open Command Prompt in Current Folder or Directory](https://www.youtube.com/watch?v=bgSSJQolR0E))
 Then from the command prompt, do:
 
@@ -127,31 +128,30 @@ i.e. opens the python termial for input.
 To add data for flashcardz, run the add() function like this:
 
 ```
->>> add("amigo, amiga nm, nf", "(camarada) friend n buddy n")
+>>> add('amigo, amiga nm, nf', '(camarada) friend n buddy n')
 ```
 
-That is, the structure should be add("my word", "my definition").  Surround the
-word and definition by quotation marks.  Each time you use the add() function,
-the data you enter is added to a data file for later use.  If you would like to
-add a multiline defintion, do so like this:
+That is, the structure should be add('my word', 'my definition').  Each time
+you use the add() function, the data you enter is added to a data file for
+later use.  If you would like to add a multiline defintion, do so like this:
 
 ```
->>> add("""amigo, amiga nm, nf""",
-    """(camarada) friend n buddy n
+>>> add(''''amigo, amiga nm, nf''',
+    '''(camarada) friend n buddy n
 
     Nuestro primer viaje, a Cuzco, lo organizamos entre cuatro amigos.
     We organized our first trip, to Cuzco, among four friends.
 
-    [how to pronounce](https://www.wordreference.com/es/en/translation.asp?spen=amigo)""")
+    [how to pronounce](https://www.wordreference.com/es/en/translation.asp?spen=amigo)''')
 ```
 
-You'll notice, to enter a multiline definition, use three quotation marks, """,
-at the beginning and the end of the word and defintion.  Don't forget to close
+You'll notice, to enter a multiline definition, use three quotation marks, ''',
+at the beginning and the end of the word and definition.  Don't forget to close
 the function by adding a prenthesis at the end.  When you run the go() function,
-the defintion will show as six different lines, including black lines.  Also
-note, it is not necessary to type all this data in manually.  The easiest thing
-to do is to copy and paste from the site that has a dictionary for the language
-you are learning.
+the defintion above will show as six different lines, including blank lines.
+Also note: it is not necessary to type all this data in manually.  The easiest
+thing to do is to copy and paste from the site that has a dictionary for the
+language you are learning.
 
 Notice the last line in the defintion.  It is a URL link.  URL links are
 inserted into a word's definition using brackets and parenthesis using the
@@ -169,10 +169,10 @@ When the go() function is run, it automatically opens up the data file that
 contains your words and definions so that the information from it can be
 presented to you.  When the go() function completes its task, tallies are
 updated, and if that maximum tally for any word has been reached, that card is
-removed.
+removed from the deck
 
-When you want to exit python, enter either quit() or exit() (or quit or exit
-for python 3.13 and up):
+When you want to exit python, enter either quit() or exit() or Ctrl+D (or quit
+or exit for python 3.13 and up):
 
 ```
 quit()
@@ -195,16 +195,16 @@ a bug exists.)
 
 There is a problem using the normal way that Excel exports to a csv file.  The
 csv file that Excel exports to will have columns (i.e. the word and defintion
-columns) separated by commas.  But many times, like in the "add" example above,
-commas will be present in the definition.  This will result in flashcardz
-interpreting that data as having additional columns; columns that shouldn't
-exist.  This will cause the flashcardz program to crash.
+columns) separated by commas.  But many times, like shown in the "add" example
+above, commas will be present in the definition.  This will result in
+flashcardz interpreting that data as having additional columns; columns that
+shouldn't exist.  This will cause the flashcardz program to crash.
 
 To remedy this situation, flashcardz was instead coded to recognize the
-pipe/vertical bar character, |, as the separator (more specifcally called a
-delimiter).  Excel was somewhat poorly designed because Excel does not allow to
-change to a different delimiter when exporting.  But there is a relatively easy
-ework-around.  See this youtube video for how to do it:
+pipe, i.e. vertical bar character, |, as the separator (more specifcally called
+a delimiter).  Excel was somewhat poorly designed because Excel does not allow
+to change to a different delimiter when exporting.  But there is a relatively
+easy work-around.  See this youtube video for how to do it:
 [Export Data with Pipe Delimiters Instead of Commas](https://www.youtube.com/watch?v=jieWzHJjVBU)
 
 ## **Opening a flashcardz data file into Excel**
@@ -215,16 +215,9 @@ option to use a different delimiter other than a comma.  Use the vertical
 bar character, also called a pipe, |, as a delimiter.
 
 When you import your flashcardz data file into Excel, you will see that the
-flashcardz program has modified it slightly by adding additional columns other
-than the word and defintion columns.  Columns will be:
+flashcardz program has modified the data slightly by adding and additional, the
+tally column.
 
-word | definition | date | viewed | tally
-
-Date is the date that word was created.  Viewed is the number of times that a
-word has been viewed, and tally is the number of times that the user has
-correctly known the definition of a word.  If you add new words to the list,
-you do not need to enter data for date, viewed, and tally.  Flashcardz will
-automatically add this data when the program is run.
 
 
 
