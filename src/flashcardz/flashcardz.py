@@ -592,6 +592,12 @@ def cards(cmd=True, i=None):
     # Show to the user a list cards, 5 to 9:
     >>> cards((5, 9))
 
+    # Create a shortcut for youself:
+    >>> c = cards
+    >>> c(8)
+
+    # So then, now c() will do the same thing that cards() does.
+
     """
     _cards = _open()
     separator = 35*'-'
@@ -1069,18 +1075,19 @@ def _modify_text(text):
 
 _read_settingsfn()
 
+vi = sys.version_info
+banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+          'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
+          'Excecute "functions()" (w/o quotes) for info about running this program.\n')
+try:
+    if _settings['show_intro']:
+        print(banner)
+except:
+    print(banner)
+
 
 if __name__=='__main__':
-    vi = sys.version_info
-    banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
-              'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
-              'Excecute "functions()" (w/o quotes) for info about running this program.\n')
-    try:
-        if _settings['show_intro']:
-            print(banner)
-    except:
-        print(banner)
-
+    pass
 
 # =============================================================================
 #     try:
