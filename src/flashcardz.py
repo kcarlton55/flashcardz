@@ -297,37 +297,47 @@ def functions():
     print(f'\n{functions.__doc__}')
 
 
-def add(word, definition):
-    """ Add a new card to your card deck.  This function will automatically
+def add(word, definition, tally=None):
+    """ Add a new card to your card deck.  (This function will automatically
     open the file that contains your deck of cards, add your new card, and then
-    save the updated data to your file.
+    save the updated data to your file.)
 
     Parameters
     ----------
     word : string
-        New word to add to the deck of cards.  (A string is text surrounded by
-        quotation marks, e.g. 'house (noun)'; though triple quotes works and at
-        times aids in the task of adding and editing cards. i.e.
-        '''house (noun)''')
+        New word to add to the deck of cards.  (A string, by the way, in python
+        is text surrounded by quotation marks, e.g. 'house (noun)'; though
+        triple quotes works and at times aids in the task of adding and editing
+        cards. i.e. '''house (noun)''').
+
+        If a word is found to already exist (exact same letters) then the
+        definition of that word is replaced by the new definition that you
+        enter.
 
     definition : string
-        Definition of the word.  Surround your string (i.e. the text) with
-        quotation marks.  If your string is multiline, surround your string by
-        triple quotes, e.g.:
+        Definition of the word.  Surround your string with quotation marks.  If
+        your string is multiline, surround your string with triple quotes, e.g.:
         ''' a building that serves as living quarters for one or a few
         families; a shelter, refuge.'''
 
         URL links can be included within a description.  URL links must have
-        the form [some text](a url).  For example, a description with a URL
-        line will look like may look like: '''blah blah blah
-        [connect to google](https://www.google.com/) blah blah'''.  Therefore
-        use brackets, [], and parenthesis, (), to create a line.  See help(go)
-        and help(cards) to see how a user is to activate these links.
+        the form [some text](a url).  For example, a description which includes
+        a URL link will look like: '''blah blah blah
+        [connect to google](https://www.google.com/) blah blah'''.  See
+        help(go) and help(cards) to see how a user is to activate these links.
 
-        You can portions of your text highlighted with italics, underlined,
-        or have a different color text such as red or green.  To learn how to
-        do this, read the doumentation at an internal function that flashcardz
-        uses by entering: help(_modify_text)
+        You can have portions of your text highlighted with italics,
+        underlined, or have a different color text such as red or green.  To
+        learn how to do this, read the doumentation at an internal function
+        that flashcardz utilizes by entering: help(_modify_text)
+
+    tally : int
+        Set the tally to a value you choose. Normally let the program set
+        this value for you.  Tally is automaticaly set to 0 when you enter a
+        new word and definition.  If the word you enter already exists, then
+        tally is set to that of the preexisting value of that word.  However
+        you can override these automatic settings by entering a value that you
+        deem suitable.
 
     Examples
     --------
@@ -371,7 +381,7 @@ def add(word, definition):
     >>> add(w, d)
 
 
-    #  This is another way to achieve the same result as the previous example.
+    #  Using w and d as shown above is another way to achieve the same result.
     #
     #  Tip 1: If the definition you entered isn't to your satifaction, push the
     #  up key so that the add function you previously entered reappears, then
@@ -392,10 +402,12 @@ def add(word, definition):
             x0 = ''.join(x[0].split()).lower()
             if x0 == word0:  # if word already in _cards, delete it to replace with new
                 _cards.pop(i)
-                _cards.insert(i, [word, definition, x[2]])
+                t = tally if tally and isinstance(tally, int) else x[2]
+                _cards.insert(i, [word, definition, t])
                 break
         else:
-            _cards.append([word, definition, 0])
+            t = tally if tally and isinstance(tally, int) else 0
+            _cards.append([word, definition, t])
         print(f'\n{word}\n\n{definition}\n')
         print('Number of cards now at: ', len(_cards))
         print()
@@ -578,6 +590,9 @@ def cards(cmd=True, i=None):
     # (To see postion numbers, issue the "cards()" command.)
     >>> cards(8)
 
+    # Same as above, but remove any invisible, lurking tab characters:
+    >>> cards('8')
+
     # Open a web browser and with it open the 2nd link shown in the
     # description for card 8.  (Links will be seen surrounded by brackets, []).
     >>> cards(8, 2)
@@ -585,18 +600,14 @@ def cards(cmd=True, i=None):
     # Show card 8, but this time show the url, e.g. https://www.python.org/,
     # and also show any code that the user entered to italicize, underline, or
     # color an portions of text.
-    >>> cards(-8)
-
-    # This is, enter card 8 as a negative number.
+    >>> cards(-8)    # i.e., enter card 8 as a negative number.
 
     # Show to the user a list cards, 5 to 9:
     >>> cards((5, 9))
 
-    # Create a shortcut for youself:
+    # Create a shortcut for youself (make a copy of the cards function):
     >>> c = cards
     >>> c(8)
-
-    # So then, now c() will do the same thing that cards() does.
 
     """
     _cards = _open()
@@ -623,11 +634,25 @@ def cards(cmd=True, i=None):
         desc = _card[1]
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
+    elif isinstance(cmd, str) and cmd.isnumeric() and i == None:
+        j = int(cmd)
+        _card = _cards[j]
+        word = _modify_text(_card[0]).replace('\t', ' ')
+        desc = _hide_urls(_card[1])
+        desc = _modify_text(desc).replace('\t', ' ')
+        k = "'''" if  '\n' in word else "'"
+        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
+    elif isinstance(cmd, str) and cmd[1] == '-' and cmd[1:].isnumeric() and i == None:
+        j = abs(int(cmd))
+        _card = _cards[j]
+        word = _card[0].replace('\t', ' ')
+        desc = _card[1].replace('\t', ' ')
+        k = "'''" if  '\n' in word else "'"
+        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
     elif type(cmd) == int and isinstance(i, int):  # open url at position i
         j = abs(cmd)
         _card = _cards[j]
         webbrowser.open(_url_at(_card[1], i))
-
     elif (type(cmd) == tuple and len(cmd) ==  2 and cmd[0] < cmd[1]
             and cmd[0] >= 0):
         for j in range(cmd[0], cmd[1]+1):
@@ -702,7 +727,7 @@ def go(shuffle=True):
     print("    " + 75*"—")
 
     print()
-    ans1 = input("Press any key to start. ")
+    ans1 = input("Press Enter to start. ")
     if ans1 and (ans1[0].lower() == 'q' or ans1[0].lower() == 'e'):
         return
 
@@ -982,7 +1007,7 @@ def _modify_text(text):
 
     The keys that may be used to alter text are:
     k=black, r=red, g=green, y=yellow, b=blue, p=purple, c=cyan, w=white
-    i=italics, 1=bold, u=underline
+    i=italics, 1=bold, u=underline, x=cross out.
 
     Making text bold (code "1") makes colors brighter.
 
@@ -1018,7 +1043,7 @@ def _modify_text(text):
     '''
     colors = {'k':'30', 'r':'31', 'g':'32', 'y':'33', 'b':'34',
               'p':'35', 'c':'36', 'w':'37'}
-    mods = {'i':'3', '1':'1', 'u':'4', '0':'22'}
+    mods = {'i':'3', '1':'1', 'u':'4', '0':'22', 'x': '9'}
     backgrounds = {'K':'40','R':'41', 'G':'42', 'Y':'43', 'B':'44',
                    'P':'45', 'C':'46', 'W':'47'}
     dics = {**colors, **mods, **backgrounds}

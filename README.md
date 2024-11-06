@@ -46,18 +46,15 @@ To install python, download the program from its home site,
 [python.org](https://www.python.org/).  Then install it.  Download version 3.8
 or later.
 
-To install flashcardz.py, open a Window's command prompt (references:
-1. [youtube video](https://www.youtube.com/watch?v=uE9WgNr3OjM),
-2. [command prompt basics](https://www.makeuseof.com/tag/a-beginners-guide-to-the-windows-command-line/)),
-or  open the equavalent for your operating system, and enter:
-
+To install flashcardz.py, open a Window's command prompt
+([how to open a command prompt](https://www.youtube.com/watch?v=uE9WgNr3OjM),
+[command prompt basics](https://www.makeuseof.com/tag/a-beginners-guide-to-the-windows-command-line/))
+and enter into the command prompt:
 ```
-pip install flashcardz    <<< UNDER CONSTRUCTION.  This has not been set up yet for flashcardz
+pip install flashcardz
 ```
-
-This installs flashcardz within your python installation.  Pip is a program
-that you automatically installed when you installed python.  That is, python
-installed it for you.
+This installs flashcardz on your computer.  Pip is a program is automatically
+installed when python gets installed.
 
 Pip (Preferred Installer Program) is used by python to manage python packages
 like flashcardz.py.  You can use it to install python packages, uninstall them,
@@ -65,8 +62,7 @@ or update them.  There are various sites on the web that describe how to use
 pip.  Among them is this site:
 [How to use pip](https://note.nkmk.me/en/python-pip-usage/).
 
-Here is how to update flashcardz to the latest version, or uninstall it:
-
+Here is how to update flashcardz to the latest version or uninstall it:
 ```
 >>> pip upgrade flashcardz
 
