@@ -42,7 +42,7 @@ import webbrowser
 #import atexit
 
 
-__version__ = '0.1.0'   # PEP 440 - describes versions
+__version__ = '0.2.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, save any pipe symbols as semicolons
 
@@ -60,9 +60,12 @@ def _remains_at(setting):
     setting : str
         Name of the setting to report info on
     """
-    s = _settings[setting]
-    print('\nProgram setting remains at:')
-    print(f'    _settings["{setting}"] = {s}')
+    try:
+        s = _settings[setting]
+        print('\nProgram setting remains at:')
+        print(f'    _settings["{setting}"] = {s}')
+    except:
+        pass
 
 
 def _changed_to(setting):
@@ -127,7 +130,6 @@ def _setshow_intro():
     """
     Change the setting named "show_intro" to True or False.  If set to True,
     then flashcardz will introduce itself when the flashcardz program starts."""
-
     global _settings
     print(_setshow_intro.__doc__)
     _currently_at('show_intro')
@@ -168,8 +170,9 @@ def _settallypenalty():
     tallypenalty = input('\n    tallypenalty (Enter nothing for no change) = ')
     if tallypenalty.strip():
         tallypenalty = int(tallypenalty)
-    if isinstance(tallypenalty, int) and tallypenalty != int(_settings['tallypenalty']):
-        _settings['tallypenalty'] = abs(int(tallypenalty))
+    if (isinstance(tallypenalty, int) and ('tallypenalty' not in _settings)
+                                           or tallypenalty != int(_settings['tallypenalty'])):
+        _settings['tallypenalty'] = abs(tallypenalty)
         _changed_to('tallypenalty')
     else:
         _remains_at('tallypenalty')
@@ -187,11 +190,38 @@ def _setmaxtally():
     maxtally = input('\n    maxtally (Enter nothing for no change) = ')
     if maxtally.strip():
         maxtally = abs(int(maxtally))
-    if isinstance(maxtally, int) and maxtally != int(_settings['maxtally']):
+    if (isinstance(maxtally, int) and ('maxtally' not in _settings
+                                       or maxtally != int(_settings['maxtally'] ))):
         _settings['maxtally'] = maxtally
         _changed_to('maxtally')
     else:
         _remains_at('maxtally')
+
+
+def _setreplace_tabs():
+    '''
+    Replace each tab character with one or more space characters.  To set this
+    setting, enter an integer, e.g. 0, 1, 2, 3, etc..  With this set, 0, 1, 2,
+    3, etc. spaces will replace each tab character depending in the integer
+    that you entered.  This setting only effects the add() function and only
+    is activated when the final parenthesis is applied to the add funciton and
+    and the Enter key has been pushed.
+
+    To make this setting inactive, set to -1.
+    '''
+    global _settings
+    print(_setreplace_tabs.__doc__)
+    _currently_at('replace_tabs')
+    replace_tabs = input('\n    replace_tabs (Enter nothing for no change) = ')
+    if replace_tabs.strip().isnumeric() or replace_tabs.strip()[1:].isnumeric():
+        replace_tabs = int(replace_tabs)
+    if (isinstance(replace_tabs, int)
+        and ('replace_tabs' not in _settings
+             or replace_tabs != int(_settings['replace_tabs']))):
+        _settings['replace_tabs'] = replace_tabs
+        _changed_to('replace_tabs')
+    else:
+         _remains_at('replace_tabs')
 
 
 def _setpathname():
@@ -235,24 +265,14 @@ def settings():
 
     Examples
     --------
-
     >>> settings()
-
-    -    Current settngs are:
-    -        pathname: /media/sf_shared/Documents/spanish/flashcardz.txt
-    -        maxtally: 10
-    -        tallypenalty: 10
-    -        abort: False
-    -
-    -    Setting to change (Enter nothing for no change):  tallypenalty
-
     """
     global _settings
     print(settings.__doc__)
-    print(f"(Settings are saved in file {_get_settingsfn()}).")
+    print(f"Settings are saved in file {_get_settingsfn()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
-    print('with settings reset to defaults.)')
-    print('\nCurrent settngs are:')
+    print('with settings reset to defaults.')
+    print('\nCurrent settings are:')
     for key, value in _settings.items():
         print(f'    {key}: {value}')
     chgkey = input('\nSetting to change (Enter nothing for no change): ')
@@ -277,6 +297,8 @@ def settings():
         _settallypenalty()
     elif chgkey == 'show_intro':
         _setshow_intro()
+    elif chgkey == 'replace_tabs':
+        _setreplace_tabs()
 
 
 def functions():
@@ -293,7 +315,9 @@ def functions():
 
      ">>> help(add)\n\n"
 
-     ">>> help(go)\n")
+     ">>> help(go)\n\n"
+
+     "\x1b[0;1;31mNOTE: Push the q key to exit help.\x1b[0m")
     print(f'\n{functions.__doc__}')
 
 
@@ -335,9 +359,8 @@ def add(word, definition, tally=None):
         Set the tally to a value you choose. Normally let the program set
         this value for you.  Tally is automaticaly set to 0 when you enter a
         new word and definition.  If the word you enter already exists, then
-        tally is set to that of the preexisting value of that word.  However
-        you can override these automatic settings by entering a value that you
-        deem suitable.
+        tally is set to value of that word.  However you can override any of
+        these automatic settings by entering a value that you deem suitable.
 
     Examples
     --------
@@ -397,12 +420,17 @@ def add(word, definition, tally=None):
         _cards = _open()
         word = word.replace(delimiter, substitute).strip()
         definition = definition.replace(delimiter, substitute).strip()
+        if 'replace_tabs' in _settings and _settings['replace_tabs']:
+            i = _settings['replace_tabs']
+            word = word.replace('\t', i*' ')
+            definition = definition.replace('\t', i*' ')
         word0 = ''.join(word.split()).lower()  # white space removed
         for i, x in enumerate(_cards):
             x0 = ''.join(x[0].split()).lower()
             if x0 == word0:  # if word already in _cards, delete it to replace with new
                 _cards.pop(i)
                 t = tally if tally and isinstance(tally, int) else x[2]
+
                 _cards.insert(i, [word, definition, t])
                 break
         else:
@@ -556,23 +584,23 @@ def cards(cmd=True, i=None):
     Parameters
     ----------
     cmd (optional) : bool | int | tuple
-        if cmd == True (the default); show all words, but without their
-            definitions.
-        if cmd == False; show all words and their definitions.
+        if cmd == True or is no value is given (i.e. cards()), then show a
+            list of all words but without definitions.
+        if cmd == False; show all words AND their definitions.
         if type(cmd) == int (i.e. integer); at position "int" show word and its
             definition. (do "cards()" to see integers that correspond to words)
-        if type(cmd) == tuple, and the tuple contains intergers, with the first
-            integer smaller than the second, then show a list of cards starting
-            as integer 1 and ending at, and including, integer 2.  (A tuple is
-            a set of values surround by parenthesis, e.g., (5, 9))
+        if type(cmd) == tuple, and the tuple contains two intergers, show a
+            list of cards starting at the first number and ending at the
+            second.  A tuple is a set of values surrounded by parentheses,
+            e.g., (5, 20)
 
     i : int
         URL links (see add() function) can exists in the description field of
         for a given word.  If so, then i represents the 1st, 2nd, etc. link.
         Entering that number will cause a web browser to open that link.
-        If i is a negative number, show link, and and show any codes that user
-        inputted to color any text.  Note: this only works if "cmd" is an
-        integer.
+        If i is a negative number, show links as well as the coding that shows
+        text italized, underlined, and/or colored  Note: this only works if
+        "cmd" is an int not a tuple or boolean.
 
     Returns
     -------
@@ -605,7 +633,7 @@ def cards(cmd=True, i=None):
     # Show to the user a list cards, 5 to 9:
     >>> cards((5, 9))
 
-    # Create a shortcut for youself (make a copy of the cards function):
+    # Tip: Create a shortcut for youself by making a copy of the cards function:
     >>> c = cards
     >>> c(8)
 
@@ -621,6 +649,8 @@ def cards(cmd=True, i=None):
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
     elif type(cmd) == int and cmd < 0 and i == None:  # w/ urls & color codes
+        print('aaa')
+        print(type(cmd))
         j = abs(cmd)
         _card = _cards[j]
         word = _card[0]
@@ -653,9 +683,10 @@ def cards(cmd=True, i=None):
         j = abs(cmd)
         _card = _cards[j]
         webbrowser.open(_url_at(_card[1], i))
-    elif (type(cmd) == tuple and len(cmd) ==  2 and cmd[0] < cmd[1]
-            and cmd[0] >= 0):
-        for j in range(cmd[0], cmd[1]+1):
+    elif type(cmd) == tuple and len(cmd) ==  2:
+        a = min(cmd)
+        b = max(cmd) + 1 if max(cmd) < len(_cards) else len(_cards)
+        for j in range(a, b):
             _card = _cards[j]
             word = _modify_text(_card[0])
             desc = _hide_urls(_card[1])
@@ -897,9 +928,10 @@ def _get_settingsfn():
             print('\nProgram setting pathname set to:')
             print(f'    _settings["[pathname"] = {fn}')
         with open(settingsfn, 'w') as file:
-            file.write(f'{{"pathname": "{fn}", "maxtally": "10", ' +
-                       '"tallypenalty": "10", "show_intro": True" ' +
-                       '"date_format": "%x", "abort": "False"}')
+            file.write(f'{{"pathname": "{fn}", "maxtally": 10, ' +
+                       '"tallypenalty": 10, "show_intro": True, ' +
+                       '"replace_tabs": -1, '
+                        '"abort": False}')
     return settingsfn
 
 
@@ -910,16 +942,12 @@ def _read_settingsfn():
         with open(settingsfn, 'r') as file:
             x = file.read().replace('\\', '/')
         _settings = ast.literal_eval(x)
-        _settings['maxtally'] = int(_settings['maxtally'])
-        _settings['tallypenalty'] = int(_settings['tallypenalty'])
-    except Exception as e:
-        msg = ("\n\n\n !!! Error at _read_settingsfn() function:\n"
-               " !!! Unable to open settings.txt file which allows the program to remember user\n"
-               " !!! settings.  To fix, try deleting the file that contains these settings.\n"
-               " !!! When this program sees that this file is missing, it will be recreated with\n"
-               " !!! with default settings.  This file is located at:\n !!!\n"
-               + e)
-        msg += _get_settingsfn()
+    except Exception:
+        msg = ("\n\n\n\x1b[0;1;31mError occured at the _read_settingsfn() function:\n"
+               "It is possible that your settings file is corrupt.  Deleting the\n"
+               "file will most likely fix the problem.  (But will reset your settings to\n"
+               "defaults.)  File to delete is: \n\n")
+        msg += _get_settingsfn() + "\x1b[0m"
         print(msg)
 
 
@@ -998,12 +1026,12 @@ def _url_at(text, i):
 
 
 def _modify_text(text):
-    '''An internal function of flashcardz.  Facilitates the user to insert ansi
-    escape codes into his text.  This then allows the user to show selected
-    text underlined, italicized, and/or colorized.  For example, if a word
-    description is "my long, lengthy description", and the user adds special
-    coding within it like "my long, <g>lengthy<> description", then text
-    "lengthy" will be shown with green letters to the user.
+    '''This is an internal function of flashcardz.  It facilitates the user to
+    insert ansi escape codes into his text.  This then allows the user to show
+    selected text underlined, italicized, and/or colored.  For example, if a
+    word description is "my long, lengthy description", and the user adds
+    special coding within it like "my long, <g>lengthy<> description", then the
+    text "lengthy" will be shown with green letters to the user.
 
     The keys that may be used to alter text are:
     k=black, r=red, g=green, y=yellow, b=blue, p=purple, c=cyan, w=white
@@ -1022,8 +1050,8 @@ def _modify_text(text):
     <code letters>text to modify<>
 
     Note:  Altering text as described above may not work on your system.  It
-    depends on whether the operating system, the version of the operating
-    system, and whether the console support it or not.
+    depends on whether your operating system, the version of your operating
+    system, and/or whether your console support it or not.
 
     Parameters
     ----------

@@ -19,7 +19,7 @@ Adding words words to your deck of cards is easy.  Use flashcardz's add()
 fuction:
 
 ```
->>> add("correr", "to run (to move quickly on two feet)")
+>>> add('correr', 'to run (to move quickly on two feet)')
 ```
 
 Words and defintionions can also be imported from an Excel file.
