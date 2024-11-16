@@ -37,13 +37,15 @@ import os
 import ast
 import re
 import webbrowser
+import math
 
 
-__version__ = '0.2.0'   # PEP 440 - describes versions
+__version__ = '0.3.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, save any pipe symbols as semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
-                    "replace_tabs": -1, "abort": False}
+                    "replace_tabs": -1, "abort": False, "columns": 1,
+                    "col_width": 1}
 
 def version():
     print(__version__)
@@ -222,6 +224,51 @@ def _setreplace_tabs_():
          _remains_at_('replace_tabs')
 
 
+def _setcolumns_():
+    '''
+    Set the number of columns that are displayed when the cards() function is
+    run.  Options are 1, 2, or 3.  Default is 1.
+    '''
+    global _settings_
+    print(_setcolumns_.__doc__)
+    _currently_at_('columns')
+    columns = input('\n    columns (Enter nothing for no change) = ')
+    if columns.strip().isnumeric():
+        columns = int(columns)
+    if (isinstance(columns, int)
+        and ('columns' not in _settings_
+             or columns != int(_settings_['columns']))):
+        _settings_['columns'] = columns
+        _changed_to_('columns')
+    else:
+         _remains_at_('columns')
+
+
+def _setcol_width_():
+    '''
+    The setting "columns" allows the cards() function to show cards in the
+    number of the columns the users want.  This setting, col_width, sets the
+    width that the the word within the card (not the definition of the word)
+    will fit.  For example, a value of 30 will allow a word within 30
+    characters.  If you wish to allow the program to set a value for you, a
+    value that will vary depending on the value of the columns settings, then
+    set this value to 1.  Default is 1.
+    '''
+    global _settings_
+    print(_setcol_width_.__doc__)
+    _currently_at_('col_width')
+    col_width = input('\n    col_width (Enter nothing for no change) = ')
+    if col_width.strip().isnumeric():
+        col_width = int(col_width)
+    if (isinstance(col_width, int)
+        and ('col_width' not in _settings_
+             or col_width != int(_settings_['col_width']))):
+        _settings_['col_width'] = col_width
+        _changed_to_('col_width')
+    else:
+         _remains_at_('col_width')
+
+
 def _setpathname_():
     '''
     Set the pathname (filename prepended by a path) for where your set of cards is
@@ -265,13 +312,15 @@ def settings():
     >>> settings()
     """
     global _settings_
-    flag = False
-    for key, value in default_settings_.items():
-        if key not in _settings_:
-            _settings_[key] = value
-            flag = True
-    if flag:
-        _write_settings_fn_
+# =============================================================================
+#     flag = False
+#     for key, value in default_settings_.items():
+#         if key not in _settings_:
+#             _settings_[key] = value
+#             flag = True
+#     if flag:
+#         _write_settings_fn_
+# =============================================================================
     print(settings.__doc__)
     print(f"Settings are saved in file {_get_settings_fn_()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
@@ -303,6 +352,10 @@ def settings():
         _setshow_intro_()
     elif chgkey == 'replace_tabs':
         _setreplace_tabs_()
+    elif chgkey == 'columns':
+        _setcolumns_()
+    elif chgkey == 'col_width':
+        _setcol_width_()
 
 
 def functions():
@@ -419,6 +472,11 @@ def add(word, definition, tally=None):
     #  with add(''' and then paste text that you copied from some source.  To
     #  move the cursor within your pasted text in order to edit it, use the key
     #  board's arrow keys.
+    #
+    #  Tip 3: It is recommended to use python 3.13 or greater.  However,on
+    #  occasion when pasting, python 3.13 inserts undesirable indents into
+    #  lines.  In which case just before pasting click the F3 key to enter
+    #  paste mode. After you finish pasting, click F3 again to exit paste mode.
     """
     if word and definition and type(word) == str and type(definition) == str:
         _cards_ = _open_()
@@ -642,6 +700,7 @@ def cards(cmd=True, i=None):
     >>> c(8)
 
     """
+
     _cards_ = _open_()
     separator = 35*'-'
     if type(cmd) == int and cmd >=0 and i == None:  # Show one word and its decrip
@@ -699,15 +758,19 @@ def cards(cmd=True, i=None):
             text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
                      f'{j}. {word}\n' + f'{desc}')
             print(text1)
+# =============================================================================
+#     else:
+#         for j, _card in enumerate(_cards_):  # show a list of all cards.  If cmd==False, also show definitions
+#             word = _modify_text_(_card[0])
+#             desc = _hide_urls_(_card[1])
+#             desc = _modify_text_(desc)
+#             text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
+#             text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
+#                      f'{j}. {word}\n' + f'{desc}')
+#             print(text1) if (cmd == 1 or cmd == True) else print(text2)
+# =============================================================================
     else:
-        for j, _card in enumerate(_cards_):  # show a list of all cards.  If cmd==False, also show definitions
-            word = _modify_text_(_card[0])
-            desc = _hide_urls_(_card[1])
-            desc = _modify_text_(desc)
-            text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
-            text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                     f'{j}. {word}\n' + f'{desc}')
-            print(text1) if (cmd == 1 or cmd == True) else print(text2)
+        print_cards(_cards_, _settings_['columns'])
 
 
 def go(shuffle=True):
@@ -945,6 +1008,15 @@ def _read_settings_fn_():
         with open(settingsfn, 'r') as file:
             x = file.read().replace('\\', '/')
         _settings_ = ast.literal_eval(x)
+
+        flag = False
+        for key, value in default_settings_.items():
+            if key not in _settings_:
+                _settings_[key] = value
+                flag = True
+        if flag:
+            _write_settings_fn_
+
     except Exception:
         msg = ("\n\n\n\x1b[0;1;31mError occured at the _read_settings_fn_() function:\n"
                "It is possible that your settings file is corrupt.  Deleting the\n"
@@ -1125,6 +1197,58 @@ def _modify_text_(text):
         new_value = (code + l[1] + '\x1b[0m')
         text = text.replace(old_value, new_value)
     return text
+
+
+def print_cards(cds, cols):
+    if isinstance(_settings_['col_width'], int) and _settings_['col_width'] != 1:
+        w = _settings_['col_width']
+    elif cols == 1:
+        w = 30
+    elif cols == 2:
+        w = 25
+    elif cols == 3:
+        w = 20
+    elif cols == 4:
+        w = 15
+    else:
+        w = 30
+    l = len(cds)
+    rows = math.ceil(l/cols)
+    mt = _modify_text_
+    f1 = r'{a1:>3}. {b1:<XX} (t: {c1:>})'.replace('XX', str(w))
+    f2 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})'.replace('XX', str(w))
+    f3 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})    {a3:>3}. {b3:<XX} (t: {c3:>})'.replace('XX', str(w))
+    f4 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})    {a3:>3}. {b3:<XX} (t: {c3:>})    {a4:>3}. {b4:<XX} (t: {c4:>})'.replace('XX', str(w))
+    for i in range(0, rows):
+        if l==1:
+            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
+
+        elif cols == 4  and i >= (l - 3*rows) :
+            print(f3.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2]))
+        elif cols == 4:
+            print(f4.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2],
+                            a4=3*rows+i, b4=mt(cds[3*rows+i][0])[:w], c4=cds[3*rows+i][2]))
+
+
+
+        elif cols == 3  and i >= (l - 2*rows) :
+            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
+        elif cols == 3:
+            print(f3.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2]))
+        elif cols == 2 and i >= (l - rows):
+            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
+        elif cols == 2:
+            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
+        elif cols == 1:
+            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
 
 
 _read_settings_fn_()
