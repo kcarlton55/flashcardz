@@ -1200,29 +1200,34 @@ def _modify_text_(text):
 
 
 def print_cards(cds, cols):
-    if isinstance(_settings_['col_width'], int) and _settings_['col_width'] != 1:
+    if isinstance(_settings_['col_width'], int) and _settings_['col_width'] not in [0, 1]:
         w = _settings_['col_width']
-    elif cols == 1:
-        w = 30
-    elif cols == 2:
-        w = 25
-    elif cols == 3:
-        w = 20
-    elif cols == 4:
-        w = 15
+    elif cols in [1, 2, 3, 4]:
+        w = 35 - cols*5
     else:
-        w = 30
+        w = 15
     l = len(cds)
     rows = math.ceil(l/cols)
     mt = _modify_text_
-    f1 = r'{a1:>3}. {b1:<XX} (t: {c1:>})'.replace('XX', str(w))
-    f2 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})'.replace('XX', str(w))
-    f3 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})    {a3:>3}. {b3:<XX} (t: {c3:>})'.replace('XX', str(w))
-    f4 = r'{a1:>3}. {b1:<XX} (t: {c1:>})    {a2:>3}. {b2:<XX} (t: {c2:>})    {a3:>3}. {b3:<XX} (t: {c3:>})    {a4:>3}. {b4:<XX} (t: {c4:>})'.replace('XX', str(w))
+    f1 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})'.replace('XX', str(w))
+    f2 = r'{a1:>3}. {b1:<XX} (t:{c1:>2)    {a2:>3}. {b2:<XX} (t:{c2:>2})'.replace('XX', str(w))
+    f3 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})    {a3:>3}. {b3:<XX} (t:{c3:>2})'.replace('XX', str(w))
+    f4 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})    {a3:>3}. {b3:<XX} (t:{c3:>2})    {a4:>3}. {b4:<XX} (t:{c4:>2})'.replace('XX', str(w))
     for i in range(0, rows):
-        if l==1:
+        if  cols == 1 or l == 1:
             print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
-
+        elif cols == 2 and i >= (l - rows):
+            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
+        elif cols == 2:
+            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
+        elif cols == 3  and i >= (l - 2*rows) :
+            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
+        elif cols == 3:
+            print(f3.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
+                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2]))
         elif cols == 4  and i >= (l - 3*rows) :
             print(f3.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
                             a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
@@ -1232,23 +1237,6 @@ def print_cards(cds, cols):
                             a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
                             a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2],
                             a4=3*rows+i, b4=mt(cds[3*rows+i][0])[:w], c4=cds[3*rows+i][2]))
-
-
-
-        elif cols == 3  and i >= (l - 2*rows) :
-            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
-        elif cols == 3:
-            print(f3.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2],
-                            a3=2*rows+i, b3=mt(cds[2*rows+i][0])[:w], c3=cds[2*rows+i][2]))
-        elif cols == 2 and i >= (l - rows):
-            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
-        elif cols == 2:
-            print(f2.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=mt(cds[rows+i][0])[:w],   c2=cds[rows+i][2]))
-        elif cols == 1:
-            print(f1.format(a1=i,        b1=mt(cds[i][0])[:w],        c1=cds[i][2]))
 
 
 _read_settings_fn_()
