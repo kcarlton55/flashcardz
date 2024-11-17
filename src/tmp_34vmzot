@@ -201,11 +201,11 @@ def _setmaxtally_():
 def _setreplace_tabs_():
     '''
     Replace each tab character with one or more space characters.  To set this
-    setting, enter an integer, e.g. 0, 1, 2, 3, etc..  With this setting set,
-    then 0, 1, 2, 3, etc. spaces will replace each tab character depending on
-    the integer that you entered.  This setting only effects the add() function
-    and only is activated when the final parenthesis is applied and the Enter
-    key has been pushed.
+    setting, enter an integer, e.g. 0, 1, 2, 3, etc..  With this set, 0, 1, 2,
+    3, etc. spaces will replace each tab character depending in the integer
+    that you entered.  This setting only effects the add() function and only
+    is activated when the final parenthesis is applied to the add funciton and
+    and the Enter key has been pushed.
 
     To make this setting inactive, set to -1.
     '''
@@ -1198,7 +1198,7 @@ def _modify_text_(text):
 
 
 def _print_cards_(cds, cols):
-    ''' Print cards (cds) in 1, 2, 3, or 4 columns.
+    ''' Print list of cards, cds, in 1, 2, 3, or 4 columns.
 
     Parameters
     ----------
@@ -1216,12 +1216,14 @@ def _print_cards_(cds, cols):
         w = 15
     l = len(cds)
     rows = math.ceil(l/cols)
+    #mt = _modify_text_
     f1 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})'.replace('XX', str(w))
     f2 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})'.replace('XX', str(w))
     f3 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})   {a3:>3}. {b3:<XX} (t:{c3:>2})'.replace('XX', str(w))
     f4 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})   {a3:>3}. {b3:<XX} (t:{c3:>2})   {a4:>3}. {b4:<XX} (t:{c4:>2})'.replace('XX', str(w))
     for i in range(0, rows):
-        if  cols == 1 or l == 1:
+        print(i)
+        if  cols == 1 or l == 1 or (cards == 4 and i==5):
             print(f1.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2]))
         elif cols == 2 and i >= (l - rows):
             print(f1.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2]))
@@ -1235,12 +1237,15 @@ def _print_cards_(cds, cols):
             print(f3.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
                             a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
                             a3=2*rows+i, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
-        elif cols == 4 and l==2:  # used only in odd case when len(cds)==2 and cols==4
-            print(f2.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
-        elif cols == 4 and l==5:   # used only in odd case when len(cds)== 5 and cols==4
-            print(f1.format(a1=rows+i,   b1=cds[rows+i][0][:w],   c1=cds[rows+i][2]))
-        elif cols == 4 and i >= (l - 3*rows):
+
+
+        #elif cols == 4  and i >= (l - 2*rows) and rows < 1:
+        #    print(f2.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
+        #                    a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
+
+
+
+        elif cols == 4  and i >= (l - 3*rows):
             print(f3.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
                             a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
                             a3=2*rows+i, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
