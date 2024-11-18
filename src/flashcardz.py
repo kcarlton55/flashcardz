@@ -639,30 +639,40 @@ def _open_():
     return _cards_
 
 
-def cards(cmd=True, i=None):
-    """From the cards' data file, show a list of all words with, or without,
-    their defintions.
+def cards(i=None, j=None):
+    """Show a list of all words within a card deck (card's data file).  If a
+    card's ID no. (i.e. its int value) is specified, then show the word
+    associated at that number along with its definition.
 
     Parameters
     ----------
-    cmd (optional) : bool | int | tuple
-        if cmd == True or is no value is given (i.e. cards()), then show a
-            list of all words but without definitions.
-        if cmd == False; show all words AND their definitions.
-        if type(cmd) == int (i.e. integer); at position "int" show word and its
-            definition. (do "cards()" to see integers that correspond to words)
-        if type(cmd) == tuple, and the tuple contains two intergers, show a
-            list of cards starting at the first number and ending at the
-            second.  A tuple is a set of values surrounded by parentheses,
-            e.g., (5, 20)
+    i (optional) : None | int | float
+        if type(i) == None, that is, if you enter no value, i.e. you enter
+            cards(), then a list of all cards, without word definitions, is
+            shown.
+        if type(i) == int (i.e. integer); then show the word at position
+            i along with its definition. (Do "cards()" to see integers that
+            correspond to words.)
+        if type(i) == int, and i < 0, then show both word and defintion at
+           postition i; and expose coding within the description so that
+           embeded urls, and color/underline/italics codes can be seen.
+           (See help(_modify_text_) to see how how to add color, etc. to text.
+           See help(add), to see how to embed urls.)
+        if type(i) == float and -1 < i < 0, then at card 0 expose coding
+           within the description so that embeded urls, and
+           color/underline/italics codes can be seen.
 
-    i : int
-        URL links (see add() function) can exists in the description field of
-        for a given word.  If so, then i represents the 1st, 2nd, etc. link.
-        Entering that number will cause a web browser to open that link.
-        If i is a negative number, show links as well as the coding that shows
-        text italized, underlined, and/or colored  Note: this only works if
-        "cmd" is an int not a tuple or boolean.
+    j (optional): None | int | list
+        if type(j) == None, that it, if the user leaves this blank, then the
+            i argument does nothing.
+        if type(j) == int, then show a list of words starting at i (the first
+            argument) and ending at j.  Furthermore, if (j - i) <= 5, then
+            definitions will be included.
+        if type(i) == list, and the list contains an interger, e.g. [1],
+            [2], etc., then show the 1st, 2nd, etc. url embedded within a
+            word's defintion, that is, if it exists.  (See the add() function's
+            documenation for how to insert url's into definitions.)  If more
+            that one number in list, then open multiple urls.  E.g. [1, 2]
 
     Returns
     -------
@@ -670,103 +680,70 @@ def cards(cmd=True, i=None):
 
     Examples
     --------
-    # Show a list of all words
+    # Show a list of all words within the deck (i.e. the computer file
+    # containing the deck).
     >>> cards()
 
-    # Show all words and their defintions
-    >>> cards(False)
-
-    # Show the word and its definition at postion 8 in the data file.
+    # Show the word and its definition at postion 8 in the deck (data file).
     # (To see postion numbers, issue the "cards()" command.)
     >>> cards(8)
 
-    # Same as above, but remove any invisible, lurking tab characters:
-    >>> cards('8')
-
-    # Open a web browser and with it open the 2nd link shown in the
-    # description for card 8.  (Links will be seen surrounded by brackets, []).
-    >>> cards(8, 2)
+    # Show a list of cards, 8 through 20.
+    >>> cards(8, 20)
 
     # Show card 8, but this time show the url, e.g. https://www.python.org/,
-    # and also show any code that the user entered to italicize, underline, or
-    # color an portions of text.
-    >>> cards(-8)    # i.e., enter card 8 as a negative number.
+    # and also show any codes that the user entered to italicize, underline, or
+    # color portions of text.
+    >>> cards(-8)
 
-    # Show to the user a list cards, 5 to 9:
-    >>> cards((5, 9))
+    # Open a web browser and open the first url embeded within the definition.
+    >>> cards(8, [1])
 
-    # Tip: Create a shortcut for youself by making a copy of the cards function:
+    # Tip: Copy the cards function to variable 'c' in order to create a
+    # shortcut for yourself.
     >>> c = cards
     >>> c(8)
 
     """
-
     _cards_ = _open_()
-    separator = 35*'-'
-    if type(cmd) == int and cmd >=0 and i == None:  # Show one word and its decrip
-        j = cmd
-        _card = _cards_[j]
-        word = _modify_text_(_card[0])
-        desc = _hide_urls_(_card[1])
+    separator = 80*'-'
+    if type(i) == int and i >=0 and j == None:  # 1) Show one word and its decrip
+        word = _cards_[i][0]
+        desc = _hide_urls_(_cards_[i][1])
         desc = _modify_text_(desc)
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(cmd) == int and cmd < 0 and i == None:  # w/ urls & color codes
-        j = abs(cmd)
-        _card = _cards_[j]
+    elif type(i) == int and i < 0 and j == None:  # 2) show urls & color/underline/italics codeing
+        k = abs(i)
+        _card = _cards_[k]
         word = _card[0]
         desc = _card[1]
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(cmd) == float and (-.9999 <= cmd < 0) and i == None:  # w/ urls & color codes
-        j = 0
-        _card = _cards_[j]
+    elif type(i) == float and (-.9999 <= i < 0) and j == None:  # 3) same as 2), but for card[0]
+        k = 0
+        _card = _cards_[k]
         word = _card[0]
         desc = _card[1]
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif isinstance(cmd, str) and cmd.isnumeric() and i == None:
-        j = int(cmd)
-        _card = _cards_[j]
-        word = _modify_text_(_card[0]).replace('\t', ' ')
-        desc = _hide_urls_(_card[1])
-        desc = _modify_text_(desc).replace('\t', ' ')
-        k = "'''" if  '\n' in word else "'"
-        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif isinstance(cmd, str) and cmd[1] == '-' and cmd[1:].isnumeric() and i == None:
-        j = abs(int(cmd))
-        _card = _cards_[j]
-        word = _card[0].replace('\t', ' ')
-        desc = _card[1].replace('\t', ' ')
-        k = "'''" if  '\n' in word else "'"
-        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(cmd) == int and isinstance(i, int):  # open url at position i
-        j = abs(cmd)
-        _card = _cards_[j]
-        webbrowser.open(_url_at_(_card[1], i))
-    elif type(cmd) == tuple and len(cmd) ==  2:
-        a = min(cmd)
-        b = max(cmd) + 1 if max(cmd) < len(_cards_) else len(_cards_)
-        for j in range(a, b):
-            _card = _cards_[j]
-            word = _modify_text_(_card[0])
-            desc = _hide_urls_(_card[1])
+    elif type(i) == int and type(j) == list:  # open url at position [j] or card i
+        for x in j:
+            webbrowser.open(_url_at_(_cards_[i][1], x))
+    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 5):
+        a = min(i, j)
+        b = max(i, j) + 1
+        for x in range(a, b):
+            word = _cards_[x][0]
+            desc = _hide_urls_(_cards_[x][1])
             desc = _modify_text_(desc)
-            text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
-            text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-                     f'{j}. {word}\n' + f'{desc}')
-            print(text1)
-# =============================================================================
-#     else:
-#         for j, _card in enumerate(_cards_):  # show a list of all cards.  If cmd==False, also show definitions
-#             word = _modify_text_(_card[0])
-#             desc = _hide_urls_(_card[1])
-#             desc = _modify_text_(desc)
-#             text1 = f'{j}. {word : <30} (tally: {_card[2] : >})' # the ": <30" and ">" alligns text
-#             text2 = (f'{separator} tally: {_card[2]} {separator}\n' +
-#                      f'{j}. {word}\n' + f'{desc}')
-#             print(text1) if (cmd == 1 or cmd == True) else print(text2)
-# =============================================================================
+            k = "'''" if  '\n' in word else "'"
+            print(f"\n{x}. {k}{word}{k},\n'''\n{desc}\n'''")
+            print(separator)
+    elif isinstance(j, int) and isinstance(i, int): # and (max(i, j) - min(i, j) <= 10):
+        a = min(i, j)
+        b = max(i, j) + 1
+        _print_cards_(_cards_[a: b], _settings_['columns'], a)
     else:
         _print_cards_(_cards_, _settings_['columns'])
 
@@ -1197,7 +1174,7 @@ def _modify_text_(text):
     return text
 
 
-def _print_cards_(cds, cols):
+def _print_cards_(cds, cols, start=0):
     ''' Print cards (cds) in 1, 2, 3, or 4 columns.
 
     Parameters
@@ -1222,33 +1199,33 @@ def _print_cards_(cds, cols):
     f4 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})   {a3:>3}. {b3:<XX} (t:{c3:>2})   {a4:>3}. {b4:<XX} (t:{c4:>2})'.replace('XX', str(w))
     for i in range(0, rows):
         if  cols == 1 or l == 1:
-            print(f1.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2]))
+            print(f1.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2]))
         elif cols == 2 and i >= (l - rows):
-            print(f1.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2]))
+            print(f1.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2]))
         elif cols == 2: # or (cols == 4 and l == 2):
-            print(f2.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
+            print(f2.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
         elif cols == 3  and i >= (l - 2*rows):
-            print(f2.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
+            print(f2.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
         elif cols == 3:
-            print(f3.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
-                            a3=2*rows+i, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
+            print(f3.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
         elif cols == 4 and l==2:  # used only in odd case when len(cds)==2 and cols==4
-            print(f2.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
+            print(f2.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
         elif cols == 4 and l==5:   # used only in odd case when len(cds)== 5 and cols==4
-            print(f1.format(a1=rows+i,   b1=cds[rows+i][0][:w],   c1=cds[rows+i][2]))
+            print(f1.format(a1=rows+i+start,   b1=cds[rows+i][0][:w],   c1=cds[rows+i][2]))
         elif cols == 4 and i >= (l - 3*rows):
-            print(f3.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
-                            a3=2*rows+i, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
+            print(f3.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2]))
         elif cols == 4:
-            print(f4.format(a1=i,        b1=cds[i][0][:w],        c1=cds[i][2],
-                            a2=rows+i,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
-                            a3=2*rows+i, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2],
-                            a4=3*rows+i, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
+            print(f4.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
+                            a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
+                            a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2],
+                            a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
 
 
 _read_settings_fn_()
