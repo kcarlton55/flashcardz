@@ -42,10 +42,10 @@ import math
 
 __version__ = '0.3.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
-substitute = ';'     # if when file saved, save any pipe symbols as semicolons
+substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
                     "replace_tabs": -1, "abort": False, "columns": 1,
-                    "col_width": 1}
+                    "col_width": 2}
 
 def version():
     print(__version__)
@@ -641,8 +641,8 @@ def _open_():
 
 def cards(i=None, j=None):
     """Show a list of all words within a card deck (card's data file).  If a
-    card's ID no. (i.e. its int value) is specified, then show the word
-    associated at that number along with its definition.
+    card's index no. is specified, then show the word associated at that number
+    along with its definition.
 
     Parameters
     ----------
@@ -650,11 +650,11 @@ def cards(i=None, j=None):
         if type(i) == None, that is, if you enter no value, i.e. you enter
             cards(), then a list of all cards, without word definitions, is
             shown.
-        if type(i) == int (i.e. integer); then show the word at position
-            i along with its definition. (Do "cards()" to see integers that
-            correspond to words.)
+        if type(i) == int (i.e. integer); then show the word at index position
+            i along with its definition. (Do "cards()" to see index numbers
+            that correspond to words.)
         if type(i) == int, and i < 0, then show both word and defintion at
-           postition i; and expose coding within the description so that
+           postition i; and also expose coding within the description so that
            embeded urls, and color/underline/italics codes can be seen.
            (See help(_modify_text_) to see how how to add color, etc. to text.
            See help(add), to see how to embed urls.)
@@ -664,15 +664,15 @@ def cards(i=None, j=None):
 
     j (optional): None | int | list
         if type(j) == None, that it, if the user leaves this blank, then the
-            i argument does nothing.
+            j argument does nothing.
         if type(j) == int, then show a list of words starting at i (the first
-            argument) and ending at j.  Furthermore, if (j - i) <= 5, then
-            definitions will be included.
-        if type(i) == list, and the list contains an interger, e.g. [1],
-            [2], etc., then show the 1st, 2nd, etc. url embedded within a
-            word's defintion, that is, if it exists.  (See the add() function's
-            documenation for how to insert url's into definitions.)  If more
-            that one number in list, then open multiple urls.  E.g. [1, 2]
+            argument) and ending at j.  Furthermore, if (j - i) <= 10, then
+            definitions will be shown.
+        if type(j) == list, and the list contains an interger, e.g. [1],
+            [2], etc., then open a web page for the 1st, 2nd, url link that is
+            within the descriptions.  (See the add() function's documentation
+            for how to insert url's into definitions.)  If more that one number
+            is present, then open multiple urls.  E.g. [1, 2]
 
     Returns
     -------
@@ -680,12 +680,12 @@ def cards(i=None, j=None):
 
     Examples
     --------
-    # Show a list of all words within the deck (i.e. the computer file
-    # containing the deck).
+    # Show a list of all words within the deck (i.e. the computer file that
+    # contains the deck).
     >>> cards()
 
-    # Show the word and its definition at postion 8 in the deck (data file).
-    # (To see postion numbers, issue the "cards()" command.)
+    # Show the word and its definition at index 8 in the deck (the data file).
+    # (To see index numbers, issue the "cards()" command.)
     >>> cards(8)
 
     # Show a list of cards, 8 through 20.
@@ -696,7 +696,8 @@ def cards(i=None, j=None):
     # color portions of text.
     >>> cards(-8)
 
-    # Open a web browser and open the first url embeded within the definition.
+    # Open a web browser and open the first url embeded within the definition
+    # of card 8.
     >>> cards(8, [1])
 
     # Tip: Copy the cards function to variable 'c' in order to create a
@@ -706,7 +707,7 @@ def cards(i=None, j=None):
 
     """
     _cards_ = _open_()
-    separator = 80*'-'
+    separator = 35*'-'
     if type(i) == int and i >=0 and j == None:  # 1) Show one word and its decrip
         word = _cards_[i][0]
         desc = _hide_urls_(_cards_[i][1])
@@ -730,7 +731,7 @@ def cards(i=None, j=None):
     elif type(i) == int and type(j) == list:  # open url at position [j] or card i
         for x in j:
             webbrowser.open(_url_at_(_cards_[i][1], x))
-    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 5):
+    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 10):
         a = min(i, j)
         b = max(i, j) + 1
         for x in range(a, b):
@@ -738,8 +739,8 @@ def cards(i=None, j=None):
             desc = _hide_urls_(_cards_[x][1])
             desc = _modify_text_(desc)
             k = "'''" if  '\n' in word else "'"
-            print(f"\n{x}. {k}{word}{k},\n'''\n{desc}\n'''")
-            print(separator)
+            print(f"{35*'-'} tally: {_cards_[x][2]} {35*'-'}")
+            print(f"{x}. {k}{word}{k},\n'''\n{desc}\n'''")
     elif isinstance(j, int) and isinstance(i, int): # and (max(i, j) - min(i, j) <= 10):
         a = min(i, j)
         b = max(i, j) + 1
@@ -750,22 +751,20 @@ def cards(i=None, j=None):
 
 def go(shuffle=True):
     '''
-    First the deck of cards in shuffled.  Then one by one each card is shown
-    to the user.  First the word is shown.  The user looks at the word and
-    tries to figure out the meaning of the word.  Then the user hits any key.
-    The defintion is then shown.  The user is asked if he/she knew what the
-    word means.  If he/she answers yes, then the tally is incremented by one.
-    (Tally is the number of times the user knew what the word means.)  If the
-    user didn't know, the the tally for that word is reset to zero (or another
-    value defined by the setting that the user set).
-
-    Once a max tally is reached (determined by the user's settings), the
-    card is removed from the deck.
-
-    When go() is run, the file that contains the card deck is opened.  After
-    all the cards are viewed by the user, the updated card deck is saved.  If
-    the user aborts viewing the cards before go() is finished, results are not
-    saved.
+    The go() function is the primary function for flashcardz.  It proceeds in
+    this order:
+    1.  An intro is shown to the user.  The program then pauses and awaits
+        permission to proceed.
+    2.  The file containing the deck of cards is opened, read, then closed.
+    3.  The deck of cards is shuffled.
+    4.  Words from each card are shown to the user one by one.  After each word
+        is shown, the user is asked if he/she knew the meaning.  If yes, the
+        tally for that word is increased by one.  If no, the tally is reset to
+        zero.
+    5.  If the max tally has been reached for any word, its card is removed
+        from the deck.
+    5.  After all words have been viewed, results are presented to the user,
+        then the file is reopened, results saved, then closed.
 
     Parameters
     ----------
@@ -774,29 +773,23 @@ def go(shuffle=True):
 
     Examples
     --------
-    # Don't shuffle the deck (False or 0 results in a non-suffle)
-    >>> go(False)
-
-    # Shuffle the deck (True or 1, or enter no argument)
     >>> go()
 
     '''
     print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
     print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n/i/a/q)".')
-    print('Respond with one of these answers:')
+    print('definition.  The program will then ask "Meaning known? (Y/n/[k]/a/q)".  Respond')
+    print('with one of these answers:')
     print("    " + 75*"—")
     print("     Y or the Enter key = you knew the definition")
     print("     n = you did not know the definition")
-    print("     i = input an integer instead of i.  That is, enter 1, 2, 3, etc..  i is")
-    print("         the 1st, 2nd, 3rd, etc. url link within a description (that is, if the")
-    print("         link exists).  Links are enclosed in brackets, [].")
+    print("     [k] = open a web page per the link shown in a word's description.")
     if _settings_['abort'] == True:
         abort = True
         print('     (Note: _settings_["abort"] = True.  RESULTS WILL NOT BE SAVED!)')
     else:
         print("     a = abort recording of results when go() completes its run")
-    print("     q = cancel showing cards")
+    print("     q = quit showing cards")
     print("    " + 75*"—")
 
     print()
@@ -822,8 +815,8 @@ def go(shuffle=True):
     unwanted = []
     missed = []
     print()
-    correcttext = ('Meaning known? (Y/n/i/q) ' if _settings_['abort']
-                   else 'Meaning known? (Y/n/i/a/q) ')
+    correcttext = ('Meaning known? (Y/n/[k]/q) ' if _settings_['abort']
+                   else 'Meaning known? (Y/n/[k]/a/q) ')
 
     for k in index_list:
         number += 1
@@ -841,25 +834,29 @@ def go(shuffle=True):
             desc = _modify_text_(desc)
             print(f'{desc}\n')
             ans = input(correcttext)
-
-            if ans and ans.isnumeric():
-                webbrowser.open(_url_at_(_cards_[k][1], int(ans)))
-            elif ans and ans[0].lower() == 'i':
-                print('\n    Entering "i" is inappropriate.  Instead enter 1, 2, 3, etc., depending on')
-                print('    which URL link is shown in brackets, [], that you wish to activate; i.e. the')
-                print('    1st, 2nd, 3rd.\n')
+            if ans and ans[0] == '[' and ans[1].isnumeric():
+                j = ast.literal_eval(ans)
+                for x in j:
+                    webbrowser.open(_url_at_(_cards_[k][1], x))
+            elif ans and ans.strip().lower() == '[k]':
+                print("    " + 75*"—")
+                print('     k should be a number, for example [1] or [2].  A desription containing  ')
+                print('     links will look like "blah blah blah [link to web page] blah blah blah  ')
+                print('     blah blah [another link] blah.  Entering [1] will open a web page       ')
+                print('     pertaining to the first link.  [2] will open the 2nd.                   ')
+                print("    " + 75*"—")
             elif ans and (ans[0].lower() == 'q' or ans[0].lower() == 'e'):
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                correcttext = 'Correctly answered? (Y/n/i/q) '
+                correcttext = 'Correctly answered? (Y/n/[k]/q) '
                 print("    " + 75*"—")
                 print('     Results will NOT be recorded when go() completes its run')
                 print("    " + 75*"—")
                 # loop = True is the default, so user will be asked again... Y/n/i/a/q
             elif ans and ans[0].lower() == 'a' and abort == True:
                 abort = False
-                correcttext = 'Correctly answered? (Y/n/i/a/q) '
+                correcttext = 'Correctly answered? (Y/n/[k]/a/q) '
                 print("    " + 75*"—")
                 print('     Results WILL be recorded when go() completes its run')
                 print("    " + 75*"—")
@@ -1184,6 +1181,12 @@ def _print_cards_(cds, cols, start=0):
         Word and description are both strings.  Tally is an integer.
     cols : int
         Number of columns shown when cards are printed.
+    start : int
+        Index no. of first card.  Normally index nos. are 0, 1, 2, 3, etc. for
+        first, second, third word.  However if crds is a slice of the original
+        deck of cards, e.g. _cards_[15: 30], then you would want the index no.
+        to start at 15.
+
     '''
     if isinstance(_settings_['col_width'], int) and _settings_['col_width'] not in [0, 1]:
         w = _settings_['col_width']
