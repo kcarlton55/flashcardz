@@ -40,7 +40,7 @@ import webbrowser
 import math
 
 
-__version__ = '0.3.0'   # PEP 440 - describes versions
+__version__ = '0.4.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -312,15 +312,6 @@ def settings():
     >>> settings()
     """
     global _settings_
-# =============================================================================
-#     flag = False
-#     for key, value in default_settings_.items():
-#         if key not in _settings_:
-#             _settings_[key] = value
-#             flag = True
-#     if flag:
-#         _write_settings_fn_
-# =============================================================================
     print(settings.__doc__)
     print(f"Settings are saved in file {_get_settings_fn_()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
@@ -481,7 +472,7 @@ def add(word, definition, tally=None):
     if word and definition and type(word) == str and type(definition) == str:
         _cards_ = _open_()
         word = word.replace(delimiter, substitute).strip()
-        definition = definition.replace(delimiter, substitute).strip()
+        definition = definition.replace(delimiter, substitute).strip(" \t").strip('\n')  # strip does: '  \n  abc  ' -> '  abc'
         if 'replace_tabs' in _settings_ and _settings_['replace_tabs']:
             i = _settings_['replace_tabs']
             word = word.replace('\t', i*' ')
@@ -707,7 +698,6 @@ def cards(i=None, j=None):
 
     """
     _cards_ = _open_()
-    separator = 35*'-'
     if type(i) == int and i >=0 and j == None:  # 1) Show one word and its decrip
         word = _cards_[i][0]
         desc = _hide_urls_(_cards_[i][1])
@@ -749,6 +739,21 @@ def cards(i=None, j=None):
         _print_cards_(_cards_, _settings_['columns'])
 
 
+def _go_help_(abort=False):
+    print("    " + 75*"—")
+    print("     Y or the Enter key = you knew the definition")
+    print("     n = you did not know the definition")
+    print("     [k] = open a web page per the link shown in a word's description.")
+    print("     b = back.  Go back to the previous card.")
+    if _settings_['abort'] == True or abort == True:
+        print("     a = Abort saving results when go() finished. Current state: ON")
+    else:
+        print("     a = Abort saving results when go() finished.  Current state: OFF")
+    print("     h = help.  Show this list of information.")
+    print("     q = quit showing cards.  (Results will not be saved.)")
+    print("    " + 75*"—")
+
+
 def go(shuffle=True):
     '''
     The go() function is the primary function for flashcardz.  It proceeds in
@@ -776,31 +781,24 @@ def go(shuffle=True):
     >>> go()
 
     '''
-    print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
-    print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n/[k]/a/q)".  Respond')
-    print('with one of these answers:')
-    print("    " + 75*"—")
-    print("     Y or the Enter key = you knew the definition")
-    print("     n = you did not know the definition")
-    print("     [k] = open a web page per the link shown in a word's description.")
     if _settings_['abort'] == True:
         abort = True
-        print('     (Note: _settings_["abort"] = True.  RESULTS WILL NOT BE SAVED!)')
     else:
-        print("     a = abort recording of results when go() completes its run")
-    print("     q = quit showing cards")
-    print("    " + 75*"—")
-
+        abort = False
+    print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
+    print("try to figure out its meaning.  Then press the Enter key to show the word's")
+    print('definition.  The program will then ask "Meaning known? (Y/n/[k]/b/a/h/q)".')
+    print('Respond with one of these answers:')
+    _go_help_()
     print()
     ans1 = input("Press Enter to start. ")
-    if ans1 and (ans1[0].lower() == 'q' or ans1[0].lower() == 'e'):
+    if ans1 and ans1[0].lower() == 'q':
         return
 
     print("\nHere we go!")
 
     _cards_ = _open_()
-    index_list = [i for i in range(0, len(_cards_))]
+    index_list = list(range(0, len(_cards_)))
     if shuffle == True and len(_cards_) > 2:
         print("\nShuffling cards ", end='')
         for i in range(15):
@@ -811,33 +809,42 @@ def go(shuffle=True):
 
     number = 0
     number_of_cards_ = len(_cards_)
-    abort = False
     unwanted = []
     missed = []
     print()
-    correcttext = ('Meaning known? (Y/n/[k]/q) ' if _settings_['abort']
-                   else 'Meaning known? (Y/n/[k]/a/q) ')
+    tallys = [int(i[2]) for i in _cards_]   # these collected in case "b" response activated.
 
-    for k in index_list:
+    k = 0
+    while k < len(index_list):
         number += 1
         loop = True
-        flag = True
         while loop:
-            print(35*'-' + ' tally: ' + str(_cards_[k][2]) + ' ' + 35*'-')
-            print(f'{number} of {number_of_cards_}.  {_modify_text_(_cards_[k][0])}')  # _cards_[k][0] is "word"
-            if flag:  # pause after word shown, but pause only once.
-                flag = False
-                ans0 = input()
-                if ans0 and (ans0[0].lower() == 'q' or ans0[0].lower() == 'e'):
-                    return
-            desc = _hide_urls_(_cards_[k][1])  # _cards_[k][1] is "description"
+            print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
+            print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
+            ans0 = input()                                              # pause... ask user: meaning known?
+            if ans0 and ans0[0].lower() == 'q':
+                 return
+            desc = _hide_urls_(_cards_[k][1])
             desc = _modify_text_(desc)
-            print(f'{desc}\n')
-            ans = input(correcttext)
+            print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
+            ans = input('Meaning known? (Y/n/[k]/b/a/h/q): ')                                    # Ask: Meaning known? (Y/n, etc.)
+
             if ans and ans[0] == '[' and ans[1].isnumeric():
                 j = ast.literal_eval(ans)
                 for x in j:
                     webbrowser.open(_url_at_(_cards_[k][1], x))
+            elif ans and ans.strip().lower()[0] == 'b':
+                k -= 1
+                if k < 0:
+                    k = 0
+                number -= 1
+                if number == 0:
+                    number = 1
+                _cards_[k][2] = tallys[k]
+                if _cards_[k] in missed:
+                    missed.remove(_cards_[k])
+                if _cards_[k] in unwanted:
+                    unwanted.remove(_cards_[k])
             elif ans and ans.strip().lower() == '[k]':
                 print("    " + 75*"—")
                 print('     k should be a number, for example [1] or [2].  A desription containing  ')
@@ -845,38 +852,38 @@ def go(shuffle=True):
                 print('     blah blah [another link] blah.  Entering [1] will open a web page       ')
                 print('     pertaining to the first link.  [2] will open the 2nd.                   ')
                 print("    " + 75*"—")
-            elif ans and (ans[0].lower() == 'q' or ans[0].lower() == 'e'):
+            elif ans and ans[0].lower() == 'q':
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                correcttext = 'Correctly answered? (Y/n/[k]/q) '
                 print("    " + 75*"—")
-                print('     Results will NOT be recorded when go() completes its run')
+                print("    State of abort changed to: ON")
                 print("    " + 75*"—")
-                # loop = True is the default, so user will be asked again... Y/n/i/a/q
             elif ans and ans[0].lower() == 'a' and abort == True:
                 abort = False
-                correcttext = 'Correctly answered? (Y/n/[k]/a/q) '
                 print("    " + 75*"—")
-                print('     Results WILL be recorded when go() completes its run')
+                print("    State of abort changed to: OFF")
                 print("    " + 75*"—")
+            elif ans and ans[0].lower() == 'h':
+                _go_help_(abort)
             elif ans and ans[0].lower() == 'n':
                 print()
                 _cards_[k][2] = max(0,  _settings_['maxtally'] - _settings_['tallypenalty'])
                 missed.append(_cards_[k])
-                loop = False
+                loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
                 print()
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
                 if _cards_[k][2] >= _settings_['maxtally']:
-                    unwanted.append(k)
+                    unwanted.append(k)                                 # OK, now break the loop
                 loop = False
             else:
                 print()
                 _cards_[k][2] = int(_cards_[k][2]) + 1
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)
-                loop = False
+                loop = False                                           # OK, now break the loop
+        k += 1
     print(32*" " + "=== The End ===")
 
     if unwanted:
