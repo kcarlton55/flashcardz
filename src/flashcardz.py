@@ -740,18 +740,18 @@ def cards(i=None, j=None):
 
 
 def _go_help_(abort=False):
-    print("    " + 75*"—")
-    print("     Y or the Enter key = you knew the definition")
-    print("     n = you did not know the definition")
-    print("     [k] = open a web page per the link shown in a word's description.")
-    print("     b = back.  Go back to the previous card.")
+    print(f'    {75*"─"}')
+    print( "     Y or the Enter key = you knew the definition")
+    print( "     n = you did not know the definition")
+    print( "     h = help.  Show this list of information.")
+    print( "     [k] = open a web page per the link shown in a word's description.")
+    print( "     b = back.  Go back to the previous card.")
     if _settings_['abort'] == True or abort == True:
         print("     a = Abort saving results when go() finished. Current state: ON")
     else:
         print("     a = Abort saving results when go() finished.  Current state: OFF")
-    print("     h = help.  Show this list of information.")
     print("     q = quit showing cards.  (Results will not be saved.)")
-    print("    " + 75*"—")
+    print(f'    {75*"─"}')
 
 
 def go(shuffle=True):
@@ -787,7 +787,7 @@ def go(shuffle=True):
         abort = False
     print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
     print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n/[k]/b/a/h/q)".')
+    print('definition.  The program will then ask "Meaning known? (Y/n/h/[k]/b/a/q): "')
     print('Respond with one of these answers:')
     _go_help_()
     print()
@@ -804,68 +804,84 @@ def go(shuffle=True):
         for i in range(15):
             print(">", end='')
             time.sleep(.08)
-        print()
+        print('\n')
         index_list = sorted(index_list, key=lambda x: random.random())
 
     number = 0
     number_of_cards_ = len(_cards_)
     unwanted = []
     missed = []
-    print()
     tallys = [int(i[2]) for i in _cards_]   # these collected in case "b" response activated.
+    msg = ''
 
-    k = 0
-    while k < len(index_list):
+    n = 0
+    while n < len(index_list):
+        k = index_list[n]
         number += 1
         loop = True
         while loop:
             print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
+            if msg and msg == 'help':
+                _go_help_(abort)
+                msg = ''
+            elif msg:
+                print(msg)
+                msg = ''
             print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
+
             ans0 = input()                                              # pause... ask user: meaning known?
             if ans0 and ans0[0].lower() == 'q':
                  return
             desc = _hide_urls_(_cards_[k][1])
             desc = _modify_text_(desc)
             print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
-            ans = input('Meaning known? (Y/n/[k]/b/a/h/q): ')                                    # Ask: Meaning known? (Y/n, etc.)
+            ans = input('Meaning known? (Y/n/h/[k]/b/a/q): ')           # Ask: Meaning known? (Y/n, etc.)
 
             if ans and ans[0] == '[' and ans[1].isnumeric():
+                print()
                 j = ast.literal_eval(ans)
                 for x in j:
                     webbrowser.open(_url_at_(_cards_[k][1], x))
             elif ans and ans.strip().lower()[0] == 'b':
-                k -= 1
-                if k < 0:
-                    k = 0
+                n -= 1
+                if n < 0:
+                    n = 0
                 number -= 1
                 if number == 0:
                     number = 1
+                k = index_list[n]
                 _cards_[k][2] = tallys[k]
                 if _cards_[k] in missed:
                     missed.remove(_cards_[k])
                 if _cards_[k] in unwanted:
                     unwanted.remove(_cards_[k])
+                print()
             elif ans and ans.strip().lower() == '[k]':
-                print("    " + 75*"—")
-                print('     k should be a number, for example [1] or [2].  A desription containing  ')
-                print('     links will look like "blah blah blah [link to web page] blah blah blah  ')
-                print('     blah blah [another link] blah.  Entering [1] will open a web page       ')
-                print('     pertaining to the first link.  [2] will open the 2nd.                   ')
-                print("    " + 75*"—")
+                msg = (f'    {75*"─"}\n' +
+                        '     k should be a number, for example [1] or [2].  A desription containing \n' +
+                        '     links will look like "blah blah blah [link to web page] blah blah blah \n' +
+                        '     blah blah [another link] blah.  Entering [1] will open a web page      \n' +
+                        '     pertaining to the first link.  [2] will open the 2nd.                  \n' +
+                       f'    {75*"—"}')
+                print()
             elif ans and ans[0].lower() == 'q':
+                print('\nProgram exited.  No results saved.')
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                print("    " + 75*"—")
-                print("    State of abort changed to: ON")
-                print("    " + 75*"—")
+                print()
+                msg = (f'    {75*"─"}                         \n' +
+                        '     State of abort changed to: ON   \n' +
+                       f'    {75*"—"}                         \n')
             elif ans and ans[0].lower() == 'a' and abort == True:
                 abort = False
-                print("    " + 75*"—")
-                print("    State of abort changed to: OFF")
-                print("    " + 75*"—")
+                print()
+                msg = (f'    {75*"─"}                         \n' +
+                        '     State of abort changed to: OFF  \n' +
+                       f'    {75*"—"}                         \n')
             elif ans and ans[0].lower() == 'h':
-                _go_help_(abort)
+                msg = 'help'
+                print('\n')
             elif ans and ans[0].lower() == 'n':
                 print()
                 _cards_[k][2] = max(0,  _settings_['maxtally'] - _settings_['tallypenalty'])
@@ -877,13 +893,17 @@ def go(shuffle=True):
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
                 loop = False
+            elif ans:
+                msg = (f'    {75*"─"}                         \n' +
+                        '     Incorrect answer                \n' +
+                       f'    {75*"—"}                         \n')
             else:
                 print()
                 _cards_[k][2] = int(_cards_[k][2]) + 1
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)
                 loop = False                                           # OK, now break the loop
-        k += 1
+        n += 1
     print(32*" " + "=== The End ===")
 
     if unwanted:
@@ -1237,7 +1257,7 @@ def _print_cards_(cds, cols, start=0):
                             a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2],
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
 
-
+c = cards
 _read_settings_fn_()
 
 vi = sys.version_info
