@@ -804,7 +804,7 @@ def go(shuffle=True):
         for i in range(15):
             print(">", end='')
             time.sleep(.08)
-        print('\n')
+        print('\n\n')
         index_list = sorted(index_list, key=lambda x: random.random())
 
     number = 0
@@ -838,7 +838,7 @@ def go(shuffle=True):
             ans = input('Meaning known? (Y/n/h/[k]/b/a/q): ')           # Ask: Meaning known? (Y/n, etc.)
 
             if ans and ans[0] == '[' and ans[1].isnumeric():
-                print()
+                print('\n')
                 j = ast.literal_eval(ans)
                 for x in j:
                     webbrowser.open(_url_at_(_cards_[k][1], x))
@@ -855,7 +855,7 @@ def go(shuffle=True):
                     missed.remove(_cards_[k])
                 if _cards_[k] in unwanted:
                     unwanted.remove(_cards_[k])
-                print()
+                print('\n')
             elif ans and ans.strip().lower() == '[k]':
                 msg = (f'    {75*"─"}\n' +
                         '     k should be a number, for example [1] or [2].  A desription containing \n' +
@@ -863,19 +863,19 @@ def go(shuffle=True):
                         '     blah blah [another link] blah.  Entering [1] will open a web page      \n' +
                         '     pertaining to the first link.  [2] will open the 2nd.                  \n' +
                        f'    {75*"—"}')
-                print()
+                print('\n')
             elif ans and ans[0].lower() == 'q':
                 print('\nProgram exited.  No results saved.')
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                print()
+                print('\n')
                 msg = (f'    {75*"─"}                         \n' +
                         '     State of abort changed to: ON   \n' +
                        f'    {75*"—"}                         \n')
             elif ans and ans[0].lower() == 'a' and abort == True:
                 abort = False
-                print()
+                print('\n')
                 msg = (f'    {75*"─"}                         \n' +
                         '     State of abort changed to: OFF  \n' +
                        f'    {75*"—"}                         \n')
@@ -883,12 +883,12 @@ def go(shuffle=True):
                 msg = 'help'
                 print('\n')
             elif ans and ans[0].lower() == 'n':
-                print()
+                print('\n')
                 _cards_[k][2] = max(0,  _settings_['maxtally'] - _settings_['tallypenalty'])
                 missed.append(_cards_[k])
                 loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
-                print()
+                print('\n')
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
@@ -898,13 +898,13 @@ def go(shuffle=True):
                         '     Incorrect answer                \n' +
                        f'    {75*"—"}                         \n')
             else:
-                print()
+                print('\n')
                 _cards_[k][2] = int(_cards_[k][2]) + 1
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)
                 loop = False                                           # OK, now break the loop
         n += 1
-    print(32*" " + "=== The End ===")
+    print(f'\n{30*" "}=== End of cards === ')
 
     if unwanted:
         unwanted = sorted(unwanted)
@@ -1256,6 +1256,13 @@ def _print_cards_(cds, cols, start=0):
                             a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
                             a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2],
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
+
+
+
+
+
+
+
 
 c = cards
 _read_settings_fn_()
