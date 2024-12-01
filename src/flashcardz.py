@@ -38,6 +38,7 @@ import ast
 import re
 import webbrowser
 import math
+import string
 
 
 __version__ = '0.4.0'   # PEP 440 - describes versions
@@ -45,7 +46,11 @@ delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
                     "replace_tabs": -1, "abort": False, "columns": 1,
-                    "col_width": 2}
+                    "col_width": 2,
+                    'url_c': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
+                    'url_i': 'https://en.wiktionary.org/wiki/<word>#Spanish',
+                    'url_r': 'https://dle.rae.es/<word>',
+                    'url_w': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>'}
 
 def version():
     print(__version__)
@@ -397,6 +402,8 @@ def add(word, definition, tally=None):
         a URL link will look like: '''blah blah blah
         [connect to google](https://www.google.com/) blah blah'''.  See
         help(go) and help(cards) to see how a user is to activate these links.
+        (If you have trouble setting up links, see 'Notes' in
+        help(_modify_text_).)
 
         You can have portions of your text highlighted with italics,
         underlined, or have a different color text such as red or green.  To
@@ -698,13 +705,13 @@ def cards(i=None, j=None):
 
     """
     _cards_ = _open_()
-    if type(i) == int and i >=0 and j == None:  # 1) Show one word and its decrip
+    if type(i) == int and i >=0 and j == None:                  # 1) Show one word and its decrip
         word = _cards_[i][0]
         desc = _hide_urls_(_cards_[i][1])
         desc = _modify_text_(desc)
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(i) == int and i < 0 and j == None:  # 2) show urls & color/underline/italics codeing
+    elif type(i) == int and i < 0 and j == None:                # 2) show urls & color/underline/italics codeing
         k = abs(i)
         _card = _cards_[k]
         word = _card[0]
@@ -718,10 +725,10 @@ def cards(i=None, j=None):
         desc = _card[1]
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(i) == int and type(j) == list:  # open url at position [j] or card i
+    elif type(i) == int and type(j) == list:                    # open url at position [j] or card i
         for x in j:
             webbrowser.open(_url_at_(_cards_[i][1], x))
-    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 10):
+    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 10):  # print cards & definitions if count <=10
         a = min(i, j)
         b = max(i, j) + 1
         for x in range(a, b):
@@ -731,10 +738,15 @@ def cards(i=None, j=None):
             k = "'''" if  '\n' in word else "'"
             print(f"{35*'-'} tally: {_cards_[x][2]} {35*'-'}")
             print(f"{x}. {k}{word}{k},\n'''\n{desc}\n'''")
-    elif isinstance(j, int) and isinstance(i, int): # and (max(i, j) - min(i, j) <= 10):
+    elif isinstance(j, int) and isinstance(i, int):             # same, but only show words, (max(i, j) - min(i, j) <= 10):
         a = min(i, j)
         b = max(i, j) + 1
         _print_cards_(_cards_[a: b], _settings_['columns'], a)
+    elif j and isinstance(j, str) and j.lower() in list(string.ascii_lowercase):
+        word = _cards_[i][0].strip().split(' ')[0]   # i.e, if _cards[i][0] is 'house noun', set 'word' to 'house'
+        _url_ = _settings_[f'url_{ j.lower()}']      # _url_ = _settings_['url_a'] or _settings_['url_b'], etc
+        _url_ = _url_.replace('<word>', word)        # replace the text '<word>' in '_url_' with the actual word
+        webbrowser.open(_url_)
     else:
         _print_cards_(_cards_, _settings_['columns'])
 
@@ -804,7 +816,7 @@ def go(shuffle=True):
         for i in range(15):
             print(">", end='')
             time.sleep(.08)
-        print('\n\n')
+        print('\n\n\n\n')
         index_list = sorted(index_list, key=lambda x: random.random())
 
     number = 0
@@ -838,7 +850,6 @@ def go(shuffle=True):
             ans = input('Meaning known? (Y/n/h/[k]/b/a/q): ')           # Ask: Meaning known? (Y/n, etc.)
 
             if ans and ans[0] == '[' and ans[1].isnumeric():
-                print('\n')
                 j = ast.literal_eval(ans)
                 for x in j:
                     webbrowser.open(_url_at_(_cards_[k][1], x))
@@ -855,7 +866,6 @@ def go(shuffle=True):
                     missed.remove(_cards_[k])
                 if _cards_[k] in unwanted:
                     unwanted.remove(_cards_[k])
-                print('\n')
             elif ans and ans.strip().lower() == '[k]':
                 msg = (f'    {75*"─"}\n' +
                         '     k should be a number, for example [1] or [2].  A desription containing \n' +
@@ -863,32 +873,26 @@ def go(shuffle=True):
                         '     blah blah [another link] blah.  Entering [1] will open a web page      \n' +
                         '     pertaining to the first link.  [2] will open the 2nd.                  \n' +
                        f'    {75*"—"}')
-                print('\n')
             elif ans and ans[0].lower() == 'q':
                 print('\nProgram exited.  No results saved.')
                 return
             elif ans and ans[0].lower() == 'a' and abort == False:
                 abort = True
-                print('\n')
                 msg = (f'    {75*"─"}                         \n' +
                         '     State of abort changed to: ON   \n' +
-                       f'    {75*"—"}                         \n')
+                       f'    {75*"─"}                         \n')
             elif ans and ans[0].lower() == 'a' and abort == True:
                 abort = False
-                print('\n')
                 msg = (f'    {75*"─"}                         \n' +
                         '     State of abort changed to: OFF  \n' +
-                       f'    {75*"—"}                         \n')
+                       f'    {75*"─"}                         \n')
             elif ans and ans[0].lower() == 'h':
                 msg = 'help'
-                print('\n')
             elif ans and ans[0].lower() == 'n':
-                print('\n')
                 _cards_[k][2] = max(0,  _settings_['maxtally'] - _settings_['tallypenalty'])
                 missed.append(_cards_[k])
                 loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
-                print('\n')
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
@@ -898,12 +902,13 @@ def go(shuffle=True):
                         '     Incorrect answer                \n' +
                        f'    {75*"—"}                         \n')
             else:
-                print('\n')
                 _cards_[k][2] = int(_cards_[k][2]) + 1
                 if _cards_[k][2] >= _settings_['maxtally']:
                     unwanted.append(k)
                 loop = False                                           # OK, now break the loop
+            print('\n\n\n\n')
         n += 1
+
     print(f'\n{30*" "}=== End of cards === ')
 
     if unwanted:
@@ -994,7 +999,7 @@ def _get_settings_fn_():
             print('\nProgram setting pathname set to:')
             print(f'    _settings_["[pathname"] = {fn}')
         with open(settingsfn, 'w') as file:         # if a settingsfn doesn't exist, create one with default settings
-            _settings_ = default_settings_    # _settings_ here is not global
+            _settings_ = default_settings_          # _settings_ here is not global
             _settings_['pathname'] = fn
             file.write(str(_settings_))
     return settingsfn
@@ -1142,7 +1147,14 @@ def _modify_text_(text):
 
     Note:  Altering text as described above may not work on your system.  It
     depends on whether your operating system, the version of your operating
-    system, and/or whether your console supports it or not.
+    system, and/or whether your console supports it or not.  With Python 3.13
+    it seems to work fine.  Also, you can load an additional package called
+    ipython.  Ipython works fine with this text altering.  To install ipython
+    do "pip install ipython" (w/o quotes).  Here are urls to help you get
+    started learning about ipython:
+    1.  https://www.youtube.com/watch?v=1WFQ5MUA27U
+    2.  https://www.youtube.com/watch?v=TneKbjhcPic
+    3.  https://www.stephaniehicks.com/learnPython/pages/IPython.html
 
     Parameters
     ----------
