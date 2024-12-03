@@ -47,10 +47,11 @@ substitute = ';'     # if when file saved, replace any pipe symbols with semicol
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
                     "replace_tabs": -1, "abort": False, "columns": 1,
                     "col_width": 2,
-                    'url_c': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
-                    'url_i': 'https://en.wiktionary.org/wiki/<word>#Spanish',
-                    'url_r': 'https://dle.rae.es/<word>',
-                    'url_w': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>'}
+                    'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
+                    'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish'}
+                    #'col': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
+                    #'rae': 'https://dle.rae.es/<word>',
+
 
 def version():
     print(__version__)
@@ -66,9 +67,9 @@ def _remains_at_(setting):
         Name of the setting to report info on
     """
     try:
-        s = _settings_[setting]
+        s = settings[setting]
         print('\nProgram setting remains at:')
-        print(f'    _settings_["{setting}"] = {s}')
+        print(f'    settings["{setting}"] = {s}')
     except:
         pass
 
@@ -82,10 +83,10 @@ def _changed_to_(setting):
     setting : str
         Name of the setting to report info on
     """
-    s = _settings_[setting]
+    s = settings[setting]
     print('\nProgram setting changed to:')
-    print(f'    _settings_["{setting}"] = {s}')
-    _write_settings_fn_()
+    print(f'    settings["{setting}"] = {s}')
+    save_settings()
 
 
 def _currently_at_(setting):
@@ -98,9 +99,9 @@ def _currently_at_(setting):
         Name of the setting to report info on
     """
     try:
-        s = _settings_[setting]
+        s = settings[setting]
         print('\nSetting is currently:')
-        print(f'    _settings_["{setting}"] =  {s}')
+        print(f'    settings["{setting}"] =  {s}')
     except:
         pass
 
@@ -111,7 +112,7 @@ def _setabort_():
     any results, such as tallys, will NOT be recorded when go() is run.
     If False, then results will be recorded.
     """
-    global _settings_
+    global settings
     print(_setabort_.__doc__)
     _currently_at_('abort')
     abort = input('\n    abort (Enter nothing for no change) = ').strip()
@@ -121,10 +122,10 @@ def _setabort_():
         abort = False
     else:
         abort = None
-    if _settings_['abort'] == abort:
+    if settings['abort'] == abort:
         _remains_at_('abort')
     elif abort == False or abort == True:
-        _settings_['abort'] = abort
+        settings['abort'] = abort
         _changed_to_('abort')
     else:
         print('\nTrue or False are the only valid responses')
@@ -135,7 +136,7 @@ def _setshow_intro_():
     """
     Change the setting named "show_intro" to True or False.  If set to True,
     then flashcardz will introduce itself when the flashcardz program starts."""
-    global _settings_
+    global settings
     print(_setshow_intro_.__doc__)
     _currently_at_('show_intro')
     show_intro = input('\n    show_intro (Enter nothing for no change) = ').strip()
@@ -145,10 +146,10 @@ def _setshow_intro_():
         show_intro = False
     else:
         show_intro = None
-    if 'show_intro' in _settings_ and _settings_['show_intro'] == show_intro:
+    if 'show_intro' in settings and settings['show_intro'] == show_intro:
         _remains_at_('show_intro')
     elif show_intro == False or show_intro == True:
-        _settings_['show_intro'] = show_intro
+        settings['show_intro'] = show_intro
         _changed_to_('show_intro')
     else:
         print('\nTrue or False are the only valid responses')
@@ -169,15 +170,15 @@ def _settallypenalty_():
     greater than or equal to the setting for "maxtally", then tally will
     be set back to zero when a word is missed.
     """
-    global _settings_
+    global settings
     print(_settallypenalty_.__doc__)
     _currently_at_('tallypenalty')
     tallypenalty = input('\n    tallypenalty (Enter nothing for no change) = ')
     if tallypenalty.strip():
         tallypenalty = int(tallypenalty)
-    if (isinstance(tallypenalty, int) and ('tallypenalty' not in _settings_)
-                                           or tallypenalty != int(_settings_['tallypenalty'])):
-        _settings_['tallypenalty'] = abs(tallypenalty)
+    if (isinstance(tallypenalty, int) and ('tallypenalty' not in settings)
+                                           or tallypenalty != int(settings['tallypenalty'])):
+        settings['tallypenalty'] = abs(tallypenalty)
         _changed_to_('tallypenalty')
     else:
         _remains_at_('tallypenalty')
@@ -189,15 +190,15 @@ def _setmaxtally_():
     for that word is incremented by one.  When the tally reaches the value of
     "maxtally", the card is removed from the deck.
     '''
-    global _settings_
+    global settings
     print(_setmaxtally_.__doc__)
     _currently_at_('maxtally')
     maxtally = input('\n    maxtally (Enter nothing for no change) = ')
     if maxtally.strip():
         maxtally = abs(int(maxtally))
-    if (isinstance(maxtally, int) and ('maxtally' not in _settings_
-                                       or maxtally != int(_settings_['maxtally'] ))):
-        _settings_['maxtally'] = maxtally
+    if (isinstance(maxtally, int) and ('maxtally' not in settings
+                                       or maxtally != int(settings['maxtally'] ))):
+        settings['maxtally'] = maxtally
         _changed_to_('maxtally')
     else:
         _remains_at_('maxtally')
@@ -214,16 +215,16 @@ def _setreplace_tabs_():
 
     To make this setting inactive, set to -1.
     '''
-    global _settings_
+    global settings
     print(_setreplace_tabs_.__doc__)
     _currently_at_('replace_tabs')
     replace_tabs = input('\n    replace_tabs (Enter nothing for no change) = ')
     if replace_tabs.strip().isnumeric() or replace_tabs.strip()[1:].isnumeric():
         replace_tabs = int(replace_tabs)
     if (isinstance(replace_tabs, int)
-        and ('replace_tabs' not in _settings_
-             or replace_tabs != int(_settings_['replace_tabs']))):
-        _settings_['replace_tabs'] = replace_tabs
+        and ('replace_tabs' not in settings
+             or replace_tabs != int(settings['replace_tabs']))):
+        settings['replace_tabs'] = replace_tabs
         _changed_to_('replace_tabs')
     else:
          _remains_at_('replace_tabs')
@@ -234,16 +235,16 @@ def _setcolumns_():
     Set the number of columns that are displayed when the cards() function is
     run.  Options are 1, 2, or 3.  Default is 1.
     '''
-    global _settings_
+    global settings
     print(_setcolumns_.__doc__)
     _currently_at_('columns')
     columns = input('\n    columns (Enter nothing for no change) = ')
     if columns.strip().isnumeric():
         columns = int(columns)
     if (isinstance(columns, int)
-        and ('columns' not in _settings_
-             or columns != int(_settings_['columns']))):
-        _settings_['columns'] = columns
+        and ('columns' not in settings
+             or columns != int(settings['columns']))):
+        settings['columns'] = columns
         _changed_to_('columns')
     else:
          _remains_at_('columns')
@@ -259,16 +260,16 @@ def _setcol_width_():
     value that will vary depending on the value of the columns settings, then
     set this value to 1.  Default is 1.
     '''
-    global _settings_
+    global settings
     print(_setcol_width_.__doc__)
     _currently_at_('col_width')
     col_width = input('\n    col_width (Enter nothing for no change) = ')
     if col_width.strip().isnumeric():
         col_width = int(col_width)
     if (isinstance(col_width, int)
-        and ('col_width' not in _settings_
-             or col_width != int(_settings_['col_width']))):
-        _settings_['col_width'] = col_width
+        and ('col_width' not in settings
+             or col_width != int(settings['col_width']))):
+        settings['col_width'] = col_width
         _changed_to_('col_width')
     else:
          _remains_at_('col_width')
@@ -279,7 +280,7 @@ def _setpathname_():
     Set the pathname (filename prepended by a path) for where your set of cards is
     located.  If the file doesn't exist at the location you specify, it will be created.
     '''
-    global _settings_
+    global settings
     print(_setpathname_.__doc__)
     print(f'(current working directory is: {Path().cwd()})')
     _currently_at_('pathname')
@@ -287,7 +288,7 @@ def _setpathname_():
     userinput = input(r'    Pathname (Enter nothing for no change) = ').strip()
     fn = Path(userinput)
     fn_resolved = fn.resolve()
-    current_fn = Path(_settings_['pathname']).resolve()
+    current_fn = Path(settings['pathname']).resolve()
     if userinput and  fn_resolved.is_dir():
         print(f'\npathname cannot be a directory. You tried to create {fn_resolved}')
         _remains_at_('pathname')
@@ -300,41 +301,41 @@ def _setpathname_():
         _remains_at_('pathname')
     elif userinput and fn_resolved.exists():
         print('\nFile already exists.  Will use that file.')
-        _settings_['pathname'] = str(fn_resolved)
+        settings['pathname'] = str(fn_resolved)
         _changed_to_('pathname')
     elif (userinput and not fn_resolved.exists()) or (userinput and fn_resolved.exists()):
-        _settings_['pathname'] = str(fn_resolved)
+        settings['pathname'] = str(fn_resolved)
         _changed_to_('pathname')
     else:
         _remains_at_('pathname')
 
 
-def settings():
+def change_settings():
     """Adjust program's settings to tailer the behavior to fit your needs.
 
     Example
     -------
-    >>> settings()
+    >>> change_settings()
     """
-    global _settings_
-    print(settings.__doc__)
+    global settings
+    print(change_settings.__doc__)
     print(f"Settings are saved in file {_get_settings_fn_()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
     print('with settings reset to defaults.')
     print('\nCurrent settings are:')
-    for key, value in _settings_.items():
+    for key, value in settings.items():
         print(f'    {key}: {value}')
     chgkey = input('\nSetting to change (Enter nothing for no change): ')
     print()
     chgkey = str(chgkey).strip().lower()
-    if chgkey and chgkey not in _settings_.keys():
+    if chgkey and chgkey not in settings.keys():
         print(f'\n"{chgkey}" not found')
-        closest = get_close_matches(chgkey, _settings_.keys(), 1)
+        closest = get_close_matches(chgkey, settings.keys(), 1)
         if closest:
             print(f'Perhaps you meant this?: {closest[0]}')
         else:
             print('\nAvailable choices:')
-            for k in _settings_.keys():
+            for k in settings.keys():
                 print(f'    {k}')
     if chgkey == 'pathname':
         _setpathname_()
@@ -355,7 +356,7 @@ def settings():
 
 
 def functions():
-    ("Functions are:  add(), cards(), delete(), functions(), go(), settings()\n"
+    ("Functions are:  add(), cards(), delete(), functions(), go(), change_settings()\n"
      "and version().\n\n"
 
      "The primary functions are add(), cards(), and go().\n\n"
@@ -480,8 +481,8 @@ def add(word, definition, tally=None):
         _cards_ = _open_()
         word = word.replace(delimiter, substitute).strip()
         definition = definition.replace(delimiter, substitute).strip(" \t").strip('\n')  # strip does: '  \n  abc  ' -> '  abc'
-        if 'replace_tabs' in _settings_ and _settings_['replace_tabs']:
-            i = _settings_['replace_tabs']
+        if 'replace_tabs' in settings and settings['replace_tabs']:
+            i = settings['replace_tabs']
             word = word.replace('\t', i*' ')
             definition = definition.replace('\t', i*' ')
         word0 = ''.join(word.split()).lower()  # white space removed
@@ -572,12 +573,12 @@ def _save_(_cards_):
     Elements of the list are strings execept for 'tally' which are integers.
 
     '''
-    if ('pathname' not in _settings_ or _settings_['pathname'] == None
-            or _settings_['pathname'] == ""):
+    if ('pathname' not in settings or settings['pathname'] == None
+            or settings['pathname'] == ""):
         _setpathname_()
     fields = ['word', 'definition', 'tally']
     try:
-        fn = Path(_settings_['pathname'])
+        fn = Path(settings['pathname'])
         with open(fn, 'w', newline='', encoding='utf-8', errors='replace') as csvfile:  # w/o newline='', blank lines inserted with MS Windows
             csvwriter = csv.writer(csvfile, delimiter=delimiter)
             csvwriter.writerow(fields)
@@ -592,9 +593,9 @@ def _save_(_cards_):
 
 def _open_():
     '''
-    Open the pathname specified in flashcardz' _settings_, then read its
+    Open the pathname specified in flashcardz' settings, then read its
     contents.  Convert those contents to a python list object.  The file that
-    is opened is specfied in flashcardz' _settings_ at '_settings_["pathname"]'
+    is opened is specfied in flashcardz' settings at 'settings["pathname"]'
 
     Returns
     -------
@@ -605,11 +606,11 @@ def _open_():
 
     '''
     try:
-        if ('pathname' not in _settings_ or _settings_['pathname'] == None
-                or _settings_['pathname'] == ""):
+        if ('pathname' not in settings or settings['pathname'] == None
+                or settings['pathname'] == ""):
             _setpathname_()
 
-        fn = Path(_settings_['pathname'])
+        fn = Path(settings['pathname'])
 
         _cards_ = []
         with open(fn, 'r', encoding='utf-8', errors='replace') as csvfile:
@@ -741,14 +742,20 @@ def cards(i=None, j=None):
     elif isinstance(j, int) and isinstance(i, int):             # same, but only show words, (max(i, j) - min(i, j) <= 10):
         a = min(i, j)
         b = max(i, j) + 1
-        _print_cards_(_cards_[a: b], _settings_['columns'], a)
-    elif j and isinstance(j, str) and j.lower() in list(string.ascii_lowercase):
-        word = _cards_[i][0].strip().split(' ')[0]   # i.e, if _cards[i][0] is 'house noun', set 'word' to 'house'
-        _url_ = _settings_[f'url_{ j.lower()}']      # _url_ = _settings_['url_a'] or _settings_['url_b'], etc
-        _url_ = _url_.replace('<word>', word)        # replace the text '<word>' in '_url_' with the actual word
-        webbrowser.open(_url_)
+        _print_cards_(_cards_[a: b], settings['columns'], a)
+    elif j and isinstance(j, str):
+        if isinstance(i, str):
+            word = i.strip().split(' ')[0].strip(',.;')
+        else:
+            word = _cards_[i][0].strip().split(' ')[0].strip(',.;')   # i.e, if _cards[i][0] is 'house noun', set 'word' to 'house'
+        keys = j.split(',')
+        for key in keys:
+            k = key.strip()
+            if k in settings:
+                url = settings[k].replace('<word>', word)
+                webbrowser.open(url)
     else:
-        _print_cards_(_cards_, _settings_['columns'])
+        _print_cards_(_cards_, settings['columns'])
 
 
 def _go_help_(abort=False):
@@ -758,10 +765,11 @@ def _go_help_(abort=False):
     print( "     h = help.  Show this list of information.")
     print( "     [k] = open a web page per the link shown in a word's description.")
     print( "     b = back.  Go back to the previous card.")
-    if _settings_['abort'] == True or abort == True:
+    if settings['abort'] == True or abort == True:
         print("     a = Abort saving results when go() finished. Current state: ON")
     else:
         print("     a = Abort saving results when go() finished.  Current state: OFF")
+    print("     key = open website and show definition of word.")
     print("     q = quit showing cards.  (Results will not be saved.)")
     print(f'    {75*"─"}')
 
@@ -793,7 +801,7 @@ def go(shuffle=True):
     >>> go()
 
     '''
-    if _settings_['abort'] == True:
+    if settings['abort'] == True:
         abort = True
     else:
         abort = False
@@ -844,10 +852,18 @@ def go(shuffle=True):
             ans0 = input()                                              # pause... ask user: meaning known?
             if ans0 and ans0[0].lower() == 'q':
                  return
+            elif ans0 and ans0.split(',')[0] in settings:
+                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
+                keys = ans0.split(',')
+                for key in keys:
+                    k0 = key.strip()
+                    if k0 in settings:
+                        url = settings[k0].replace('<word>', word)
+                        webbrowser.open(url)
             desc = _hide_urls_(_cards_[k][1])
             desc = _modify_text_(desc)
             print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
-            ans = input('Meaning known? (Y/n/h/[k]/b/a/q): ')           # Ask: Meaning known? (Y/n, etc.)
+            ans = input('Meaning known? (Y/n/h/[k]/b/a/key/q): ')           # Ask: Meaning known? (Y/n, etc.)
 
             if ans and ans[0] == '[' and ans[1].isnumeric():
                 j = ast.literal_eval(ans)
@@ -889,21 +905,36 @@ def go(shuffle=True):
             elif ans and ans[0].lower() == 'h':
                 msg = 'help'
             elif ans and ans[0].lower() == 'n':
-                _cards_[k][2] = max(0,  _settings_['maxtally'] - _settings_['tallypenalty'])
+                _cards_[k][2] = max(0,  settings['maxtally'] - settings['tallypenalty'])
                 missed.append(_cards_[k])
                 loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
-                if _cards_[k][2] >= _settings_['maxtally']:
+                if _cards_[k][2] >= settings['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
                 loop = False
+            elif ans and ans.lower() == 'key':
+                msg = (f'    {75*"─"}                                                                  \n' +
+                        '     With a bit more setup, the go() function can be made to open up a web    \n' +
+                        '     page and show the defintion of the word.  Run the settings() function to \n' +
+                        '     see info on how to do this.                                              \n' +
+                       f'    {75*"─"}                                                                  \n')
+            elif ans and ans.split(',')[0] in settings:
+                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
+                keys = ans.split(',')
+                for key in keys:
+                    k0 = key.strip()
+                    if k0 in settings:
+                        url = settings[k0].replace('<word>', word)
+                        webbrowser.open(url)
             elif ans:
                 msg = (f'    {75*"─"}                         \n' +
                         '     Incorrect answer                \n' +
                        f'    {75*"—"}                         \n')
+
             else:
                 _cards_[k][2] = int(_cards_[k][2]) + 1
-                if _cards_[k][2] >= _settings_['maxtally']:
+                if _cards_[k][2] >= settings['maxtally']:
                     unwanted.append(k)
                 loop = False                                           # OK, now break the loop
             print('\n\n\n\n')
@@ -997,29 +1028,29 @@ def _get_settings_fn_():
         if not fn:
             fn = str(fn_2_suggest)
             print('\nProgram setting pathname set to:')
-            print(f'    _settings_["[pathname"] = {fn}')
+            print(f'    settings["[pathname"] = {fn}')
         with open(settingsfn, 'w') as file:         # if a settingsfn doesn't exist, create one with default settings
-            _settings_ = default_settings_          # _settings_ here is not global
-            _settings_['pathname'] = fn
-            file.write(str(_settings_))
+            settings = default_settings_          # settings here is not global
+            settings['pathname'] = fn
+            file.write(str(settings))
     return settingsfn
 
 
 def _read_settings_fn_():
-    global _settings_
+    global settings
     try:
         settingsfn = _get_settings_fn_()
         with open(settingsfn, 'r') as file:
             x = file.read().replace('\\', '/')
-        _settings_ = ast.literal_eval(x)
+        settings = ast.literal_eval(x)
 
         flag = False
         for key, value in default_settings_.items():
-            if key not in _settings_:
-                _settings_[key] = value
+            if key not in settings:
+                settings[key] = value
                 flag = True
         if flag:
-            _write_settings_fn_
+            save_settings
 
     except Exception:
         msg = ("\n\n\n\x1b[0;1;31mError occured at the _read_settings_fn_() function:\n"
@@ -1030,8 +1061,8 @@ def _read_settings_fn_():
         print(msg)
 
 
-def _write_settings_fn_():
-    '''Write the dictionary named _settings_ to to a file.  _settings_ contains
+def save_settings():
+    '''Write the dictionary named settings to to a file.  settings contains
     user user modified settings via the settings() function.
 
     Returns
@@ -1042,9 +1073,9 @@ def _write_settings_fn_():
     try:
         settingsfn = _get_settings_fn_()
         with open(settingsfn, 'w') as file:
-            file.write(str(_settings_))
+            file.write(str(settings))
     except Exception as e:
-        msg = ("\nError at _write_settings_fn_() function:\n\n"
+        msg = ("\nError at save_settings() function:\n\n"
                "Unable to save flashcardz data file.\n"
                "Perhaps you have it open with another program?\n  "
                + str(e))
@@ -1227,8 +1258,8 @@ def _print_cards_(cds, cols, start=0):
         to start at 15.
 
     '''
-    if isinstance(_settings_['col_width'], int) and _settings_['col_width'] not in [0, 1]:
-        w = _settings_['col_width']
+    if isinstance(settings['col_width'], int) and settings['col_width'] not in [0, 1]:
+        w = settings['col_width']
     elif cols in [1, 2, 3, 4]:
         w = 35 - cols*5
     else:
@@ -1284,7 +1315,7 @@ banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}
           'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
           'Excecute "functions()" (w/o quotes) for info about running this program.\n')
 try:
-    if _settings_['show_intro']:
+    if settings['show_intro']:
         print(banner)
 except:
     print(banner)
