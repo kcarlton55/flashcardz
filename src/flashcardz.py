@@ -38,17 +38,18 @@ import ast
 import re
 import webbrowser
 import math
-import string
+
 
 
 __version__ = '0.4.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
-                    "replace_tabs": -1, "abort": False, "columns": 1,
-                    "col_width": 2,
+                    "replace_tabs": -1, "abort": False, "columns": 2,
+                    "col_width": 0,
                     'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
-                    'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish'}
+                    'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
+                    'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
                     #'col': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
                     #'rae': 'https://dle.rae.es/<word>',
 
@@ -130,6 +131,71 @@ def _setabort_():
     else:
         print('\nTrue or False are the only valid responses')
         _remains_at_('abort')
+
+
+def _setkey_():
+    msg = ("When a word shows up when running the cards() or go() functions, you can have a \n" +
+          "web page automatically open and show the definition of that word.  To set this \n" +
+          "up it requires you to change your settings in a way that is beyond the scope of \n" +
+          "the change_settings() function. Nevertheless it is easy to do. \n\n" +
+
+          "Your settings are saved in a memory location on your computer that is the named \n" +
+          '"settings".  If you type in the name settings at the python prompt, you will \n' +
+          "see the contents of that location.  For example: \n\n" +
+
+          "     >>> settings \n\n" +
+
+          "     {'pathname': C://Users//Ken//Documents//spanish//flashcardz.txt', \n" +
+          "     'maxtally': 10, \n" +
+          "     'tallypenalty': 10, \n" +
+          "     'show_intro': True, \n" +
+          "     'replace_tabs': -1, \n" +
+          "     'abort': False, \n" +
+          "     'columns': 3, \n" +
+          "     'col_width': 0, \n" +
+          "     'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>', \n" +
+          "     'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish', \n" +
+          "     'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'} \n\n" +
+
+          "In the computer programming language python, this is what is called a \n" +
+          "'dictionary'.  A dictionary consists of key/value pairs.  In the dictionary \n" +
+          "above, 'wr' is a key, and \n" +
+          "'https://www.wordreference.com/es/en/translation.asp?spen=<word>' is that key's \n" +
+          "value.  This particular key's value is a url.  'wiki' and 'pronounce' are also \n" +
+          "keys whos corresponding values are urls.  Entering any of these keys in the \n" +
+          "cards() or go() function where appropriate will oppen a web page and show the \n" +
+          "definition of the word that is being viewed. \n\n" +
+
+          "You can open multiple pages simulataneously if you wish.  Do this by entering the \n" +
+          "keys separated by commas.  For example: wr, wiki, pronounce. \n\n" +
+
+          "Notice that in each url is the text <word>.  Just prior to applying the url to \n" +
+          "a web page, the word you are currenly viewing will replace <word>.  For example, \n" +
+          "for the word 'correr', which means 'to run' in Spanish, the url will change to \n" +
+          "'https://www.wordreference.com/es/en/translation.asp?spen=correr'.\n\n" +
+
+          "You can create your own key/value pairs and add it to the settings dictionary.\n" +
+          "To do so, first visit the web site with a dictionary you wish to use and search \n" +
+          "for some word... any word.  Look in the url that the web browser opened up. \n" +
+          "You should see the word that you searched for in that url.  Copy the url and \n" +
+          "replace your word with <word>.  Now you have your 'value'.  For the name of a \n" +
+          "key use a name you think is appropriate.\n\n" +
+
+          "Now let's add your key and value to the settings dictionary.  Suppose I want to \n" +
+          "add a key named 'rae' with a value of 'https://dle.rae.es/<word>'.  Do it like by \n" +
+          "this: \n\n" +
+
+          "     >>> settings['rae'] = 'https://dle.rae.es/<word>'. \n\n" +
+
+          "Then do:\n\n" +
+
+          "     >>> settings \n\n "+
+
+          "This will verify that your key/value pair has been added to settings. \n" )
+
+    print(msg)
+
+
 
 
 def _setshow_intro_():
@@ -759,19 +825,19 @@ def cards(i=None, j=None):
 
 
 def _go_help_(abort=False):
-    print(f'    {75*"─"}')
-    print( "     Y or the Enter key = you knew the definition")
-    print( "     n = you did not know the definition")
-    print( "     h = help.  Show this list of information.")
-    print( "     [k] = open a web page per the link shown in a word's description.")
-    print( "     b = back.  Go back to the previous card.")
+    print(f'   {75*"─"}')
+    print( "    Y or the Enter key = you knew the definition")
+    print( "    n = you did not know the definition")
+    print( "    h = help.  Show this list of information.")
+    print( "    [k] = open a web page per the link shown in a word's description.")
+    print( "    b = back.  Go back to the previous card.")
     if settings['abort'] == True or abort == True:
-        print("     a = Abort saving results when go() finished. Current state: ON")
+        print("    a = Abort saving results when go() finished. Current state: ON")
     else:
-        print("     a = Abort saving results when go() finished.  Current state: OFF")
-    print("     key = open website and show definition of word.")
-    print("     q = quit showing cards.  (Results will not be saved.)")
-    print(f'    {75*"─"}')
+        print("    a = Abort saving results when go() finished.  Current state: OFF")
+    print("    key = open website and show definition of word.")
+    print("    q = quit showing cards.  (Results will not be saved.)")
+    print(f'  {75*"─"}')
 
 
 def go(shuffle=True):
@@ -883,12 +949,12 @@ def go(shuffle=True):
                 if _cards_[k] in unwanted:
                     unwanted.remove(_cards_[k])
             elif ans and ans.strip().lower() == '[k]':
-                msg = (f'    {75*"─"}\n' +
-                        '     k should be a number, for example [1] or [2].  A desription containing \n' +
-                        '     links will look like "blah blah blah [link to web page] blah blah blah \n' +
-                        '     blah blah [another link] blah.  Entering [1] will open a web page      \n' +
-                        '     pertaining to the first link.  [2] will open the 2nd.                  \n' +
-                       f'    {75*"—"}')
+                msg = (f'   {75*"─"}\n' +
+                        '    k should be a number, for example [1] or [2].  A desription containing \n' +
+                        '    links will look like "blah blah blah [link to web page] blah blah blah \n' +
+                        '    blah blah [another link] blah.  Entering [1] will open a web page      \n' +
+                        '    pertaining to the first link.  [2] will open the 2nd.                  \n' +
+                       f'   {75*"—"}')
             elif ans and ans[0].lower() == 'q':
                 print('\nProgram exited.  No results saved.')
                 return
@@ -914,11 +980,17 @@ def go(shuffle=True):
                     unwanted.append(k)                                 # OK, now break the loop
                 loop = False
             elif ans and ans.lower() == 'key':
-                msg = (f'    {75*"─"}                                                                  \n' +
-                        '     With a bit more setup, the go() function can be made to open up a web    \n' +
-                        '     page and show the defintion of the word.  Run the settings() function to \n' +
-                        '     see info on how to do this.                                              \n' +
-                       f'    {75*"─"}                                                                  \n')
+                msg = (f'   {75*"─"}                                                                   \n' +
+                        '    The literal word "key" is not meant to be used.  Rather "key" signifies   \n' +
+                        "    keywords that are in flashcardz' settings.  The keywards that can be used \n" +
+                        '    are wr, wiki, and pronounce.  If wr is used, then a web page opens        \n' +
+                        '    showing the definition of a word from www.wordref.com.  If wiki, then the \n' +
+                        '    definition comes from en.wiktionary.org.  And if pronounce, from          \n' +
+                        '    www.howtopronounce.com.  These sites are for Spanish words.  However, you \n' +
+                        '    can update your settings to create your own keyword and its associated    \n' +
+                        '    website.  Therefore you can set it up for whatever language you chose.    \n' +
+                        '    See help(_setkey_) to see how to do this.                                 \n' +
+                       f'   {75*"─"}                                                                   \n')
             elif ans and ans.split(',')[0] in settings:
                 word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
                 keys = ans.split(',')
@@ -984,10 +1056,10 @@ def go(shuffle=True):
 
 def _get_settings_fn_():
     '''Get the pathname (path and name) to store user's settings.  The file
-    will be named _settings_.txt.  The pathname will be vary depending on who's
+    will be named settings.txt.  The pathname will be vary depending on who's
     logged in and what os is being used.  Pathname will look like:
-    C:\\Users\\Ken\\AppData\\Local\\flashcardz\\_settings_.txt.  On a linux
-    os, will look like: /home/Ken/.flashcardz/_settings_.txt
+    C:\\Users\\Ken\\AppData\\Local\\flashcardz\\settings.txt.  On a linux
+    os, will look like: /home/Ken/.flashcardz/settings.txt
 
     If the pathname does not already exists, it will be created, and default
     settings will be inserted into the file, i.e.
@@ -998,14 +1070,14 @@ def _get_settings_fn_():
         path = os.path.join(datadir, 'flashcardz')
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
-        settingsfn = os.path.join(datadir, 'flashcardz', '_settings_.txt')
+        settingsfn = os.path.join(datadir, 'flashcardz', 'settings.txt')
 
     elif sys.platform[:3] == 'lin':  # if a Linux operating system being used.
         homedir = os.path.expanduser('~')
         path = os.path.join(homedir, '.flashcardz')
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
-        settingsfn = os.path.join(homedir, '.flashcardz', '_settings_.txt')
+        settingsfn = os.path.join(homedir, '.flashcardz', 'settings.txt')
 
     else:
         printStr = ('At method "get_configfn", a suitable path was not found to\n'
