@@ -38,8 +38,21 @@ import ast
 import re
 import webbrowser
 import math
-
-
+try:
+    from IPython.display import clear_output  # ref: https://stackoverflow.com/questions/24816237/ipython-notebook-clear-cell-output-in-code
+    from IPython import get_ipython
+    def _is_ipython_():
+        ''' test if ipython is running or not'''
+        try:
+            if get_ipython() is not None:
+                return True
+            else:
+                return False
+        except ImportError:
+            return False
+except:
+    def _is_ipython_():
+        return False
 
 __version__ = '0.4.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
@@ -134,69 +147,72 @@ def _setabort_():
 
 
 def _setkey_():
-    msg = ("When a word shows up when running the cards() or go() functions, you can have a \n" +
-          "web page automatically open and show the definition of that word.  To set this \n" +
-          "up it requires you to change your settings in a way that is beyond the scope of \n" +
-          "the change_settings() function. Nevertheless it is easy to do. \n\n" +
+    '''
+    Flashcardz' settings are saved in a memory location named settings.  If you
+    type in the name settings at the python prompt you will see its contents.
+    For example:
 
-          "Your settings are saved in a memory location on your computer that is the named \n" +
-          '"settings".  If you type in the name settings at the python prompt, you will \n' +
-          "see the contents of that location.  For example: \n\n" +
+        >>> settings
 
-          "     >>> settings \n\n" +
+           {'pathname': C://Users//Ken//Documents//spanish//flashcardz.txt',
+            'maxtally': 10,
+            'tallypenalty': 10,
+            'show_intro': True
+            'replace_tabs': -1,
+            'abort': False,
+            'columns': 3,
+            'col_width': 0,
+            'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
+            'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
+            'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
 
-          "     {'pathname': C://Users//Ken//Documents//spanish//flashcardz.txt', \n" +
-          "     'maxtally': 10, \n" +
-          "     'tallypenalty': 10, \n" +
-          "     'show_intro': True, \n" +
-          "     'replace_tabs': -1, \n" +
-          "     'abort': False, \n" +
-          "     'columns': 3, \n" +
-          "     'col_width': 0, \n" +
-          "     'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>', \n" +
-          "     'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish', \n" +
-          "     'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'} \n\n" +
+    In the python computer language, this is known as a dictionary.  Items in a
+    dictionary are in pairs: a key (i.e. key word) and its value.  If you wanted
+    to add a new key named rae, and its value, you would do this:
 
-          "In the computer programming language python, this is what is called a \n" +
-          "'dictionary'.  A dictionary consists of key/value pairs.  In the dictionary \n" +
-          "above, 'wr' is a key, and \n" +
-          "'https://www.wordreference.com/es/en/translation.asp?spen=<word>' is that key's \n" +
-          "value.  This particular key's value is a url.  'wiki' and 'pronounce' are also \n" +
-          "keys whos corresponding values are urls.  Entering any of these keys in the \n" +
-          "cards() or go() function where appropriate will oppen a web page and show the \n" +
-          "definition of the word that is being viewed. \n\n" +
+        >>> settings['rae'] = 'https://dle.rae.es/correr'
 
-          "You can open multiple pages simulataneously if you wish.  Do this by entering the \n" +
-          "keys separated by commas.  For example: wr, wiki, pronounce. \n\n" +
+    This will, when using the go() or cards() functions, open up the website named
+    dle.rae.es and show the definition of the Spanish word correr.  However,
+    obviously, you would not want to restrict yourself to just one word.  To make
+    go() and cards() show the word that that is currently being viewed, you should
+    do this instead:
 
-          "Notice that in each url is the text <word>.  Just prior to applying the url to \n" +
-          "a web page, the word you are currenly viewing will replace <word>.  For example, \n" +
-          "for the word 'correr', which means 'to run' in Spanish, the url will change to \n" +
-          "'https://www.wordreference.com/es/en/translation.asp?spen=correr'.\n\n" +
+        >>> settings['rae'] = 'https://dle.rae.es/<word>'
 
-          "You can create your own key/value pairs and add it to the settings dictionary.\n" +
-          "To do so, first visit the web site with a dictionary you wish to use and search \n" +
-          "for some word... any word.  Look in the url that the web browser opened up. \n" +
-          "You should see the word that you searched for in that url.  Copy the url and \n" +
-          "replace your word with <word>.  Now you have your 'value'.  For the name of a \n" +
-          "key use a name you think is appropriate.\n\n" +
+    When the text <word> is present, the program will replace <word> with the
+    word that is being viewed.
 
-          "Now let's add your key and value to the settings dictionary.  Suppose I want to \n" +
-          "add a key named 'rae' with a value of 'https://dle.rae.es/<word>'.  Do it like by \n" +
-          "this: \n\n" +
+    Most likely you will want to choose your own key word and own value.  To do
+    this search for a word on the site of the dictionary you want to use.  Copy
+    the url that shows up in address bar.  For example, if you look for the word
+    "family" on Merriam-Webster's web site, and after you copied and pasted the
+    url, it will look like this:  https://www.merriam-webster.com/dictionary/family.
+    Now, if you want to add this to your settings, you would do this:
 
-          "     >>> settings['rae'] = 'https://dle.rae.es/<word>'. \n\n" +
+        >>> setting['web'] = 'https://www.merriam-webster.com/dictionary/<word>'
 
-          "Then do:\n\n" +
+    Make sure you add the quote marks.  The key word doesn't have to be 'web'.
+    It can be any key word you like.  To make this setting permanent, so that it
+    will be available after you close and later reopen flashcardz, do this:
 
-          "     >>> settings \n\n "+
+        >>> save_settings()
 
-          "This will verify that your key/value pair has been added to settings. \n" )
+    If at some point you decide you no longer want the key and its value present,
+    do this:
 
-    print(msg)
+        >>> del settings['web']
 
+    Make sure to do a save_settings() to make your changes permanent.  If you
+    ever mess up your settings so that flashcardz doesn't work properly,
+    delete the file named settings.txt.  It contains your settings.  You can find
+    the location of this file by running change_settings().  You'll  see the
+    location in the text that is printed out.
 
-
+    If you are a geek and want to learn more about dictionaries, you can start
+    here: https://www.w3schools.com/python/python_dictionaries.asp
+    '''
+    print(_setkey_.__doc__)
 
 def _setshow_intro_():
     """
@@ -419,6 +435,9 @@ def change_settings():
         _setcolumns_()
     elif chgkey == 'col_width':
         _setcol_width_()
+    elif chgkey in ['wr', 'wiki', 'pronounce']:
+        print(f'####### {chgkey} cannot be changed using change_settings() #######')
+        _setkey_()
 
 
 def functions():
@@ -533,7 +552,7 @@ def add(word, definition, tally=None):
     #  edit the definition. (Word cannot change, otherwise deck will be added
     #  to instead of a card revised.)
     #
-    #  Tip 2: When pasting a word AND its defintion, is is recommended to start
+    #  Tip 2: When pasting a word AND its defintion, it is recommended to start
     #  with add(''' and then paste text that you copied from some source.  To
     #  move the cursor within your pasted text in order to edit it, use the key
     #  board's arrow keys.
@@ -738,6 +757,13 @@ def cards(i=None, j=None):
             within the descriptions.  (See the add() function's documentation
             for how to insert url's into definitions.)  If more that one number
             is present, then open multiple urls.  E.g. [1, 2]
+        if type(j) == string, and string is the keyword 'wr', 'wiki', or
+            'pronounce'... keywords found in flashcardz' settings, then open up
+            the webpage wordreference.com, en.wiktionary.org, or
+            howtopronounce.com repectively and show the definition of the word
+            from those sites.  Open up more than one page at a time by
+            entering, for example, 'wr, wiki, pronounce'.  To adjust settings
+            to open a webpage of your choice, see help(_setkey_).
 
     Returns
     -------
@@ -906,6 +932,8 @@ def go(shuffle=True):
         number += 1
         loop = True
         while loop:
+            clear_output() if _is_ipython_() else None # if jupyterlab is running
+            os.system('cls' if os.name == 'nt' else 'clear')
             print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
             if msg and msg == 'help':
                 _go_help_(abort)
@@ -1012,6 +1040,8 @@ def go(shuffle=True):
             print('\n\n\n\n')
         n += 1
 
+    clear_output() if _is_ipython_() else None # if jupyterlab is running
+    os.system('cls' if os.name == 'nt' else 'clear')
     print(f'\n{30*" "}=== End of cards === ')
 
     if unwanted:
@@ -1373,6 +1403,20 @@ def _print_cards_(cds, cols, start=0):
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
 
 
+def is_ipython():
+    try:
+        from IPython import get_ipython
+        if get_ipython() is not None:
+            return True
+        else:
+            return False
+    except ImportError:
+        return False
+
+if is_ipython():
+    print("Running in IPython")
+else:
+    print("Not running in IPython")
 
 
 
