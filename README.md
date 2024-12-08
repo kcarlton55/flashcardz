@@ -27,14 +27,15 @@ Words and defintionions can also be imported from an Excel file.
 
 ## **Features**
 * Cost: Free (as the wind).
-* Easy addition of words and defintions via copy and paste.
-* User can add links to urls into cards.
+* Easily add words and defintions via copy and paste.
+* User can imbed url links into cards.
 * Can import words and definitions from an Excel file.
 * Deck of cards is shuffled before each viewing.
 * Score kept of number of times the word's definitions are correcty known.
 * Card automatically removed once max score has been reached.
-* Can highlight portions of text with underscores, italics, or colors.
-* flashcardz needs no supporting files. Only the basic python program is needed.
+* Can highlight portions of card's text with underscores, italics, or colors.
+* Automatically open the definition of card's word from the Internet.
+* Flashcardz can be run from a web page using Jupyter Lab software.
 
 
 ## **How to install**
@@ -203,6 +204,7 @@ to change to a different delimiter when exporting.  But there is a relatively
 easy work-around.  See this youtube video for how to do it:
 [Export Data with Pipe Delimiters Instead of Commas](https://www.youtube.com/watch?v=jieWzHJjVBU)
 
+
 ## **Opening a flashcardz data file into Excel**
 
 Opening a flashcardz data file into Excel is relatively easy.  When you open a
@@ -213,6 +215,28 @@ bar character, also called a pipe, |, as a delimiter.
 When you import your flashcardz data file into Excel, you will see that the
 flashcardz program has modified the data slightly by adding and additional, the
 tally column.
+
+
+## **Run flashcardz on a web page**
+
+A program named Jupyter Lab allows flashcardz to be run on a web page.  Jupyter
+Lab is very popular among data analists and scholastics.  With Python already
+installed on your computer, it is an easy step to also install and integrate
+the Jupyter Lab software within your Python software.
+
+Info is here about how to install it can be found here: https://jupyter.org/
+This video can get you started: https://www.youtube.com/watch?v=5pf0_bpNbkw
+
+It requires some additional learning to use Jupyter Lab, though its not as
+difficult as it first appears; and once learned, will make flashcardz even
+easier to work with.
+
+Once Jupyter Lab is installed and started, enter "from flashcardz import *"
+into a cell (without quotes) and then do Ctrl+Enter.  Now you can enter and run
+go(), add(), and other functions.  Once go() is entered into a cell, do
+Ctrl+Enter to run to go() function.  The same goes for flashcardz' other
+functions.
+
 
 
 

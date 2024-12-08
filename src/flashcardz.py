@@ -1403,26 +1403,6 @@ def _print_cards_(cds, cols, start=0):
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
 
 
-def is_ipython():
-    try:
-        from IPython import get_ipython
-        if get_ipython() is not None:
-            return True
-        else:
-            return False
-    except ImportError:
-        return False
-
-if is_ipython():
-    print("Running in IPython")
-else:
-    print("Not running in IPython")
-
-
-
-
-
-
 c = cards
 _read_settings_fn_()
 
