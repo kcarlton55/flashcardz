@@ -54,7 +54,7 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '0.4.0'   # PEP 440 - describes versions
+__version__ = '0.5.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -214,6 +214,7 @@ def _setkey_():
     '''
     print(_setkey_.__doc__)
 
+
 def _setshow_intro_():
     """
     Change the setting named "show_intro" to True or False.  If set to True,
@@ -370,7 +371,7 @@ def _setpathname_():
     userinput = input(r'    Pathname (Enter nothing for no change) = ').strip()
     fn = Path(userinput)
     fn_resolved = fn.resolve()
-    current_fn = Path(settings['pathname']).resolve()
+    current_fn = Path(settings['pathname']).resolve() if 'pathname' in settings else None
     if userinput and  fn_resolved.is_dir():
         print(f'\npathname cannot be a directory. You tried to create {fn_resolved}')
         _remains_at_('pathname')
@@ -694,9 +695,7 @@ def _open_():
         if ('pathname' not in settings or settings['pathname'] == None
                 or settings['pathname'] == ""):
             _setpathname_()
-
         fn = Path(settings['pathname'])
-
         _cards_ = []
         with open(fn, 'r', encoding='utf-8', errors='replace') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=delimiter)
@@ -1047,11 +1046,17 @@ def go(shuffle=True):
     if unwanted:
         unwanted = sorted(unwanted)
         print('\n' + 80*'_')
+        ln = len(unwanted)
+        numbers = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+                   'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen',
+                   'fourteen', 'fifteen', 'sixteen', 'seventeen',
+                   'eighteen', 'nineteen', 'twenty']
+        plural = 's' if ln > 1 else ''
+        number = numbers[ln - 1] if ln < 21 else str(ln)
         if not abort:
-            print(
-                'Congradulations!  Max tally reached on the following.  Cards removed: \n')
+            print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
         else:
-            print('Congradulations!  Max tally reached on the following: \n')
+            print(f'Congradulations!  Max tally reached on {number} card{plural}. \n')
         # [::-1] reverses the list in order to remove latter elements first.
         for ele in unwanted[::-1]:
             # ele is an element of the _cards_ list
@@ -1086,56 +1091,41 @@ def go(shuffle=True):
 
 def _get_settings_fn_():
     '''Get the pathname (path and name) to store user's settings.  The file
-    will be named settings.txt.  The pathname will be vary depending on who's
-    logged in and what os is being used.  Pathname will look like:
-    C:\\Users\\Ken\\AppData\\Local\\flashcardz\\settings.txt.  On a linux
-    os, will look like: /home/Ken/.flashcardz/settings.txt
+    will be named .flashcardz_settings.txt.  The pathname will be vary
+    depending on who's logged in and what os is being used.  Pathname will look
+    like: C:\\Users\\Ken\\.flashcardz_settings.txt.  On a linux OS, will look
+    like: /home/Ken/.flashcardz_settings.txt
 
     If the pathname does not already exists, it will be created, and default
     settings will be inserted into the file, i.e.
     {"maxtally": "10", "abort": "False", etc. }
     '''
-    if sys.platform[:3] == 'win':  # if a Window operating system being used.
-        datadir = os.getenv('LOCALAPPDATA')
-        path = os.path.join(datadir, 'flashcardz')
-        if not os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
-        settingsfn = os.path.join(datadir, 'flashcardz', 'settings.txt')
-
-    elif sys.platform[:3] == 'lin':  # if a Linux operating system being used.
-        homedir = os.path.expanduser('~')
-        path = os.path.join(homedir, '.flashcardz')
-        if not os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
-        settingsfn = os.path.join(homedir, '.flashcardz', 'settings.txt')
-
-    else:
-        printStr = ('At method "get_configfn", a suitable path was not found to\n'
-                    'create file settings.txt.  Notify the programmer of this error.')
-        print(printStr)
-        return ""
+    settings_dir = os.path.expanduser('~') if os.path.isdir(os.path.expanduser('~')) else os.getcwd()
+    settingsfn = os.path.join(settings_dir, '.flashcardz_settings.txt')
 
     _bool = os.path.exists(settingsfn)
-
-    # Whoops.  A settingsfn doesn't aready exist.  Create one on user's computer
+    # settingsfn doesn't aready exist.  Create it.  Ask for fn (pathname) for deck.  Put it and default settings into settingsfn
     if not _bool or (_bool and os.path.getsize(settingsfn) == 0):
-        fn_2_suggest = _suggest_fn_()
-        print('\n\n It appears this is your first time running this program.  A file\n'
-              ' name needs to be established in which a new card deck will be\n'
-              ' started.  Please provide a pathname; i.e. filename prepended with a path.')
+        suggested_fn = Path.cwd()  / 'flashcardz.txt'
+        print('\n\nIt appears this that is your first time running this program.  A file name\n'
+              'for your data needs to be established.  One card deck will be inserted\n'
+              'there.  Please provide a pathname; i.e. filename prepended with a path.')
         print('\n')
-        fn = input(fr'    file name ({fn_2_suggest}): ')
+        fn = input(fr'    file name ({suggested_fn}): ')   # ask for fn
         fn = fn.strip()
 
-        if not fn:
-            fn = str(fn_2_suggest)
+        if not fn:  # User entered nothing.  He wants the default that was offered him
+            fn = str(suggested_fn)
             print('\nProgram setting pathname set to:')
             print(f'    settings["[pathname"] = {fn}')
-        with open(settingsfn, 'w') as file:         # if a settingsfn doesn't exist, create one with default settings
-            settings = default_settings_          # settings here is not global
-            settings['pathname'] = fn
+
+        with open(settingsfn, 'w') as file:    # Now create settingsfn
+            settings = default_settings_       # put into it default settings. (settings here is not global)
+            settings['pathname'] = fn          # and of course, add the fn for the user's data (his deck)
             file.write(str(settings))
+
     return settingsfn
+
 
 
 def _read_settings_fn_():
@@ -1153,14 +1143,12 @@ def _read_settings_fn_():
                 flag = True
         if flag:
             save_settings
-
+        #raise Exception("Sorry, no numbers below zero")
     except Exception:
-        msg = ("\n\n\n\x1b[0;1;31mError occured at the _read_settings_fn_() function:\n"
-               "It is possible that your settings file is corrupt.  Deleting the\n"
-               "file will most likely fix the problem.  (But will reset your settings to\n"
-               "defaults.)  File to delete is: \n\n")
-        msg += _get_settings_fn_() + "\x1b[0m"
+        msg = ("\n\n\n\x1b[0;1;31mAn error occured at flashcardz' _read_settings_fn_() function.  Settings from\n"
+               "your last session not acquired.  Will instead use flashcardz' default settings.\x1b[0m\n\n")
         print(msg)
+        settings = default_settings_
 
 
 def save_settings():
@@ -1182,26 +1170,6 @@ def save_settings():
                "Perhaps you have it open with another program?\n  "
                + str(e))
         print(msg)
-
-
-def _suggest_fn_():
-    '''
-    Suggest a file name to the user.
-
-    Returns
-    -------
-    str
-        pathname
-
-    '''
-    home_dir = Path.home()
-    doc_dir = Path.home().joinpath('Documents')
-    if doc_dir.is_dir():
-        return doc_dir / 'flashcardz.txt'
-    elif home_dir.is_dir():
-        return home_dir / 'flashcardz.txt'
-    else:
-        pass
 
 
 def _hide_urls_(text):
