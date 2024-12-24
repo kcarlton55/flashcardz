@@ -149,7 +149,7 @@ def _setabort_():
 def _setkey_():
     '''
     Flashcardz' settings are saved in a memory location named settings.  If you
-    type in the name settings at the python prompt you will see its contents.
+    type in the name "settings" at the python prompt you will see its contents.
     For example:
 
         >>> settings
@@ -166,22 +166,22 @@ def _setkey_():
             'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
             'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
 
-    In the python computer language, this is known as a dictionary.  Items in a
-    dictionary are in pairs: a key (i.e. key word) and its value.  If you wanted
+    In the python computer language, this is known as a "dictionary".  Items in
+    a dictionary are in pairs: a key and its value (key: value).  If you wanted
     to add a new key named rae, and its value, you would do this:
 
         >>> settings['rae'] = 'https://dle.rae.es/correr'
 
-    This will, when using the go() or cards() functions, open up the website named
-    dle.rae.es and show the definition of the Spanish word correr.  However,
-    obviously, you would not want to restrict yourself to just one word.  To make
-    go() and cards() show the word that that is currently being viewed, you should
-    do this instead:
+    This will, when using the go() or cards() functions, open up the website
+    named dle.rae.es and show the definition of the Spanish word "correr".
+    However, obviously, you would not want to restrict yourself to just one
+    word.  To make go() and cards() show the word that is currently active, do
+    this instead:
 
         >>> settings['rae'] = 'https://dle.rae.es/<word>'
 
-    When the text <word> is present, the program will replace <word> with the
-    word that is being viewed.
+    That is, when the text <word> is present, the program will replace <word>
+    with the currently active word.
 
     Most likely you will want to choose your own key word and own value.  To do
     this search for a word on the site of the dictionary you want to use.  Copy
@@ -192,25 +192,23 @@ def _setkey_():
 
         >>> setting['web'] = 'https://www.merriam-webster.com/dictionary/<word>'
 
-    Make sure you add the quote marks.  The key word doesn't have to be 'web'.
-    It can be any key word you like.  To make this setting permanent, so that it
+    Make sure you add the quote marks.  The key doesn't have to be 'web'.  It
+    can be anything you like.  To make this setting permanent, i.e. so that it
     will be available after you close and later reopen flashcardz, do this:
 
         >>> save_settings()
 
-    If at some point you decide you no longer want the key and its value present,
-    do this:
+    If at some point you decide you no longer want the key and its value
+    present, do this:
 
         >>> del settings['web']
 
     Make sure to do a save_settings() to make your changes permanent.  If you
-    ever mess up your settings so that flashcardz doesn't work properly,
-    delete the file named settings.txt.  It contains your settings.  You can find
-    the location of this file by running change_settings().  You'll  see the
-    location in the text that is printed out.
+    mess up your settings so that flashcardz doesn't work properly, delete your
+    settings file and restart flashcardz.  The file will be recreated.
 
-    If you are a geek and want to learn more about dictionaries, you can start
-    here: https://www.w3schools.com/python/python_dictionaries.asp
+    If you want to learn more about dictionaries, you can start here:
+    https://www.w3schools.com/python/python_dictionaries.asp
     '''
     print(_setkey_.__doc__)
 
@@ -395,14 +393,10 @@ def _setpathname_():
 
 def change_settings():
     """Adjust program's settings to tailer the behavior to fit your needs.
-
-    Example
-    -------
-    >>> change_settings()
     """
     global settings
     print(change_settings.__doc__)
-    print(f"Settings are saved in file {_get_settings_fn_()}.")
+    print(f"Settings are saved in file {get_settings_fn()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
     print('with settings reset to defaults.')
     print('\nCurrent settings are:')
@@ -437,13 +431,13 @@ def change_settings():
     elif chgkey == 'col_width':
         _setcol_width_()
     elif chgkey in ['wr', 'wiki', 'pronounce']:
-        print(f'####### {chgkey} cannot be changed using change_settings() #######')
+        print(f'####### "{chgkey}" cannot be changed using change_settings() #######')
         _setkey_()
 
 
 def functions():
-    ("Functions are:  add(), cards(), delete(), functions(), go(), change_settings()\n"
-     "and version().\n\n"
+    ("Functions are:  add(), cards(), delete(), functions(), go(), change_settings(),\n"
+     "get_settings_fn(), modify_text(), and version().\n\n"
 
      "The primary functions are add(), cards(), and go().\n\n"
 
@@ -490,12 +484,12 @@ def add(word, definition, tally=None):
         [connect to google](https://www.google.com/) blah blah'''.  See
         help(go) and help(cards) to see how a user is to activate these links.
         (If you have trouble setting up links, see 'Notes' in
-        help(_modify_text_).)
+        help(modify_text).)
 
         You can have portions of your text highlighted with italics,
         underlined, or have a different color text such as red or green.  To
         learn how to do this, read the doumentation at an internal function
-        that flashcardz utilizes by entering: help(_modify_text_)
+        that flashcardz utilizes by entering: help(modify_text)
 
     tally : int
         Set the tally to a value you choose. Normally let the program set
@@ -583,7 +577,7 @@ def add(word, definition, tally=None):
         else:
             t = tally if tally and isinstance(tally, int) else 0
             _cards_.append([word, definition, t])
-        print(f'\n{_modify_text_(word)}\n\n{_modify_text_(definition)}\n')
+        print(f'\n{modify_text(word)}\n\n{modify_text(definition)}\n')
         print('Number of cards now at: ', len(_cards_))
         print()
         _save_(_cards_)
@@ -739,7 +733,7 @@ def cards(i=None, j=None):
         if type(i) == int, and i < 0, then show both word and defintion at
            postition i; and also expose coding within the description so that
            embeded urls, and color/underline/italics codes can be seen.
-           (See help(_modify_text_) to see how how to add color, etc. to text.
+           (See help(modify_text) to see how how to add color, etc. to text.
            See help(add), to see how to embed urls.)
         if type(i) == float and -1 < i < 0, then at card 0 expose coding
            within the description so that embeded urls, and
@@ -800,7 +794,7 @@ def cards(i=None, j=None):
     if type(i) == int and i >=0 and j == None:                  # 1) Show one word and its decrip
         word = _cards_[i][0]
         desc = _hide_urls_(_cards_[i][1])
-        desc = _modify_text_(desc)
+        desc = modify_text(desc)
         k = "'''" if  '\n' in word else "'"
         print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
     elif type(i) == int and i < 0 and j == None:                # 2) show urls & color/underline/italics codeing
@@ -826,7 +820,7 @@ def cards(i=None, j=None):
         for x in range(a, b):
             word = _cards_[x][0]
             desc = _hide_urls_(_cards_[x][1])
-            desc = _modify_text_(desc)
+            desc = modify_text(desc)
             k = "'''" if  '\n' in word else "'"
             print(f"{35*'-'} tally: {_cards_[x][2]} {35*'-'}")
             print(f"{x}. {k}{word}{k},\n'''\n{desc}\n'''")
@@ -954,7 +948,7 @@ def go(shuffle=True):
                         url = settings[k0].replace('<word>', word)
                         webbrowser.open(url)
             desc = _hide_urls_(_cards_[k][1])
-            desc = _modify_text_(desc)
+            desc = modify_text(desc)
             print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
             ans = input('Meaning known? (Y/n/h/[k]/b/a/key/q): ')           # Ask: Meaning known? (Y/n, etc.)
 
@@ -1089,16 +1083,13 @@ def go(shuffle=True):
         _save_(_cards_)
 
 
-def _get_settings_fn_():
-    '''Get the pathname (path and name) to store user's settings.  The file
-    will be named .flashcardz_settings.txt.  The pathname will be vary
-    depending on who's logged in and what os is being used.  Pathname will look
-    like: C:\\Users\\Ken\\.flashcardz_settings.txt.  On a linux OS, will look
-    like: /home/Ken/.flashcardz_settings.txt
+def get_settings_fn():
+    '''Get the file location where user's settings are located.  If the file
+    does not already exist, a new file will be created and will have default
+    settings inserted into it.  If the file get's corrupted, then delete it and
+    allow flashcardz to recreate it.
 
-    If the pathname does not already exists, it will be created, and default
-    settings will be inserted into the file, i.e.
-    {"maxtally": "10", "abort": "False", etc. }
+    To see the contents of the file, execute the change_settings() function.
     '''
     settings_dir = os.path.expanduser('~') if os.path.isdir(os.path.expanduser('~')) else os.getcwd()
     settingsfn = os.path.join(settings_dir, '.flashcardz_settings.txt')
@@ -1131,7 +1122,7 @@ def _get_settings_fn_():
 def _read_settings_fn_():
     global settings
     try:
-        settingsfn = _get_settings_fn_()
+        settingsfn = get_settings_fn()
         with open(settingsfn, 'r') as file:
             x = file.read().replace('\\', '/')
         settings = ast.literal_eval(x)
@@ -1152,16 +1143,10 @@ def _read_settings_fn_():
 
 
 def save_settings():
-    '''Write the dictionary named settings to to a file.  settings contains
-    user user modified settings via the settings() function.
-
-    Returns
-    -------
-    None.
-
+    '''Save your flashcardz' settings to a file.
     '''
     try:
-        settingsfn = _get_settings_fn_()
+        settingsfn = get_settings_fn()
         with open(settingsfn, 'w') as file:
             file.write(str(settings))
     except Exception as e:
@@ -1222,7 +1207,7 @@ def _url_at_(text, i):
         return None
 
 
-def _modify_text_(text):
+def modify_text(text):
     """This is an internal function of flashcardz.  It facilitates the user to
     insert ansi escape codes into his text.  This then allows the user to show
     selected text underlined, italicized, and/or colored.  For example, if a
@@ -1274,7 +1259,7 @@ def _modify_text_(text):
 
     Examples
     --------
-    >>> _modify_text_('''(moverse deprisa)
+    >>> modify_text('''(moverse deprisa)
                          run vi
                          (rush) get a move on v expr
                          <ur1>go quickly<>, go fast vi + adv''')

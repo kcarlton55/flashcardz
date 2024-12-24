@@ -1,22 +1,20 @@
 # **flashcardz**
 
 ## **What the program does**
-Flashcardz is used to aid in learning a foreign language, learning math tables,
-etc..  The program works by showing the word on each card, then its definition,
-to the user one-by-one.  A tally is recorded for each word that the user
-correctly remembered the definition of.  Cards are removed once the tally
-reaches a maximum value.  (The word "Cards" actually means words and defintions
-that are stored in a file on the user's computer.)
+Flashcardz is used to aid in the learning a foreign language, math tables, etc.
+One-by-one a word, then its defintion, is shown to the user.  A card's tally is
+incremented each time the user correctly recalled a word's defintion.  Cards
+are removed once a card's maximum tally has been reached.
 
-The program runs from python's command line terminal.  Use flashcardz primary
-function to show the cards:
+The program runs from python's command line terminal, i.e its [REPL](https://www.pythonmorsels.com/using-the-python-repl/).  Use
+flashcardz go() function to show cards one-by-one:
 
 ```
 >>> go()
 ```
 
 Adding words words to your deck of cards is easy.  Use flashcardz's add()
-fuction:
+function:
 
 ```
 >>> add('correr', 'to run (to move quickly on two feet)')
@@ -26,103 +24,83 @@ Words and defintionions can also be imported from an Excel file.
 
 
 ## **Features**
-* Cost: Free (as the wind).
+* Cost: Free.
 * Easily add words and defintions via copy and paste.
 * User can imbed url links into cards.
 * Can import words and definitions from an Excel file.
-* Deck of cards is shuffled before each viewing.
-* Score kept of number of times the word's definitions are correcty known.
-* Card automatically removed once max score has been reached.
-* Can highlight portions of card's text with underscores, italics, or colors.
-* Automatically open the definition of card's word from the Internet.
-* Flashcardz can be run from a web page using Jupyter Lab software.
+* Deck is shuffled before each viewing.
+* Score (tally) is kept for each time word is successfully known.
+* A card automatically removed each time its max tally has been reached.
+* The user can highlight portions of text with underscores, italics, or colors.
+* A card's word can automatically be pulled from the internet.
+* Run Flashcardz from a web page with Jupyter Lab software is installed.
 
 
 ## **How to install**
-For this program to run, it requires both python and flashcards.py to be
-installed on your computer.  By the way, both are free to install and
-use.
+For this program to run, it requires both python (which is free) and
+flashcardz.py to be installed on your computer.
 
-To install python, download the program from its home site,
-[python.org](https://www.python.org/).  Then install it.  Download version 3.8
-or later.
+To install python, download and install it from, [python.org](https://www.python.org/).
 
 To install flashcardz.py, open a Window's command prompt
-([how to open a command prompt](https://www.youtube.com/watch?v=uE9WgNr3OjM),
-[command prompt basics](https://www.makeuseof.com/tag/a-beginners-guide-to-the-windows-command-line/))
+(Reference: ([how to open a command prompt](https://www.youtube.com/watch?v=uE9WgNr3OjM), [command prompt basics](https://www.makeuseof.com/tag/a-beginners-guide-to-the-windows-command-line/))
 and enter into the command prompt:
 ```
-pip install flashcardz
-```
-This installs flashcardz on your computer.  Pip is a program is automatically
-installed when python gets installed.
-
-Pip (Preferred Installer Program) is used by python to manage python packages
-like flashcardz.py.  You can use it to install python packages, uninstall them,
-or update them.  There are various sites on the web that describe how to use
-pip.  Among them is this site:
-[How to use pip](https://note.nkmk.me/en/python-pip-usage/).
-
-Here is how to update flashcardz to the latest version or uninstall it:
-```
->>> pip upgrade flashcardz
-
->>> pip uninstall flashcardz
+C:\> pip install flashcardz
 ```
 
-If you do not wish to use pip to install, there is an alternative method
-(requires an alternative method to start up flashcardz... see below).
-Download flashcardz from its home on github:
-[github.com/kcarlton55/flashcardz](https://github.com/kcarlton55/flashcardz).
-Click the "Code" button,and then pick "Download zip".  In the zip file that you
-downloaded, look in the directory named src and look for the file named
-flashcardz.py.  Install it in a directory of your chosing.  (Python is still
-required to be on your computer in order to run flashcardz.)
+(C:\>  is the command prompt.  Don't enter that.)  Pip is a program that gets
+automatically installed when python gets installed.  Pip fetches python
+programs from [pypi.org](https://pypi.org/) where flashcardz.py is stored.
+(For more info about pip, see [How to use pip](https://note.nkmk.me/en/python-pip-usage/).
 
+Here is how you can update flashcardz to its latest version or uninstall it:
+```
+C:\> pip upgrade flashcardz
+
+C:\> pip uninstall flashcardz
+```
 
 ## **How to run flashcardz**
 
-If you used pip to install flashcardz, open a command prompt (described above)
-and start up a session of python.  In MS Windows, this is usually done by
-entering *py*.  On other operating  systems, enter *python*:
+If you used pip to install flashcardz, open a command prompt and start up a
+python session.  In MS Windows, this is usually done by entering *py*.  On
+other operating systems, *python*:
 
 ```
-C:\Users\Ken> py
+C:\> py
 Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-In the above example, C:\Users\Ken> is the Windows command prompt that shows on
-my computer.  It will be different on yours.  When you execute *py*, python
-will show some information reguarding the python version you are using (i.e.
-Python 3.12.2 (tags, etc.) You can ignore this.  Then python shows its prompt,
-i.e. a chevron (>>>), and then waits for you to enter a command.  Enter your
-first command in order to load flashcardz into memory:
+As shown above, some introductory info is shown.  You can ignore it.  At the
+command prompt, i.e. the chevron (>>>), load flashcardz like this:
 
 ```
 >>> from flashcardz import *
 ```
 
-This imports a number of functions that can be used to control the flashcardz
-program including add(), cards(), and  go().  Typing help(functions), help(go),
-help(cards) etc. will information about what a particular function does.
-
-If you did not use pip to install flashcardz, and instead obtained it from
-github.com (described above), then do the following: open up a command prompt,
-i.e. a cmd window in the file location where flashcardz.py is located
-([Open Command Prompt in Current Folder or Directory](https://www.youtube.com/watch?v=bgSSJQolR0E))
-Then from the command prompt, do:
+This imports flashcardz' functions with which you can control flashcardz.  To
+see a list of flashcardz' functions and how do use them do:
 
 ```
-C:\Users\Ken> py -i flashcardz.py
+>>> functions()
+```
+
+If you downloaded flashcardz.py directly from its home site
+https://github.com/kcarlton55/flashcardz, you could start flashcardz like this:
+
+```
+C:\> py -i flashcardz.py
 ```
 
 The *-i* switch causes flashcardz to automatically open in *interacive* mode,
-i.e. opens the python termial for input.
+i.e. opens the python terminal for input.
+(reference: [Open Command Prompt in Current Folder or Directory](https://www.youtube.com/watch?v=bgSSJQolR0E))
 
 
-To add data for flashcardz, run the add() function like this:
+To add data, i.e. cards, use flashcardz' add() function:
 
 ```
 >>> add('amigo, amiga nm, nf', '(camarada) friend n buddy n')
@@ -133,7 +111,7 @@ you use the add() function, the data you enter is added to a data file for
 later use.  If you would like to add a multiline defintion, do so like this:
 
 ```
->>> add(''''amigo, amiga nm, nf''',
+>>> add('''amigo, amiga nm, nf''',
     '''(camarada) friend n buddy n
 
     Nuestro primer viaje, a Cuzco, lo organizamos entre cuatro amigos.
@@ -142,37 +120,35 @@ later use.  If you would like to add a multiline defintion, do so like this:
     [how to pronounce](https://www.wordreference.com/es/en/translation.asp?spen=amigo)''')
 ```
 
-You'll notice, to enter a multiline definition, use three quotation marks, ''',
-at the beginning and the end of the word and definition.  Don't forget to close
-the function by adding a prenthesis at the end.  When you run the go() function,
-the defintion above will show as six different lines, including blank lines.
-Also note: it is not necessary to type all this data in manually.  The easiest
-thing to do is to copy and paste from the site that has a dictionary for the
-language you are learning.
-
-Notice the last line in the defintion.  It is a URL link.  URL links are
+As you can see, use three quotation marks, ''', to surround text when entering
+multiple lines.  Note: you don't have to type all this in manually.  Find
+a word's difintion on the Internet and copy words and definitions from there.
+Notice the last line in the definition.  It is a URL link.  URL links are
 inserted into a word's definition using brackets and parenthesis using the
 format ```[link description](URL)```
 
-
-When you're ready to view the cards one-by-one, and ready to try to figure out
-the definition of each word, run the go() function:
+To see a list of the cards that you have entered, do:
 
 ```
-go()
+>>> cards()
+```
+
+When you're ready to view the cards one-by-one, run the go() function:
+
+```
+>>> go()
 ```
 
 When the go() function is run, it automatically opens up the data file that
-contains your words and definions so that the information from it can be
-presented to you.  When the go() function completes its task, tallies are
-updated, and if that maximum tally for any word has been reached, that card is
-removed from the deck
+contains your words and definions.  When the go() function completes its task,
+tallies are updated.  If the maximum tally for any word has been reached, that
+card is removed from the deck.
 
-When you want to exit python, enter either quit() or exit() or Ctrl+D (or quit
+When you want to exit python, enter either quit() or exit() or Ctrl+D  (quit
 or exit for python 3.13 and up):
 
 ```
-quit()
+>>> quit()
 ```
 
 ## **Convert an Excel file to a flashcardz data file**
@@ -219,23 +195,32 @@ tally column.
 
 ## **Run flashcardz on a web page**
 
-A program named Jupyter Lab allows flashcardz to be run on a web page.  Jupyter
-Lab is very popular among data analists and scholastics.  With Python already
-installed on your computer, it is an easy step to also install and integrate
-the Jupyter Lab software within your Python software.
+A program named Jupyter Lab allows flashcardz to be run on a web page.
+Flashcardz works best when using Jupyter Lab!  Jupyter Lab is free and is easy
+to install.  It is not included in the basic python package.  To install do:
 
-Info is here about how to install it can be found here: https://jupyter.org/
-This video can get you started: https://www.youtube.com/watch?v=5pf0_bpNbkw
+```
+C:\> pip install jupyterlab
+```
 
-It requires some additional learning to use Jupyter Lab, though its not as
-difficult as it first appears; and once learned, will make flashcardz even
-easier to work with.
+Then to start up Jupyter Lab do:
 
-Once Jupyter Lab is installed and started, enter "from flashcardz import *"
-into a cell (without quotes) and then do Ctrl+Enter.  Now you can enter and run
-go(), add(), and other functions.  Once go() is entered into a cell, do
-Ctrl+Enter to run to go() function.  The same goes for flashcardz' other
-functions.
+```
+C:\> jupyter lab
+```
+
+More info about Jupyter Lab can be found at https://jupyter.org/
+This video can help: https://www.youtube.com/watch?v=5pf0_bpNbkw
+
+Jupyter Lab if vaguely similar to Microsoft Excel.  Like Excel, Jupyter Lab
+contains cells in which data can be entered.  However Jupyter Lab contains only
+one column of cells, and the cells are not automatically present.  They each
+have to be created manually (by selecting appropriate menu commands).
+
+For flashcardz, the first cell should contain "from flashcardz import *"
+(without quotes).  Do Ctrl+Enter to run the cell.  Create a new cell and enter
+one of flashcardz' functions.  For example: go().  Press Ctrl+Enter to run that
+cell.
 
 
 
