@@ -1158,10 +1158,10 @@ def save_settings():
 
 
 def _hide_urls_(text):
-    """Look for subtext in text that looks like
-    [connect to google](https://www.google.com/)
+    """Look for subtext in text that looks like a link to a url, e.g.:
+    [connect to google](https://www.google.com/),
     and then remmove the "(https://www.google.com/)" portion.  That is,
-    look for pattern [some text](a url) and remove the (a url).
+    look for pattern [some text](a url) and remove the (a url) portion.
 
     Parameters
     ----------
@@ -1175,8 +1175,8 @@ def _hide_urls_(text):
     """
     tuples = re.findall(r'(\[.+?\])(\s*\(.+?\))', text)
     for url in tuples:
-        text = text.replace(url[1], '')
-    return text
+        text_w_urls_removed = text.replace(url[1], '')
+    return text_w_urls_removed
 
 
 def _url_at_(text, i):

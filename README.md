@@ -29,7 +29,7 @@ Words and definitions can also be imported from an Excel file.
 * Cards whose max tally has been reached are removed from the deck.
 * A card automatically removed each time its max tally has been reached.
 * Portions of card's text can be highlighted with underscores, italics, or colors.
-* Issue a trigger to a word, i.e. a key; Opens an web page from the Internet
+* Issue a trigger to a card, i.e. a key; Opens an web page from the Internet
   showing the word's definition.
 * Run Flashcardz from a web page when Jupyter Lab software is installed.
 
@@ -202,7 +202,7 @@ Then to start up Jupyter Lab do:
 
 `C:\> jupyter lab`
 
-More info about Jupyter Lab can be found at https://jupyter.org/.
+More info about Jupyter Lab can be found at [https://jupyter.org/](https://jupyter.org/).
 This video can help: [Jupyter Notebook Complete Beginner Guide](https://www.youtube.com/watch?v=5pf0_bpNbkw).
 
 Jupyter Lab is vaguely similar to Microsoft Excel.  Like Excel, Jupyter Lab
@@ -213,9 +213,3 @@ has to be created manually (via selecting appropriate menu commands).
 For flashcardz, the first cell should contain `from flashcardz import *`.
 Do Ctrl+Enter to run the cell.  Create a new cell and enter one of flashcardz'
 functions.  For example: `go()`.  Press Ctrl+Enter to run that cell.
-
-
-
-
-
-
