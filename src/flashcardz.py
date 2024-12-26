@@ -54,7 +54,7 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '0.5.0'   # PEP 440 - describes versions
+__version__ = '0.6.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -1175,8 +1175,8 @@ def _hide_urls_(text):
     """
     tuples = re.findall(r'(\[.+?\])(\s*\(.+?\))', text)
     for url in tuples:
-        text_w_urls_removed = text.replace(url[1], '')
-    return text_w_urls_removed
+        text = text.replace(url[1], '')
+    return text
 
 
 def _url_at_(text, i):
