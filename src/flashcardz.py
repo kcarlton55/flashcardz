@@ -54,7 +54,7 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '0.6.0'   # PEP 440 - describes versions
+__version__ = '0.8.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -992,7 +992,7 @@ def go(shuffle=True):
             elif ans and ans[0].lower() == 'h':
                 msg = 'help'
             elif ans and ans[0].lower() == 'n':
-                _cards_[k][2] = max(0,  settings['maxtally'] - settings['tallypenalty'])
+                _cards_[k][2] = max(0,  int(_cards_[k][2]) - settings['tallypenalty'])
                 missed.append(_cards_[k])
                 loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
@@ -1308,21 +1308,20 @@ def _print_cards_(cds, cols, start=0):
         Number of columns shown when cards are printed.
     start : int
         Index no. of first card.  Normally index nos. are 0, 1, 2, 3, etc. for
-        first, second, third word.  However if crds is a slice of the original
+        first, second, third card.  However if cds is a slice of the original
         deck of cards, e.g. _cards_[15: 30], then you would want the index no.
         to start at 15.
 
     '''
+    # if user has picked a specific col width, use it.  Else establish it based on a formula.
     if isinstance(settings['col_width'], int) and settings['col_width'] not in [0, 1]:
         w = settings['col_width']
-    elif cols in [1, 2, 3, 4]:
-        w = 35 - cols*5
     else:
-        w = 15
+        w = 35 - cols*5
     l = len(cds)
     rows = math.ceil(l/cols)
-    f1 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})'.replace('XX', str(w))
-    f2 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})'.replace('XX', str(w))
+    f1 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})'.replace('XX', str(w))   # print format when cols = 1
+    f2 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})'.replace('XX', str(w))   # print format when cols = 2
     f3 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})   {a3:>3}. {b3:<XX} (t:{c3:>2})'.replace('XX', str(w))
     f4 = r'{a1:>3}. {b1:<XX} (t:{c1:>2})   {a2:>3}. {b2:<XX} (t:{c2:>2})   {a3:>3}. {b3:<XX} (t:{c3:>2})   {a4:>3}. {b4:<XX} (t:{c4:>2})'.replace('XX', str(w))
     for i in range(0, rows):
@@ -1344,7 +1343,12 @@ def _print_cards_(cds, cols, start=0):
             print(f2.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
                             a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2]))
         elif cols == 4 and l==5:   # used only in odd case when len(cds)== 5 and cols==4
-            print(f1.format(a1=rows+i+start,   b1=cds[rows+i][0][:w],   c1=cds[rows+i][2]))
+            print(f3.format(a1=i+start,     b1=cds[i][0][:w],           c1=cds[i][2],
+                            a2=2+i+start,   b2=cds[2+i][0][:w],         c2=cds[2+i][2],
+                            a3=4+i+start,   b3=cds[4+i][0][:w],         c3=cds[4+i][2]))
+            print(f2.format(a1=1+i+start,   b1=cds[1+i][0][:w],         c1=cds[1+i][2],
+                            a2=3+i+start,   b2=cds[3+i][0][:w],         c2=cds[3+i][2]))
+            break
         elif cols == 4 and i >= (l - 3*rows):
             print(f3.format(a1=i+start,        b1=cds[i][0][:w],        c1=cds[i][2],
                             a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
@@ -1354,7 +1358,6 @@ def _print_cards_(cds, cols, start=0):
                             a2=rows+i+start,   b2=cds[rows+i][0][:w],   c2=cds[rows+i][2],
                             a3=2*rows+i+start, b3=cds[2*rows+i][0][:w], c3=cds[2*rows+i][2],
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
-
 
 c = cards
 _read_settings_fn_()
