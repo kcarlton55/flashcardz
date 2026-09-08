@@ -26,7 +26,7 @@ terminal (i.e. read-eval-print loop (REPL) terminal).  This comes standard when
 python is installed on your PC.
 """
 
-#import pdb  # use with pdb.set_trace()
+import pdb  # use with pdb.set_trace()
 import random
 import time
 from pathlib import Path
@@ -54,7 +54,7 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '0.8.0'   # PEP 440 - describes versions
+__version__ = '1.0'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -717,130 +717,58 @@ def _open_():
 
 
 def cards(i=None, j=None):
-    """Show a list of all words within a card deck (card's data file).  If a
-    card's index no. is specified, then show the word associated at that number
-    along with its definition.
-
+    ''' Show all words but not their definitions, or show a subset of the
+    words and their defintions.
+    
+    1) If args i and j not provided, i.e. cards(), only show a list of words.
+    2) If only i is provided, only show card i and its definition.
+    3) If both i and j are provided, show cards and definitions starting at
+       i, and up to but not including the word at position j.
+    4) If i is provided and j is inclosed in brackets, j refers to a link 
+       within a word's definition.  That is, when j = [1], then 1 is for link 
+       no. 1, 2 is for link no. 2, etc.    
+    
     Parameters
     ----------
-    i (optional) : None | int | float
-        if type(i) == None, that is, if you enter no value, i.e. you enter
-            cards(), then a list of all cards, without word definitions, is
-            shown.
-        if type(i) == int (i.e. integer); then show the word at index position
-            i along with its definition. (Do "cards()" to see index numbers
-            that correspond to words.)
-        if type(i) == int, and i < 0, then show both word and defintion at
-           postition i; and also expose coding within the description so that
-           embeded urls, and color/underline/italics codes can be seen.
-           (See help(modify_text) to see how how to add color, etc. to text.
-           See help(add), to see how to embed urls.)
-        if type(i) == float and -1 < i < 0, then at card 0 expose coding
-           within the description so that embeded urls, and
-           color/underline/italics codes can be seen.
-
-    j (optional): None | int | list
-        if type(j) == None, that it, if the user leaves this blank, then the
-            j argument does nothing.
-        if type(j) == int, then show a list of words starting at i (the first
-            argument) and ending at j.  Furthermore, if (j - i) <= 10, then
-            definitions will be shown.
-        if type(j) == list, and the list contains an interger, e.g. [1],
-            [2], etc., then open a web page for the 1st, 2nd, url link that is
-            within the descriptions.  (See the add() function's documentation
-            for how to insert url's into definitions.)  If more that one number
-            is present, then open multiple urls.  E.g. [1, 2]
-        if type(j) == string, and string is the keyword 'wr', 'wiki', or
-            'pronounce'... keywords found in flashcardz' settings, then open up
-            the webpage wordreference.com, en.wiktionary.org, or
-            howtopronounce.com repectively and show the definition of the word
-            from those sites.  Open up more than one page at a time by
-            entering, for example, 'wr, wiki, pronounce'.  To adjust settings
-            to open a webpage of your choice, see help(_setkey_).
-
+    i : int
+        i for card at position 0, 1, 2, etc.  default = None
+    j : int or list (j > i)
+       if int: Show cards up to, but excluding j.
+       if list: The list must have one element, and it should be an integer.
+           The integer will refers to link 1, 2, etc. of a url link within a 
+           word's defintion. (that is, if a link exists)
+       default = None
+           
     Returns
     -------
-    None.
+    None
 
     Examples
     --------
-    # Show a list of all words within the deck (i.e. the computer file that
-    # contains the deck).
-    >>> cards()
-
-    # Show the word and its definition at index 8 in the deck (the data file).
-    # (To see index numbers, issue the "cards()" command.)
-    >>> cards(8)
-
-    # Show a list of cards, 8 through 20.
-    >>> cards(8, 20)
-
-    # Show card 8, but this time show the url, e.g. https://www.python.org/,
-    # and also show any codes that the user entered to italicize, underline, or
-    # color portions of text.
-    >>> cards(-8)
-
-    # Open a web browser and open the first url embeded within the definition
-    # of card 8.
-    >>> cards(8, [1])
-
-    # Tip: Copy the cards function to variable 'c' in order to create a
-    # shortcut for yourself.
-    >>> c = cards
-    >>> c(8)
-
-    """
-    _cards_ = _open_()
-    if type(i) == int and i >=0 and j == None:                  # 1) Show one word and its decrip
-        word = _cards_[i][0]
-        desc = _hide_urls_(_cards_[i][1])
-        desc = modify_text(desc)
-        k = "'''" if  '\n' in word else "'"
-        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(i) == int and i < 0 and j == None:                # 2) show urls & color/underline/italics codeing
-        k = abs(i)
-        _card = _cards_[k]
-        word = _card[0]
-        desc = _card[1]
-        k = "'''" if  '\n' in word else "'"
-        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(i) == float and (-.9999 <= i < 0) and j == None:  # 3) same as 2), but for card[0]
-        k = 0
-        _card = _cards_[k]
-        word = _card[0]
-        desc = _card[1]
-        k = "'''" if  '\n' in word else "'"
-        print(f"\n{k}{word}{k},\n'''\n{desc}\n'''")
-    elif type(i) == int and type(j) == list:                    # open url at position [j] or card i
-        for x in j:
-            webbrowser.open(_url_at_(_cards_[i][1], x))
-    elif isinstance(j, int) and isinstance(i, int) and (max(i, j) - min(i, j) <= 10):  # print cards & definitions if count <=10
-        a = min(i, j)
-        b = max(i, j) + 1
-        for x in range(a, b):
-            word = _cards_[x][0]
-            desc = _hide_urls_(_cards_[x][1])
-            desc = modify_text(desc)
-            k = "'''" if  '\n' in word else "'"
-            print(f"{35*'-'} tally: {_cards_[x][2]} {35*'-'}")
-            print(f"{x}. {k}{word}{k},\n'''\n{desc}\n'''")
-    elif isinstance(j, int) and isinstance(i, int):             # same, but only show words, (max(i, j) - min(i, j) <= 10):
-        a = min(i, j)
-        b = max(i, j) + 1
-        _print_cards_(_cards_[a: b], settings['columns'], a)
-    elif j and isinstance(j, str):
-        if isinstance(i, str):
-            word = i.strip().split(' ')[0].strip(',.;')
-        else:
-            word = _cards_[i][0].strip().split(' ')[0].strip(',.;')   # i.e, if _cards[i][0] is 'house noun', set 'word' to 'house'
-        keys = j.split(',')
-        for key in keys:
-            k = key.strip()
-            if k in settings:
-                url = settings[k].replace('<word>', word)
-                webbrowser.open(url)
+    
+    >>> c()                 # show a list of all words
+    
+    >>> c(5)                # show word on card 5 and its definition
+    
+    >>> c(5, 9)             # show words 5, 6, 7, and 8 and their definitions
+        
+    >>> c(18, [1])          # open url link no. 1 for card number 18.
+    
+    '''
+    if isinstance(i, int) and isinstance(j, list):
+        webbrowser.open(_url_at_(_open_()[i][1], j[0]))
+    elif isinstance(i, int) and isinstance(j, int):
+        slice_obj = slice(i, j) if j else slice(i, i+1)
+        z = [(a, b, c) for a, b, c in _open_()]
+        for x in z[slice_obj]:
+            print(f'{25*"-"} tally: {x[2]} {25*"-"}')
+            print(f"{i}. '{x[0]}',")
+            print("'''")
+            print(modify_text(x[1]))
+            print("'''")
+            i += 1
     else:
-        _print_cards_(_cards_, settings['columns'])
+        _print_cards_(_open_(), settings['columns'])
 
 
 def _go_help_(abort=False):
