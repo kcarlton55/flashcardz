@@ -54,7 +54,7 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '1.0'   # PEP 440 - describes versions
+__version__ = '1.1'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
@@ -757,7 +757,10 @@ def cards(i=None, j=None):
     '''
     if isinstance(i, int) and isinstance(j, list):
         webbrowser.open(_url_at_(_open_()[i][1], j[0]))
-    elif isinstance(i, int) and isinstance(j, int):
+        return
+    elif isinstance(i, int) and j==None:
+        j = i + 1
+    if isinstance(i, int) and isinstance(j, int):
         slice_obj = slice(i, j) if j else slice(i, i+1)
         z = [(a, b, c) for a, b, c in _open_()]
         for x in z[slice_obj]:
@@ -766,7 +769,7 @@ def cards(i=None, j=None):
             print("'''")
             print(modify_text(x[1]))
             print("'''")
-            i += 1
+            i += 1        
     else:
         _print_cards_(_open_(), settings['columns'])
 
