@@ -13,6 +13,8 @@ word2 | definition2 | tally2
            ...
 wordN | definitionN | tallyN
 
+(The | what is known as a csv file delimeter)
+
 Tally is the number of times the user correctly knew the definition of a word
 without a miss. Tally is reset to zero (the default) anytime the user did not
 rememember the definition.
@@ -54,20 +56,24 @@ except:
     def _is_ipython_():
         return False
 
-__version__ = '1.1'   # PEP 440 - describes versions
+__version__ = '1.2'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
-                    "replace_tabs": -1, "abort": False, "columns": 2,
-                    "col_width": 0,
-                    'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
-                    'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
-                    'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
+                    "replace_tabs": -1, "columns": 2,
+                    "col_width": 0}
+                    #'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
+                    #'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
+                    #'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
+                    #"abort": False,
                     #'col': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
                     #'rae': 'https://dle.rae.es/<word>',
 
 
 def version():
+    '''
+    Show the version number of flashcardz
+    '''
     print(__version__)
 
 
@@ -81,9 +87,9 @@ def _remains_at_(setting):
         Name of the setting to report info on
     """
     try:
-        s = settings[setting]
+        s = _settings[setting]
         print('\nProgram setting remains at:')
-        print(f'    settings["{setting}"] = {s}')
+        print(f'    _settings["{setting}"] = {s}')
     except:
         pass
 
@@ -97,9 +103,9 @@ def _changed_to_(setting):
     setting : str
         Name of the setting to report info on
     """
-    s = settings[setting]
+    s = _settings[setting]
     print('\nProgram setting changed to:')
-    print(f'    settings["{setting}"] = {s}')
+    print(f'    _settings["{setting}"] = {s}')
     save_settings()
 
 
@@ -113,64 +119,62 @@ def _currently_at_(setting):
         Name of the setting to report info on
     """
     try:
-        s = settings[setting]
+        s = _settings[setting]
         print('\nSetting is currently:')
-        print(f'    settings["{setting}"] =  {s}')
+        print(f'    _settings["{setting}"] =  {s}')
     except:
         pass
 
 
-def _setabort_():
-    """
-    Change the setting named "abort" to True or False.  If set to True then
-    any results, such as tallys, will NOT be recorded when go() is run.
-    If False, then results will be recorded.
-    """
-    global settings
-    print(_setabort_.__doc__)
-    _currently_at_('abort')
-    abort = input('\n    abort (Enter nothing for no change) = ').strip()
-    if abort == "1" or abort == 'True':
-        abort = True
-    elif abort == "0" or abort == 'False':
-        abort = False
-    else:
-        abort = None
-    if settings['abort'] == abort:
-        _remains_at_('abort')
-    elif abort == False or abort == True:
-        settings['abort'] = abort
-        _changed_to_('abort')
-    else:
-        print('\nTrue or False are the only valid responses')
-        _remains_at_('abort')
+# =============================================================================
+# def _setabort_():
+#     """
+#     Change the setting named "abort" to True or False.  If set to True then
+#     any results, such as tallys, will NOT be recorded when go() is run.
+#     If False, then results will be recorded.
+#     """
+#     global _settings
+#     print(_setabort_.__doc__)
+#     _currently_at_('abort')
+#     abort = input('\n    abort (Enter nothing for no change) = ').strip()
+#     if abort == "1" or abort == 'True':
+#         abort = True
+#     elif abort == "0" or abort == 'False':
+#         abort = False
+#     else:
+#         abort = None
+#     if _settings['abort'] == abort:
+#         _remains_at_('abort')
+#     elif abort == False or abort == True:
+#         _settings['abort'] = abort
+#         _changed_to_('abort')
+#     else:
+#         print('\nTrue or False are the only valid responses')
+#         _remains_at_('abort')
+# =============================================================================
 
 
 def _setkey_():
     '''
-    Flashcardz' settings are saved in a memory location named settings.  If you
-    type in the name "settings" at the python prompt you will see its contents.
+    Flashcardz' _settings are saved in a memory location named _settings.  If you
+    type in the name "_settings" at the python prompt you will see its contents.
     For example:
 
-        >>> settings
+        >>> _settings
 
            {'pathname': C://Users//Ken//Documents//spanish//flashcardz.txt',
             'maxtally': 10,
             'tallypenalty': 10,
             'show_intro': True
             'replace_tabs': -1,
-            'abort': False,
             'columns': 3,
-            'col_width': 0,
-            'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
-            'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
-            'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
+            'col_width': 0}
 
     In the python computer language, this is known as a "dictionary".  Items in
     a dictionary are in pairs: a key and its value (key: value).  If you wanted
     to add a new key named rae, and its value, you would do this:
 
-        >>> settings['rae'] = 'https://dle.rae.es/correr'
+        >>> _settings['rae'] = 'https://dle.rae.es/correr'
 
     This will, when using the go() or cards() functions, open up the website
     named dle.rae.es and show the definition of the Spanish word "correr".
@@ -178,7 +182,7 @@ def _setkey_():
     word.  To make go() and cards() show the word that is currently active, do
     this instead:
 
-        >>> settings['rae'] = 'https://dle.rae.es/<word>'
+        >>> _settings['rae'] = 'https://dle.rae.es/<word>'
 
     That is, when the text <word> is present, the program will replace <word>
     with the currently active word.
@@ -188,9 +192,9 @@ def _setkey_():
     the url that shows up in address bar.  For example, if you look for the word
     "family" on Merriam-Webster's web site, and after you copied and pasted the
     url, it will look like this:  https://www.merriam-webster.com/dictionary/family.
-    Now, if you want to add this to your settings, you would do this:
+    Now, if you want to add this to your _settings, you would do this:
 
-        >>> setting['web'] = 'https://www.merriam-webster.com/dictionary/<word>'
+        >>> _settings['web'] = 'https://www.merriam-webster.com/dictionary/<word>'
 
     Make sure you add the quote marks.  The key doesn't have to be 'web'.  It
     can be anything you like.  To make this setting permanent, i.e. so that it
@@ -201,7 +205,7 @@ def _setkey_():
     If at some point you decide you no longer want the key and its value
     present, do this:
 
-        >>> del settings['web']
+        >>> del _settings['web']
 
     Make sure to do a save_settings() to make your changes permanent.  If you
     mess up your settings so that flashcardz doesn't work properly, delete your
@@ -217,7 +221,7 @@ def _setshow_intro_():
     """
     Change the setting named "show_intro" to True or False.  If set to True,
     then flashcardz will introduce itself when the flashcardz program starts."""
-    global settings
+    global _settings
     print(_setshow_intro_.__doc__)
     _currently_at_('show_intro')
     show_intro = input('\n    show_intro (Enter nothing for no change) = ').strip()
@@ -227,10 +231,10 @@ def _setshow_intro_():
         show_intro = False
     else:
         show_intro = None
-    if 'show_intro' in settings and settings['show_intro'] == show_intro:
+    if 'show_intro' in _settings and _settings['show_intro'] == show_intro:
         _remains_at_('show_intro')
     elif show_intro == False or show_intro == True:
-        settings['show_intro'] = show_intro
+        _settings['show_intro'] = show_intro
         _changed_to_('show_intro')
     else:
         print('\nTrue or False are the only valid responses')
@@ -251,15 +255,15 @@ def _settallypenalty_():
     greater than or equal to the setting for "maxtally", then tally will
     be set back to zero when a word is missed.
     """
-    global settings
+    global _settings
     print(_settallypenalty_.__doc__)
     _currently_at_('tallypenalty')
     tallypenalty = input('\n    tallypenalty (Enter nothing for no change) = ')
     if tallypenalty.strip():
         tallypenalty = int(tallypenalty)
-    if (isinstance(tallypenalty, int) and ('tallypenalty' not in settings)
-                                           or tallypenalty != int(settings['tallypenalty'])):
-        settings['tallypenalty'] = abs(tallypenalty)
+    if (isinstance(tallypenalty, int) and ('tallypenalty' not in _settings)
+                                           or tallypenalty != int(_settings['tallypenalty'])):
+        _settings['tallypenalty'] = abs(tallypenalty)
         _changed_to_('tallypenalty')
     else:
         _remains_at_('tallypenalty')
@@ -271,15 +275,15 @@ def _setmaxtally_():
     for that word is incremented by one.  When the tally reaches the value of
     "maxtally", the card is removed from the deck.
     '''
-    global settings
+    global _settings
     print(_setmaxtally_.__doc__)
     _currently_at_('maxtally')
     maxtally = input('\n    maxtally (Enter nothing for no change) = ')
     if maxtally.strip():
         maxtally = abs(int(maxtally))
-    if (isinstance(maxtally, int) and ('maxtally' not in settings
-                                       or maxtally != int(settings['maxtally'] ))):
-        settings['maxtally'] = maxtally
+    if (isinstance(maxtally, int) and ('maxtally' not in _settings
+                                       or maxtally != int(_settings['maxtally'] ))):
+        _settings['maxtally'] = maxtally
         _changed_to_('maxtally')
     else:
         _remains_at_('maxtally')
@@ -296,16 +300,16 @@ def _setreplace_tabs_():
 
     To make this setting inactive, set to -1.
     '''
-    global settings
+    global _settings
     print(_setreplace_tabs_.__doc__)
     _currently_at_('replace_tabs')
     replace_tabs = input('\n    replace_tabs (Enter nothing for no change) = ')
     if replace_tabs.strip().isnumeric() or replace_tabs.strip()[1:].isnumeric():
         replace_tabs = int(replace_tabs)
     if (isinstance(replace_tabs, int)
-        and ('replace_tabs' not in settings
-             or replace_tabs != int(settings['replace_tabs']))):
-        settings['replace_tabs'] = replace_tabs
+        and ('replace_tabs' not in _settings
+             or replace_tabs != int(_settings['replace_tabs']))):
+        _settings['replace_tabs'] = replace_tabs
         _changed_to_('replace_tabs')
     else:
          _remains_at_('replace_tabs')
@@ -316,16 +320,16 @@ def _setcolumns_():
     Set the number of columns that are displayed when the cards() function is
     run.  Options are 1, 2, or 3.  Default is 1.
     '''
-    global settings
+    global _settings
     print(_setcolumns_.__doc__)
     _currently_at_('columns')
     columns = input('\n    columns (Enter nothing for no change) = ')
     if columns.strip().isnumeric():
         columns = int(columns)
     if (isinstance(columns, int)
-        and ('columns' not in settings
-             or columns != int(settings['columns']))):
-        settings['columns'] = columns
+        and ('columns' not in _settings
+             or columns != int(_settings['columns']))):
+        _settings['columns'] = columns
         _changed_to_('columns')
     else:
          _remains_at_('columns')
@@ -341,16 +345,16 @@ def _setcol_width_():
     value that will vary depending on the value of the columns settings, then
     set this value to 1.  Default is 1.
     '''
-    global settings
+    global _settings
     print(_setcol_width_.__doc__)
     _currently_at_('col_width')
     col_width = input('\n    col_width (Enter nothing for no change) = ')
     if col_width.strip().isnumeric():
         col_width = int(col_width)
     if (isinstance(col_width, int)
-        and ('col_width' not in settings
-             or col_width != int(settings['col_width']))):
-        settings['col_width'] = col_width
+        and ('col_width' not in _settings
+             or col_width != int(_settings['col_width']))):
+        _settings['col_width'] = col_width
         _changed_to_('col_width')
     else:
          _remains_at_('col_width')
@@ -361,7 +365,7 @@ def _setpathname_():
     Set the pathname (filename prepended by a path) for where your set of cards is
     located.  If the file doesn't exist at the location you specify, it will be created.
     '''
-    global settings
+    global _settings
     print(_setpathname_.__doc__)
     print(f'(current working directory is: {Path().cwd()})')
     _currently_at_('pathname')
@@ -369,7 +373,7 @@ def _setpathname_():
     userinput = input(r'    Pathname (Enter nothing for no change) = ').strip()
     fn = Path(userinput)
     fn_resolved = fn.resolve()
-    current_fn = Path(settings['pathname']).resolve() if 'pathname' in settings else None
+    current_fn = Path(_settings['pathname']).resolve() if 'pathname' in _settings else None
     if userinput and  fn_resolved.is_dir():
         print(f'\npathname cannot be a directory. You tried to create {fn_resolved}')
         _remains_at_('pathname')
@@ -382,44 +386,46 @@ def _setpathname_():
         _remains_at_('pathname')
     elif userinput and fn_resolved.exists():
         print('\nFile already exists.  Will use that file.')
-        settings['pathname'] = str(fn_resolved)
+        _settings['pathname'] = str(fn_resolved)
         _changed_to_('pathname')
     elif (userinput and not fn_resolved.exists()) or (userinput and fn_resolved.exists()):
-        settings['pathname'] = str(fn_resolved)
+        _settings['pathname'] = str(fn_resolved)
         _changed_to_('pathname')
     else:
         _remains_at_('pathname')
 
 
-def change_settings():
+def settings():
     """Adjust program's settings to tailer the behavior to fit your needs.
     """
-    global settings
-    print(change_settings.__doc__)
+    global _settings
+    print(settings.__doc__)
     print(f"Settings are saved in file {get_settings_fn()}.")
     print('If this file is erased, once flashcardz is rerun, file will be recreated')
     print('with settings reset to defaults.')
     print('\nCurrent settings are:')
-    for key, value in settings.items():
+    for key, value in _settings.items():
         print(f'    {key}: {value}')
     chgkey = input('\nSetting to change (Enter nothing for no change): ')
     print()
     chgkey = str(chgkey).strip().lower()
-    if chgkey and chgkey not in settings.keys():
+    if chgkey and chgkey not in _settings.keys():
         print(f'\n"{chgkey}" not found')
-        closest = get_close_matches(chgkey, settings.keys(), 1)
+        closest = get_close_matches(chgkey, _settings.keys(), 1)
         if closest:
             print(f'Perhaps you meant this?: {closest[0]}')
         else:
             print('\nAvailable choices:')
-            for k in settings.keys():
+            for k in _settings.keys():
                 print(f'    {k}')
     if chgkey == 'pathname':
         _setpathname_()
     elif chgkey == 'maxtally':
         _setmaxtally_()
-    elif chgkey == 'abort':
-        _setabort_()
+# =============================================================================
+#     elif chgkey == 'abort':
+#         _setabort_()
+# =============================================================================
     elif chgkey == 'tallypenalty':
         _settallypenalty_()
     elif chgkey == 'show_intro':
@@ -431,13 +437,14 @@ def change_settings():
     elif chgkey == 'col_width':
         _setcol_width_()
     elif chgkey in ['wr', 'wiki', 'pronounce']:
-        print(f'####### "{chgkey}" cannot be changed using change_settings() #######')
+        print(f'####### "{chgkey}" cannot be changed using settings() #######')
         _setkey_()
 
 
 def functions():
-    ("Functions are:  add(), cards(), delete(), functions(), go(), change_settings(),\n"
-     "get_settings_fn(), modify_text(), and version().\n\n"
+    ("Functions are:  add(), append(), cards() (or c()), delete() (or rm()),\n"
+      "functions(), go(), settings(), get_settings_fn(), save_settings(),\n"
+      "modify_text(), and version().\n\n"
 
      "The primary functions are add(), cards(), and go().\n\n"
 
@@ -451,7 +458,7 @@ def functions():
 
      ">>> help(go)\n\n"
 
-     "\x1b[0;1;31mNOTE: Push the q key to exit help.\x1b[0m")
+     "NOTE!: It may be necessary to push the q key to exit a help session")
     print(f'\n{functions.__doc__}')
 
 
@@ -518,6 +525,7 @@ def add(word, definition, tally=None):
            go quickly, go fast vi + adv''')
 
 
+    #  (Use ''' some text ''' to enclose multiple lines)
     #  When go() is run, word and desription will show as:
     #
     #    correr vi
@@ -561,8 +569,8 @@ def add(word, definition, tally=None):
         _cards_ = _open_()
         word = word.replace(delimiter, substitute).strip()
         definition = definition.replace(delimiter, substitute).strip(" \t").strip('\n')  # strip does: '  \n  abc  ' -> '  abc'
-        if 'replace_tabs' in settings and settings['replace_tabs']:
-            i = settings['replace_tabs']
+        if 'replace_tabs' in _settings and _settings['replace_tabs']:
+            i = _settings['replace_tabs']
             word = word.replace('\t', i*' ')
             definition = definition.replace('\t', i*' ')
         word0 = ''.join(word.split()).lower()  # white space removed
@@ -588,8 +596,8 @@ def add(word, definition, tally=None):
 
 def delete(number=None):
     '''
-    Delete a card from the deck.  Use cards() to see the row numbers that
-    correspond to the card in your deck.
+    Delete a card from the deck.  Use cards() to see the card number that
+    corresponds to the card in your deck.
 
     Parameters
     ----------
@@ -627,6 +635,7 @@ def delete(number=None):
             print(f'Card {number} not deleted.')
     else:
         print(f"Card number {number} doesn't exist.")
+    cards()
 
 
 def _save_(_cards_):
@@ -653,12 +662,12 @@ def _save_(_cards_):
     Elements of the list are strings execept for 'tally' which are integers.
 
     '''
-    if ('pathname' not in settings or settings['pathname'] == None
-            or settings['pathname'] == ""):
+    if ('pathname' not in _settings or _settings['pathname'] == None
+            or _settings['pathname'] == ""):
         _setpathname_()
     fields = ['word', 'definition', 'tally']
     try:
-        fn = Path(settings['pathname'])
+        fn = Path(_settings['pathname'])
         with open(fn, 'w', newline='', encoding='utf-8', errors='replace') as csvfile:  # w/o newline='', blank lines inserted with MS Windows
             csvwriter = csv.writer(csvfile, delimiter=delimiter)
             csvwriter.writerow(fields)
@@ -671,11 +680,18 @@ def _save_(_cards_):
         print(msg)
 
 
-def _open_():
+def _open_(filename=None):
     '''
     Open the pathname specified in flashcardz' settings, then read its
     contents.  Convert those contents to a python list object.  The file that
-    is opened is specfied in flashcardz' settings at 'settings["pathname"]'
+    is opened is specfied in flashcardz' settings at '_settings["pathname"]'
+    
+    
+    Parameters
+    ----------
+    filename : string
+        If 'filename' provided, open this file instead of the name at 
+        _settings["pathname"]
 
     Returns
     -------
@@ -685,11 +701,21 @@ def _open_():
         of a word.)
 
     '''
+    filename_verified = False
+    if filename:
+        file_path = Path(filename)
+        if file_path.is_file():
+            _fn = file_path
+            filename_verified = True
+        else:
+            print(f'filename not found ({filename})')
+            return   
     try:
-        if ('pathname' not in settings or settings['pathname'] == None
-                or settings['pathname'] == ""):
+        if ('pathname' not in _settings or _settings['pathname'] == None
+                or _settings['pathname'] == ""):
             _setpathname_()
-        fn = Path(settings['pathname'])
+        #fn = Path(_settings['pathname']) if not filename else _fn
+        fn = _fn if filename_verified else Path(_settings['pathname'])   
         _cards_ = []
         with open(fn, 'r', encoding='utf-8', errors='replace') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=delimiter)
@@ -714,6 +740,33 @@ def _open_():
                + str(e))
         print(msg)
     return _cards_
+
+
+def append(filename):
+    '''
+    If you have a separate file containing cards, you can append that file to
+    the current card set.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the file containing cards that you want to append to the
+        current set.  If you are using MS Windows, filenames should look like
+        this:  C:\\\\folder1\\\\folder2\\\\flashcards.txt
+
+    Returns
+    -------
+    None
+    
+    Example
+    -------
+    
+    >>> append("C:\\\\folder1\\\\folder2\\\\flashcards_additional_set.txt")
+    
+    '''
+    _cards_ = _open_() + _open_(filename)
+    _save_(_cards_)
+    print('files appended')
 
 
 def cards(i=None, j=None):
@@ -771,22 +824,28 @@ def cards(i=None, j=None):
             print("'''")
             i += 1        
     else:
-        _print_cards_(_open_(), settings['columns'])
+        _print_cards_(_open_(), _settings['columns'])
 
 
-def _go_help_(abort=False):
+def _go_help_():
+# =============================================================================
+# def _go_help_(abort=False):
+# =============================================================================
     print(f'   {75*"─"}')
-    print( "    Y or the Enter key = you knew the definition")
-    print( "    n = you did not know the definition")
+    print( "    Y/n = you knew or did not know the definition")
+    print( "    [k] = open web page link 1, 2, etc.")
     print( "    h = help.  Show this list of information.")
-    print( "    [k] = open a web page per the link shown in a word's description.")
-    print( "    b = back.  Go back to the previous card.")
-    if settings['abort'] == True or abort == True:
-        print("    a = Abort saving results when go() finished. Current state: ON")
-    else:
-        print("    a = Abort saving results when go() finished.  Current state: OFF")
-    print("    key = open website and show definition of word.")
-    print("    q = quit showing cards.  (Results will not be saved.)")
+    print( "    b = back.  Previous card.")
+# =============================================================================
+#     if _settings['abort'] == True or abort == True:
+#         print("    a = Abort saving results when go() finished. Current state: ON")
+#     else:
+#         print("    a = Abort saving results when go() finished.  Current state: OFF")
+# =============================================================================
+# =============================================================================
+#     print("    key = open website and show definition of word.")
+# =============================================================================
+    print("    q = quit.  (Results will not be saved.)")
     print(f'  {75*"─"}')
 
 
@@ -817,13 +876,15 @@ def go(shuffle=True):
     >>> go()
 
     '''
-    if settings['abort'] == True:
-        abort = True
-    else:
-        abort = False
+# =============================================================================
+#     if _settings['abort'] == True:
+#         abort = True
+#     else:
+#         abort = False
+# =============================================================================
     print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
     print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n/h/[k]/b/a/q): "')
+    print('definition.  The program will then ask "Meaning known? (Y/n... or [k], h, b, or q): "')
     print('Respond with one of these answers:')
     _go_help_()
     print()
@@ -860,28 +921,31 @@ def go(shuffle=True):
             os.system('cls' if os.name == 'nt' else 'clear')
             print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
             if msg and msg == 'help':
-                _go_help_(abort)
+                _go_help_()  # was _go_thelp_(abort), 9/14/2026
                 msg = ''
             elif msg:
                 print(msg)
                 msg = ''
             print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
 
-            ans0 = input()                                              # pause... ask user: meaning known?
+            ans0 = input() 
+            # pause... ask user: meaning known?
             if ans0 and ans0[0].lower() == 'q':
                  return
-            elif ans0 and ans0.split(',')[0] in settings:
-                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
-                keys = ans0.split(',')
-                for key in keys:
-                    k0 = key.strip()
-                    if k0 in settings:
-                        url = settings[k0].replace('<word>', word)
-                        webbrowser.open(url)
+# =============================================================================
+#             elif ans0 and ans0.split(',')[0] in _settings:
+#                 word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
+#                 keys = ans0.split(',')
+#                 for key in keys:
+#                     k0 = key.strip()
+#                     if k0 in _settings:
+#                         url = _settings[k0].replace('<word>', word)
+#                         webbrowser.open(url)
+# =============================================================================
             desc = _hide_urls_(_cards_[k][1])
             desc = modify_text(desc)
             print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
-            ans = input('Meaning known? (Y/n/h/[k]/b/a/key/q): ')           # Ask: Meaning known? (Y/n, etc.)
+            ans = input('Meaning known? (Y/n... or [k], h, b, or q): ')           # Ask: Meaning known? (Y/n, etc.)
 
             if ans and ans[0] == '[' and ans[1].isnumeric():
                 j = ast.literal_eval(ans)
@@ -910,46 +974,50 @@ def go(shuffle=True):
             elif ans and ans[0].lower() == 'q':
                 print('\nProgram exited.  No results saved.')
                 return
-            elif ans and ans[0].lower() == 'a' and abort == False:
-                abort = True
-                msg = (f'    {75*"─"}                         \n' +
-                        '     State of abort changed to: ON   \n' +
-                       f'    {75*"─"}                         \n')
-            elif ans and ans[0].lower() == 'a' and abort == True:
-                abort = False
-                msg = (f'    {75*"─"}                         \n' +
-                        '     State of abort changed to: OFF  \n' +
-                       f'    {75*"─"}                         \n')
+# =============================================================================
+#             elif ans and ans[0].lower() == 'a' and abort == False:
+#                 abort = True
+#                 msg = (f'    {75*"─"}                         \n' +
+#                         '     State of abort changed to: ON   \n' +
+#                        f'    {75*"─"}                         \n')
+#             elif ans and ans[0].lower() == 'a' and abort == True:
+#                 abort = False
+#                 msg = (f'    {75*"─"}                         \n' +
+#                         '     State of abort changed to: OFF  \n' +
+#                        f'    {75*"─"}                         \n')
+# =============================================================================
             elif ans and ans[0].lower() == 'h':
                 msg = 'help'
             elif ans and ans[0].lower() == 'n':
-                _cards_[k][2] = max(0,  int(_cards_[k][2]) - settings['tallypenalty'])
+                _cards_[k][2] = max(0,  int(_cards_[k][2]) - _settings['tallypenalty'])
                 missed.append(_cards_[k])
                 loop = False                                           # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
-                if _cards_[k][2] >= settings['maxtally']:
+                if _cards_[k][2] >= _settings['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
                 loop = False
-            elif ans and ans.lower() == 'key':
-                msg = (f'   {75*"─"}                                                                   \n' +
-                        '    The literal word "key" is not meant to be used.  Rather "key" signifies   \n' +
-                        "    keywords that are in flashcardz' settings.  The keywards that can be used \n" +
-                        '    are wr, wiki, and pronounce.  If wr is used, then a web page opens        \n' +
-                        '    showing the definition of a word from www.wordref.com.  If wiki, then the \n' +
-                        '    definition comes from en.wiktionary.org.  And if pronounce, from          \n' +
-                        '    www.howtopronounce.com.  These sites are for Spanish words.  However, you \n' +
-                        '    can update your settings to create your own keyword and its associated    \n' +
-                        '    website.  Therefore you can set it up for whatever language you chose.    \n' +
-                        '    See help(_setkey_) to see how to do this.                                 \n' +
-                       f'   {75*"─"}                                                                   \n')
-            elif ans and ans.split(',')[0] in settings:
+# =============================================================================
+#             elif ans and ans.lower() == 'key':
+#                 msg = (f'   {75*"─"}                                                                   \n' +
+#                         '    The literal word "key" is not meant to be used.  Rather "key" signifies   \n' +
+#                         "    keywords that are in flashcardz' settings.  The keywards that can be used \n" +
+#                         '    are wr, wiki, and pronounce.  If wr is used, then a web page opens        \n' +
+#                         '    showing the definition of a word from www.wordref.com.  If wiki, then the \n' +
+#                         '    definition comes from en.wiktionary.org.  And if pronounce, from          \n' +
+#                         '    www.howtopronounce.com.  These sites are for Spanish words.  However, you \n' +
+#                         '    can update your settings to create your own keyword and its associated    \n' +
+#                         '    website.  Therefore you can set it up for whatever language you chose.    \n' +
+#                         '    See help(_setkey_) to see how to do this.                                 \n' +
+#                        f'   {75*"─"}                                                                   \n')
+# =============================================================================
+            elif ans and ans.split(',')[0] in _settings:
                 word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
                 keys = ans.split(',')
                 for key in keys:
                     k0 = key.strip()
-                    if k0 in settings:
-                        url = settings[k0].replace('<word>', word)
+                    if k0 in _settings:
+                        url = _settings[k0].replace('<word>', word)
                         webbrowser.open(url)
             elif ans:
                 msg = (f'    {75*"─"}                         \n' +
@@ -958,7 +1026,7 @@ def go(shuffle=True):
 
             else:
                 _cards_[k][2] = int(_cards_[k][2]) + 1
-                if _cards_[k][2] >= settings['maxtally']:
+                if _cards_[k][2] >= _settings['maxtally']:
                     unwanted.append(k)
                 loop = False                                           # OK, now break the loop
             print('\n\n\n\n')
@@ -977,19 +1045,226 @@ def go(shuffle=True):
                    'fourteen', 'fifteen', 'sixteen', 'seventeen',
                    'eighteen', 'nineteen', 'twenty']
         plural = 's' if ln > 1 else ''
+        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
+        
         number = numbers[ln - 1] if ln < 21 else str(ln)
-        if not abort:
-            print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
-        else:
-            print(f'Congradulations!  Max tally reached on {number} card{plural}. \n')
+# =============================================================================
+#         if not abort:
+#             print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
+#         else:
+#             print(f'Congradulations!  Max tally reached on {number} card{plural}. \n')
+# =============================================================================
+        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
         # [::-1] reverses the list in order to remove latter elements first.
         for ele in unwanted[::-1]:
             # ele is an element of the _cards_ list
             print(f'    {_cards_[ele][0]}')
             del _cards_[ele]
         print()
-        if not abort:
-            print(f'\nNumber of cards is now {len(_cards_)}\n')
+# =============================================================================
+#         if not abort:
+#             print(f'\nNumber of cards is now {len(_cards_)}\n')
+# =============================================================================
+    print(f'\nNumber of cards is now {len(_cards_)}\n')
+
+    if missed:
+        print('\n' + 80*'_')
+        percent = str(int(100*(len(_cards_) - len(missed))/len(_cards_)))
+        print(f'{percent}% answered correctly!')
+        print('These are the words you missed: \n')
+        im0 = []
+        for m in missed:
+            i = _cards_.index(m)
+            im0.append([i, m[0]])
+        im0.sort(key=lambda x: x[0])
+# =============================================================================
+#         for k in im0:
+#             print(f'{k[1]}') if abort and unwanted else print(f'{k[0]}. {k[1]}')
+# =============================================================================
+        for k in im0:
+            print(f'{k[1]}') if unwanted else print(f'{k[0]}. {k[1]}')    
+        print()
+    else:
+        print('\n' + 80*'_')
+        if len(_cards_) == 0:
+            print('Card deck is empty.  Please add data.')
+        else:
+            print('100% of list answered correctly!')
+# =============================================================================
+#     if not abort:
+#         _save_(_cards_)
+# =============================================================================
+    _save_(_cards_)
+
+
+
+def go(shuffle=True):
+    '''
+    The go() function is the primary function for flashcardz.  It proceeds in
+    this order:
+    1.  An intro is shown to the user.  The program then pauses and awaits
+        permission to proceed.
+    2.  The file containing the deck of cards is opened, read, then closed.
+    3.  The deck of cards is shuffled.
+    4.  Words from each card are shown to the user one by one.  After each word
+        is shown, the user is asked if he/she knew the meaning.  If yes, the
+        tally for that word is increased by one.  If no, the tally is reset to
+        zero.
+    5.  If the max tally has been reached for any word, its card is removed
+        from the deck.
+    5.  After all words have been viewed, results are presented to the user,
+        then the file is reopened, results saved, then closed.
+
+    Parameters
+    ----------
+    shuffle : bool, optional
+        Shuffle the deck. The default is True.
+
+    Examples
+    --------
+    >>> go()
+
+    '''
+
+    print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
+    print("try to figure out its meaning.  Then press the Enter key to show the word's")
+    print('definition.  The program will then ask "Meaning known? (Y/n... or [k], h, b, or q): "')
+    print('Respond with one of these answers:')
+    _go_help_()
+    print()
+    ans1 = input("Press Enter to start. ")
+    if ans1 and ans1[0].lower() == 'q':
+        return
+
+    print("\nHere we go!")
+
+    _cards_ = _open_()
+    index_list = list(range(0, len(_cards_)))
+    if shuffle == True and len(_cards_) > 2:
+        print("\nShuffling cards ", end='')
+        for i in range(15):
+            print(">", end='')
+            time.sleep(.08)
+        print('\n\n\n\n')
+        index_list = sorted(index_list, key=lambda x: random.random())
+
+    number = 0
+    number_of_cards_ = len(_cards_)
+    unwanted = []
+    missed = []
+    tallys = [int(i[2]) for i in _cards_]   # these collected in case "b" response activated.
+    msg = ''
+
+    n = 0
+    while n < len(index_list):
+        k = index_list[n]
+        number += 1
+        loop = True
+        while loop:
+            clear_output() if _is_ipython_() else None # if jupyterlab is running
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
+            if msg and msg == 'help':
+                _go_help_()  # was _go_thelp_(abort), 9/14/2026
+                msg = ''
+            elif msg:
+                print(msg)
+                msg = ''
+            print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
+
+            # pause... ask user: meaning known?
+            ans0 = input()
+            if ans0 and ans0[0].strip().lower() in ['q', 'b', 'h']:    
+                ans = ans0.strip().lower()
+            else:
+                desc = _hide_urls_(_cards_[k][1])
+                desc = modify_text(desc)
+                print(f'{desc}\n')
+                ans = input('Meaning known? (Y/n... or [k], h, b, or q): ')
+                
+            if ans and ans[0] == '[' and ans[1].isnumeric():
+                j = ast.literal_eval(ans)
+                for x in j:
+                    webbrowser.open(_url_at_(_cards_[k][1], x))
+            elif ans and ans.strip().lower()[0] == 'b':
+                n -= 1
+                if n < 0:
+                    n = 0
+                number -= 1
+                if number == 0:
+                    number = 1
+                k = index_list[n]
+                _cards_[k][2] = tallys[k]
+                if _cards_[k] in missed:
+                    missed.remove(_cards_[k])
+                if _cards_[k] in unwanted:
+                    unwanted.remove(_cards_[k])
+            elif ans and ans.strip().lower() == '[k]':
+                msg = (f'   {75*"─"}\n' +
+                        '    k should be a number, for example [1] or [2].  A desription containing \n' +
+                        '    links will look like "blah blah blah [link to web page] blah blah blah \n' +
+                        '    blah blah [another link] blah.  Entering [1] will open a web page      \n' +
+                        '    pertaining to the first link.  [2] will open the 2nd.                  \n' +
+                       f'   {75*"—"}')
+            elif ans and ans[0].lower() == 'q':
+                print('\nProgram exited.  No results saved.')
+                return
+            elif ans and ans[0].lower() == 'h':
+                msg = 'help'
+            elif ans and ans[0].lower() == 'n':
+                _cards_[k][2] = max(0,  int(_cards_[k][2]) - _settings['tallypenalty'])
+                missed.append(_cards_[k])
+                loop = False                                           # OK, now break the loop
+            elif ans and ans[0].lower() == 'y':
+                _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
+                if _cards_[k][2] >= _settings['maxtally']:
+                    unwanted.append(k)                                 # OK, now break the loop
+                loop = False
+            elif ans and ans.split(',')[0] in _settings:
+                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
+                keys = ans.split(',')
+                for key in keys:
+                    k0 = key.strip()
+                    if k0 in _settings:
+                        url = _settings[k0].replace('<word>', word)
+                        webbrowser.open(url)
+            elif ans:
+                msg = (f'    {75*"─"}                         \n' +
+                        '     Incorrect answer                \n' +
+                       f'    {75*"—"}                         \n')
+
+            else:
+                _cards_[k][2] = int(_cards_[k][2]) + 1
+                if _cards_[k][2] >= _settings['maxtally']:
+                    unwanted.append(k)
+                loop = False                                           # OK, now break the loop
+            print('\n\n\n\n')
+        n += 1
+
+    clear_output() if _is_ipython_() else None # if jupyterlab is running
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f'\n{30*" "}=== End of cards === ')
+
+    if unwanted:
+        unwanted = sorted(unwanted)
+        print('\n' + 80*'_')
+        ln = len(unwanted)
+        numbers = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+                   'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen',
+                   'fourteen', 'fifteen', 'sixteen', 'seventeen',
+                   'eighteen', 'nineteen', 'twenty']
+        plural = 's' if ln > 1 else ''
+        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
+        
+        number = numbers[ln - 1] if ln < 21 else str(ln)
+        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
+        # [::-1] reverses the list in order to remove latter elements first.
+        for ele in unwanted[::-1]:
+            # ele is an element of the _cards_ list
+            print(f'    {_cards_[ele][0]}')
+            del _cards_[ele]
+        print()
+    print(f'\nNumber of cards is now {len(_cards_)}\n')
 
     if missed:
         print('\n' + 80*'_')
@@ -1002,7 +1277,7 @@ def go(shuffle=True):
             im0.append([i, m[0]])
         im0.sort(key=lambda x: x[0])
         for k in im0:
-            print(f'{k[1]}') if abort and unwanted else print(f'{k[0]}. {k[1]}')
+            print(f'{k[1]}') if unwanted else print(f'{k[0]}. {k[1]}')    
         print()
     else:
         print('\n' + 80*'_')
@@ -1010,8 +1285,11 @@ def go(shuffle=True):
             print('Card deck is empty.  Please add data.')
         else:
             print('100% of list answered correctly!')
-    if not abort:
-        _save_(_cards_)
+    _save_(_cards_)
+
+
+
+
 
 
 def get_settings_fn():
@@ -1020,7 +1298,7 @@ def get_settings_fn():
     settings inserted into it.  If the file get's corrupted, then delete it and
     allow flashcardz to recreate it.
 
-    To see the contents of the file, execute the change_settings() function.
+    To see the contents of the file, execute the settings() function.
     '''
     settings_dir = os.path.expanduser('~') if os.path.isdir(os.path.expanduser('~')) else os.getcwd()
     settingsfn = os.path.join(settings_dir, '.flashcardz_settings.txt')
@@ -1039,29 +1317,28 @@ def get_settings_fn():
         if not fn:  # User entered nothing.  He wants the default that was offered him
             fn = str(suggested_fn)
             print('\nProgram setting pathname set to:')
-            print(f'    settings["[pathname"] = {fn}')
+            print(f'    _settings["[pathname"] = {fn}')
 
         with open(settingsfn, 'w') as file:    # Now create settingsfn
             settings = default_settings_       # put into it default settings. (settings here is not global)
-            settings['pathname'] = fn          # and of course, add the fn for the user's data (his deck)
+            _settings['pathname'] = fn          # and of course, add the fn for the user's data (his deck)
             file.write(str(settings))
 
     return settingsfn
 
 
-
 def _read_settings_fn_():
-    global settings
+    global _settings
     try:
         settingsfn = get_settings_fn()
         with open(settingsfn, 'r') as file:
             x = file.read().replace('\\', '/')
-        settings = ast.literal_eval(x)
+        _settings = ast.literal_eval(x)
 
         flag = False
         for key, value in default_settings_.items():
-            if key not in settings:
-                settings[key] = value
+            if key not in _settings:
+                _settings[key] = value
                 flag = True
         if flag:
             save_settings
@@ -1070,7 +1347,7 @@ def _read_settings_fn_():
         msg = ("\n\n\n\x1b[0;1;31mAn error occured at flashcardz' _read_settings_fn_() function.  Settings from\n"
                "your last session not acquired.  Will instead use flashcardz' default settings.\x1b[0m\n\n")
         print(msg)
-        settings = default_settings_
+        _settings = default_settings_
 
 
 def save_settings():
@@ -1079,7 +1356,7 @@ def save_settings():
     try:
         settingsfn = get_settings_fn()
         with open(settingsfn, 'w') as file:
-            file.write(str(settings))
+            file.write(str(_settings))
     except Exception as e:
         msg = ("\nError at save_settings() function:\n\n"
                "Unable to save flashcardz data file.\n"
@@ -1139,14 +1416,19 @@ def _url_at_(text, i):
 
 
 def modify_text(text):
-    """This is an internal function of flashcardz.  It facilitates the user to
-    insert ansi escape codes into his text.  This then allows the user to show
-    selected text underlined, italicized, and/or colored.  For example, if a
-    word description is "my long, lengthy description", and the user adds
-    special coding within it like "my long, <g>lengthy<> description", then the
-    text "lengthy" will be shown with green letters to the user.
+    """
+    This is an internal function.  The user is not meant to use this function 
+    directly.  Instead this function is automatically used when the add() 
+    function is used.
+    
+    This function allows the user to show selected text as underlined, 
+    italicized, and/or colored.  For example, if the add function is used like 
+    this: 
+        add('my word', '''definition of my word is <g>blah blah blah<>''')
+    With the <g> and the <> present, the "blah blah blah" will be shown in
+    green.
 
-    The keys that may be used to alter text are:
+    The keys (code letters) that may be used to alter text are:
     k=black, r=red, g=green, y=yellow, b=blue, p=purple, c=cyan, w=white
     i=italics, 1=bold, u=underline, x=cross out.
 
@@ -1155,48 +1437,37 @@ def modify_text(text):
     Background colors to text can also be added.  Background color keys are:
     K=black, R=red, G=green, Y=yellow, B=blue, P=purple, C=cyan, W=white
 
-    More than one code can be entered at a time, for example
-    "my long, <g1ui>lengthy<> description" will make "lengthy" bright green,
-    underlined, and with italicized text.
+    More than one code can be entered at a time, for example:
+        add('my word', '''definition of my word is <g1ui>blah blah blah<>''')
+    will make "blah blah blah" bright green, underlined, and with italicized 
+    text.
 
     As you will have already noticed, the syntax is:
     <code letters>text to modify<>
 
     Note:  Altering text as described above may not work on your system.  It
     depends on whether your operating system, the version of your operating
-    system, and/or whether your console supports it or not.  With Python 3.13
-    it seems to work fine.  Also, you can load an additional package called
-    ipython.  Ipython works fine with this text altering.  To install ipython
-    do "pip install ipython" (w/o quotes).  Here are urls to help you get
-    started learning about ipython:
-    1.  https://www.youtube.com/watch?v=1WFQ5MUA27U
-    2.  https://www.youtube.com/watch?v=TneKbjhcPic
-    3.  https://www.stephaniehicks.com/learnPython/pages/IPython.html
+    system, and/or whether your console supports it or not.  l
 
     Parameters
     ----------
     text : string
-        The text to alter.  The text can include the codes that are to alter
-        the text.
+        The text to alter. 
 
     Returns
     -------
-    text : string
-        Returns the same text that was input to the function, but ansi escape
-        codes will replace the user supplied codes.  Witn ansi escape codes,
-        text will look like \x1b[0;3;1m\\x1b[0;32mtext to modify\\x1b[0m\x1b[0m.  (The user will
-        never see this code.)  In this example, the text will be shown green.
-        If the user entered no code, then the text remains unchanged.
+    string
+        If the text entered entered into this function is '<1g>my text<>' 
+        (i.e.  modify_text('<1g>my text<>') then this will be returned:
+            \x1b[0;1;32mmy text\x1b[0m
+        To test this string do:
+            >>> print("\x1b[0;1;32mmy text\x1b[0m")
+        You'll see that "my text" is shown bright green.                    
 
     Examples
     --------
-    >>> modify_text('''(moverse deprisa)
-                         run vi
-                         (rush) get a move on v expr
-                         <ur1>go quickly<>, go fast vi + adv''')
-
-    # An example of how the user will make use of this function when using the
-    # flashcardz program:
+    # An example of how the user will make use of this function:
+        
     >>> add('''correr vi''',
         '''(moverse deprisa)
            run vi
@@ -1245,8 +1516,8 @@ def _print_cards_(cds, cols, start=0):
 
     '''
     # if user has picked a specific col width, use it.  Else establish it based on a formula.
-    if isinstance(settings['col_width'], int) and settings['col_width'] not in [0, 1]:
-        w = settings['col_width']
+    if isinstance(_settings['col_width'], int) and _settings['col_width'] not in [0, 1]:
+        w = _settings['col_width']
     else:
         w = 35 - cols*5
     l = len(cds)
@@ -1291,6 +1562,7 @@ def _print_cards_(cds, cols, start=0):
                             a4=3*rows+i+start, b4=cds[3*rows+i][0][:w], c4=cds[3*rows+i][2]))
 
 c = cards
+rm = delete
 _read_settings_fn_()
 
 vi = sys.version_info
@@ -1298,7 +1570,7 @@ banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}
           'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
           'Excecute "functions()" (w/o quotes) for info about running this program.\n')
 try:
-    if settings['show_intro']:
+    if _settings['show_intro']:
         print(banner)
 except:
     print(banner)
