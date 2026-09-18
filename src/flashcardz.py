@@ -776,7 +776,7 @@ def cards(i=None, j=None):
     1) If args i and j not provided, i.e. cards(), only show a list of words.
     2) If only i is provided, only show card i and its definition.
     3) If both i and j are provided, show cards and definitions starting at
-       i, and up to but not including the word at position j.
+       i, and up to but not including those at j.
     4) If i is provided and j is inclosed in brackets, j refers to a link 
        within a word's definition.  That is, when j = [1], then 1 is for link 
        no. 1, 2 is for link no. 2, etc.    
@@ -785,7 +785,7 @@ def cards(i=None, j=None):
     ----------
     i : int
         i for card at position 0, 1, 2, etc.  default = None
-    j : int or list (j > i)
+    j : int or list 
        if int: Show cards up to, but excluding j.
        if list: The list must have one element, and it should be an integer.
            The integer will refers to link 1, 2, etc. of a url link within a 
@@ -809,7 +809,10 @@ def cards(i=None, j=None):
     
     '''
     if isinstance(i, int) and isinstance(j, list):
-        webbrowser.open(_url_at_(_open_()[i][1], j[0]))
+        try:
+            webbrowser.open(_url_at_(_open_()[i][1], j[0]))
+        except:
+            pass
         return
     elif isinstance(i, int) and j==None:
         j = i + 1
@@ -828,24 +831,12 @@ def cards(i=None, j=None):
 
 
 def _go_help_():
-# =============================================================================
-# def _go_help_(abort=False):
-# =============================================================================
     print(f'   {75*"─"}')
-    print( "    Y/n = you knew or did not know the definition")
-    print( "    [k] = open web page link 1, 2, etc.")
-    print( "    h = help.  Show this list of information.")
-    print( "    b = back.  Previous card.")
-# =============================================================================
-#     if _settings['abort'] == True or abort == True:
-#         print("    a = Abort saving results when go() finished. Current state: ON")
-#     else:
-#         print("    a = Abort saving results when go() finished.  Current state: OFF")
-# =============================================================================
-# =============================================================================
-#     print("    key = open website and show definition of word.")
-# =============================================================================
-    print("    q = quit.  (Results will not be saved.)")
+    print( "    Y/n :  you knew or did not know the definition")
+    print( "    [k] :  where k = 1, 2, ... to open web links 1, 2, etc.")
+    print( "    h   :  help.  Show this list of information.")
+    print( "    b   :  back.  Previous card")
+    print( "    q   :  quit.  (Results will not be saved)")
     print(f'  {75*"─"}')
 
 
@@ -853,18 +844,11 @@ def go(shuffle=True):
     '''
     The go() function is the primary function for flashcardz.  It proceeds in
     this order:
-    1.  An intro is shown to the user.  The program then pauses and awaits
-        permission to proceed.
-    2.  The file containing the deck of cards is opened, read, then closed.
-    3.  The deck of cards is shuffled.
-    4.  Words from each card are shown to the user one by one.  After each word
-        is shown, the user is asked if he/she knew the meaning.  If yes, the
-        tally for that word is increased by one.  If no, the tally is reset to
-        zero.
-    5.  If the max tally has been reached for any word, its card is removed
-        from the deck.
-    5.  After all words have been viewed, results are presented to the user,
-        then the file is reopened, results saved, then closed.
+    1.  Words from each card are shown to the user one by one.  After each word
+        is shown, the user is asked if he/she knew the meaning.
+    2.  If the max tally has been reached for any word, its card is removed
+        from the deck.  
+    3.  After all words have been viewed, results saved, then closed.
 
     Parameters
     ----------
@@ -876,260 +860,8 @@ def go(shuffle=True):
     >>> go()
 
     '''
-# =============================================================================
-#     if _settings['abort'] == True:
-#         abort = True
-#     else:
-#         abort = False
-# =============================================================================
-    print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
-    print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n... or [k], h, b, or q): "')
-    print('Respond with one of these answers:')
-    _go_help_()
-    print()
-    ans1 = input("Press Enter to start. ")
-    if ans1 and ans1[0].lower() == 'q':
-        return
-
-    print("\nHere we go!")
-
-    _cards_ = _open_()
-    index_list = list(range(0, len(_cards_)))
-    if shuffle == True and len(_cards_) > 2:
-        print("\nShuffling cards ", end='')
-        for i in range(15):
-            print(">", end='')
-            time.sleep(.08)
-        print('\n\n\n\n')
-        index_list = sorted(index_list, key=lambda x: random.random())
-
-    number = 0
-    number_of_cards_ = len(_cards_)
-    unwanted = []
-    missed = []
-    tallys = [int(i[2]) for i in _cards_]   # these collected in case "b" response activated.
-    msg = ''
-
-    n = 0
-    while n < len(index_list):
-        k = index_list[n]
-        number += 1
-        loop = True
-        while loop:
-            clear_output() if _is_ipython_() else None # if jupyterlab is running
-            os.system('cls' if os.name == 'nt' else 'clear')
-            print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
-            if msg and msg == 'help':
-                _go_help_()  # was _go_thelp_(abort), 9/14/2026
-                msg = ''
-            elif msg:
-                print(msg)
-                msg = ''
-            print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
-
-            ans0 = input() 
-            # pause... ask user: meaning known?
-            if ans0 and ans0[0].lower() == 'q':
-                 return
-# =============================================================================
-#             elif ans0 and ans0.split(',')[0] in _settings:
-#                 word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
-#                 keys = ans0.split(',')
-#                 for key in keys:
-#                     k0 = key.strip()
-#                     if k0 in _settings:
-#                         url = _settings[k0].replace('<word>', word)
-#                         webbrowser.open(url)
-# =============================================================================
-            desc = _hide_urls_(_cards_[k][1])
-            desc = modify_text(desc)
-            print(f'{desc}\n')                                          # now show descrip, i.e. _cards_[k][1]
-            ans = input('Meaning known? (Y/n... or [k], h, b, or q): ')           # Ask: Meaning known? (Y/n, etc.)
-
-            if ans and ans[0] == '[' and ans[1].isnumeric():
-                j = ast.literal_eval(ans)
-                for x in j:
-                    webbrowser.open(_url_at_(_cards_[k][1], x))
-            elif ans and ans.strip().lower()[0] == 'b':
-                n -= 1
-                if n < 0:
-                    n = 0
-                number -= 1
-                if number == 0:
-                    number = 1
-                k = index_list[n]
-                _cards_[k][2] = tallys[k]
-                if _cards_[k] in missed:
-                    missed.remove(_cards_[k])
-                if _cards_[k] in unwanted:
-                    unwanted.remove(_cards_[k])
-            elif ans and ans.strip().lower() == '[k]':
-                msg = (f'   {75*"─"}\n' +
-                        '    k should be a number, for example [1] or [2].  A desription containing \n' +
-                        '    links will look like "blah blah blah [link to web page] blah blah blah \n' +
-                        '    blah blah [another link] blah.  Entering [1] will open a web page      \n' +
-                        '    pertaining to the first link.  [2] will open the 2nd.                  \n' +
-                       f'   {75*"—"}')
-            elif ans and ans[0].lower() == 'q':
-                print('\nProgram exited.  No results saved.')
-                return
-# =============================================================================
-#             elif ans and ans[0].lower() == 'a' and abort == False:
-#                 abort = True
-#                 msg = (f'    {75*"─"}                         \n' +
-#                         '     State of abort changed to: ON   \n' +
-#                        f'    {75*"─"}                         \n')
-#             elif ans and ans[0].lower() == 'a' and abort == True:
-#                 abort = False
-#                 msg = (f'    {75*"─"}                         \n' +
-#                         '     State of abort changed to: OFF  \n' +
-#                        f'    {75*"─"}                         \n')
-# =============================================================================
-            elif ans and ans[0].lower() == 'h':
-                msg = 'help'
-            elif ans and ans[0].lower() == 'n':
-                _cards_[k][2] = max(0,  int(_cards_[k][2]) - _settings['tallypenalty'])
-                missed.append(_cards_[k])
-                loop = False                                           # OK, now break the loop
-            elif ans and ans[0].lower() == 'y':
-                _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
-                if _cards_[k][2] >= _settings['maxtally']:
-                    unwanted.append(k)                                 # OK, now break the loop
-                loop = False
-# =============================================================================
-#             elif ans and ans.lower() == 'key':
-#                 msg = (f'   {75*"─"}                                                                   \n' +
-#                         '    The literal word "key" is not meant to be used.  Rather "key" signifies   \n' +
-#                         "    keywords that are in flashcardz' settings.  The keywards that can be used \n" +
-#                         '    are wr, wiki, and pronounce.  If wr is used, then a web page opens        \n' +
-#                         '    showing the definition of a word from www.wordref.com.  If wiki, then the \n' +
-#                         '    definition comes from en.wiktionary.org.  And if pronounce, from          \n' +
-#                         '    www.howtopronounce.com.  These sites are for Spanish words.  However, you \n' +
-#                         '    can update your settings to create your own keyword and its associated    \n' +
-#                         '    website.  Therefore you can set it up for whatever language you chose.    \n' +
-#                         '    See help(_setkey_) to see how to do this.                                 \n' +
-#                        f'   {75*"─"}                                                                   \n')
-# =============================================================================
-            elif ans and ans.split(',')[0] in _settings:
-                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
-                keys = ans.split(',')
-                for key in keys:
-                    k0 = key.strip()
-                    if k0 in _settings:
-                        url = _settings[k0].replace('<word>', word)
-                        webbrowser.open(url)
-            elif ans:
-                msg = (f'    {75*"─"}                         \n' +
-                        '     Incorrect answer                \n' +
-                       f'    {75*"—"}                         \n')
-
-            else:
-                _cards_[k][2] = int(_cards_[k][2]) + 1
-                if _cards_[k][2] >= _settings['maxtally']:
-                    unwanted.append(k)
-                loop = False                                           # OK, now break the loop
-            print('\n\n\n\n')
-        n += 1
-
-    clear_output() if _is_ipython_() else None # if jupyterlab is running
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(f'\n{30*" "}=== End of cards === ')
-
-    if unwanted:
-        unwanted = sorted(unwanted)
-        print('\n' + 80*'_')
-        ln = len(unwanted)
-        numbers = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
-                   'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen',
-                   'fourteen', 'fifteen', 'sixteen', 'seventeen',
-                   'eighteen', 'nineteen', 'twenty']
-        plural = 's' if ln > 1 else ''
-        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
-        
-        number = numbers[ln - 1] if ln < 21 else str(ln)
-# =============================================================================
-#         if not abort:
-#             print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
-#         else:
-#             print(f'Congradulations!  Max tally reached on {number} card{plural}. \n')
-# =============================================================================
-        print(f'Congradulations!  Max tally reached on {number} card{plural}. The following removed: \n')
-        # [::-1] reverses the list in order to remove latter elements first.
-        for ele in unwanted[::-1]:
-            # ele is an element of the _cards_ list
-            print(f'    {_cards_[ele][0]}')
-            del _cards_[ele]
-        print()
-# =============================================================================
-#         if not abort:
-#             print(f'\nNumber of cards is now {len(_cards_)}\n')
-# =============================================================================
-    print(f'\nNumber of cards is now {len(_cards_)}\n')
-
-    if missed:
-        print('\n' + 80*'_')
-        percent = str(int(100*(len(_cards_) - len(missed))/len(_cards_)))
-        print(f'{percent}% answered correctly!')
-        print('These are the words you missed: \n')
-        im0 = []
-        for m in missed:
-            i = _cards_.index(m)
-            im0.append([i, m[0]])
-        im0.sort(key=lambda x: x[0])
-# =============================================================================
-#         for k in im0:
-#             print(f'{k[1]}') if abort and unwanted else print(f'{k[0]}. {k[1]}')
-# =============================================================================
-        for k in im0:
-            print(f'{k[1]}') if unwanted else print(f'{k[0]}. {k[1]}')    
-        print()
-    else:
-        print('\n' + 80*'_')
-        if len(_cards_) == 0:
-            print('Card deck is empty.  Please add data.')
-        else:
-            print('100% of list answered correctly!')
-# =============================================================================
-#     if not abort:
-#         _save_(_cards_)
-# =============================================================================
-    _save_(_cards_)
-
-
-
-def go(shuffle=True):
-    '''
-    The go() function is the primary function for flashcardz.  It proceeds in
-    this order:
-    1.  An intro is shown to the user.  The program then pauses and awaits
-        permission to proceed.
-    2.  The file containing the deck of cards is opened, read, then closed.
-    3.  The deck of cards is shuffled.
-    4.  Words from each card are shown to the user one by one.  After each word
-        is shown, the user is asked if he/she knew the meaning.  If yes, the
-        tally for that word is increased by one.  If no, the tally is reset to
-        zero.
-    5.  If the max tally has been reached for any word, its card is removed
-        from the deck.
-    5.  After all words have been viewed, results are presented to the user,
-        then the file is reopened, results saved, then closed.
-
-    Parameters
-    ----------
-    shuffle : bool, optional
-        Shuffle the deck. The default is True.
-
-    Examples
-    --------
-    >>> go()
-
-    '''
-
-    print('\nEach word, followed by its definition, will be shown.  After a word is shown,')
-    print("try to figure out its meaning.  Then press the Enter key to show the word's")
-    print('definition.  The program will then ask "Meaning known? (Y/n... or [k], h, b, or q): "')
-    print('Respond with one of these answers:')
+    print('\nEach word followed by its definition will be shown.  You will be asked')
+    print('"Meaning known? (Y/n... or [k], h, b, or q)". Respond with:')
     _go_help_()
     print()
     ans1 = input("Press Enter to start. ")
@@ -1174,6 +906,7 @@ def go(shuffle=True):
 
             # pause... ask user: meaning known?
             ans0 = input()
+            
             if ans0 and ans0[0].strip().lower() in ['q', 'b', 'h']:    
                 ans = ans0.strip().lower()
             else:
@@ -1181,11 +914,12 @@ def go(shuffle=True):
                 desc = modify_text(desc)
                 print(f'{desc}\n')
                 ans = input('Meaning known? (Y/n... or [k], h, b, or q): ')
-                
-            if ans and ans[0] == '[' and ans[1].isnumeric():
-                j = ast.literal_eval(ans)
-                for x in j:
-                    webbrowser.open(_url_at_(_cards_[k][1], x))
+
+            if ans and ans[0] == '[':# and ans[1].isnumeric():
+                try:
+                    webbrowser.open(_url_at_(_cards_[k][1], ans[1]))
+                except:
+                    pass
             elif ans and ans.strip().lower()[0] == 'b':
                 n -= 1
                 if n < 0:
@@ -1220,14 +954,6 @@ def go(shuffle=True):
                 if _cards_[k][2] >= _settings['maxtally']:
                     unwanted.append(k)                                 # OK, now break the loop
                 loop = False
-            elif ans and ans.split(',')[0] in _settings:
-                word = _cards_[k][0].strip().split(' ')[0].strip(',.;')
-                keys = ans.split(',')
-                for key in keys:
-                    k0 = key.strip()
-                    if k0 in _settings:
-                        url = _settings[k0].replace('<word>', word)
-                        webbrowser.open(url)
             elif ans:
                 msg = (f'    {75*"─"}                         \n' +
                         '     Incorrect answer                \n' +
@@ -1286,10 +1012,6 @@ def go(shuffle=True):
         else:
             print('100% of list answered correctly!')
     _save_(_cards_)
-
-
-
-
 
 
 def get_settings_fn():
@@ -1399,13 +1121,14 @@ def _url_at_(text, i):
     and i=2, then https://www.biblegateway.com/w.biblegateway.com/
     is returned.  And if i=3, then https://www.youtube.com/ is
     returned, and so forth"""
-
+        
+    i = int(i)
     tuples = re.findall(r'(\[.+?\])(\s*\(.+?\))', text)
     if 0 < i <= len(tuples):
         try:
             return tuples[i-1][1][1:-1]
         except Exception as e:
-            msg = ('Error at function named _url_i:\n    '
+            msg = ('Error at function named _url_at:\n    '
                    + str(e))
             print(msg)
             return None
@@ -1413,8 +1136,8 @@ def _url_at_(text, i):
         print('Error at function named _url_at_.')
         print("    list index out of range")
         return None
-
-
+    
+    
 def modify_text(text):
     """
     This is an internal function.  The user is not meant to use this function 
