@@ -56,18 +56,13 @@ except:
     def _is_ipython_():
         return False
 
+
 __version__ = '1.2'   # PEP 440 - describes versions
 delimiter = '|'      # pipe symbol
 substitute = ';'     # if when file saved, replace any pipe symbols with semicolons
 default_settings_ = {"maxtally": 10, "tallypenalty": 10, "show_intro": True,
                     "replace_tabs": -1, "columns": 2,
                     "col_width": 0}
-                    #'wr': 'https://www.wordreference.com/es/en/translation.asp?spen=<word>',
-                    #'wiki': 'https://en.wiktionary.org/wiki/<word>#Spanish',
-                    #'pronounce': 'https://www.howtopronounce.com/search/spanish/<word>'}
-                    #"abort": False,
-                    #'col': 'https://www.collinsdictionary.com/dictionary/spanish-english/<word>',
-                    #'rae': 'https://dle.rae.es/<word>',
 
 
 def version():
@@ -126,34 +121,6 @@ def _currently_at_(setting):
         pass
 
 
-# =============================================================================
-# def _setabort_():
-#     """
-#     Change the setting named "abort" to True or False.  If set to True then
-#     any results, such as tallys, will NOT be recorded when go() is run.
-#     If False, then results will be recorded.
-#     """
-#     global _settings
-#     print(_setabort_.__doc__)
-#     _currently_at_('abort')
-#     abort = input('\n    abort (Enter nothing for no change) = ').strip()
-#     if abort == "1" or abort == 'True':
-#         abort = True
-#     elif abort == "0" or abort == 'False':
-#         abort = False
-#     else:
-#         abort = None
-#     if _settings['abort'] == abort:
-#         _remains_at_('abort')
-#     elif abort == False or abort == True:
-#         _settings['abort'] = abort
-#         _changed_to_('abort')
-#     else:
-#         print('\nTrue or False are the only valid responses')
-#         _remains_at_('abort')
-# =============================================================================
-
-
 def _setkey_():
     '''
     Flashcardz' _settings are saved in a memory location named _settings.  If you
@@ -171,48 +138,7 @@ def _setkey_():
             'col_width': 0}
 
     In the python computer language, this is known as a "dictionary".  Items in
-    a dictionary are in pairs: a key and its value (key: value).  If you wanted
-    to add a new key named rae, and its value, you would do this:
-
-        >>> _settings['rae'] = 'https://dle.rae.es/correr'
-
-    This will, when using the go() or cards() functions, open up the website
-    named dle.rae.es and show the definition of the Spanish word "correr".
-    However, obviously, you would not want to restrict yourself to just one
-    word.  To make go() and cards() show the word that is currently active, do
-    this instead:
-
-        >>> _settings['rae'] = 'https://dle.rae.es/<word>'
-
-    That is, when the text <word> is present, the program will replace <word>
-    with the currently active word.
-
-    Most likely you will want to choose your own key word and own value.  To do
-    this search for a word on the site of the dictionary you want to use.  Copy
-    the url that shows up in address bar.  For example, if you look for the word
-    "family" on Merriam-Webster's web site, and after you copied and pasted the
-    url, it will look like this:  https://www.merriam-webster.com/dictionary/family.
-    Now, if you want to add this to your _settings, you would do this:
-
-        >>> _settings['web'] = 'https://www.merriam-webster.com/dictionary/<word>'
-
-    Make sure you add the quote marks.  The key doesn't have to be 'web'.  It
-    can be anything you like.  To make this setting permanent, i.e. so that it
-    will be available after you close and later reopen flashcardz, do this:
-
-        >>> save_settings()
-
-    If at some point you decide you no longer want the key and its value
-    present, do this:
-
-        >>> del _settings['web']
-
-    Make sure to do a save_settings() to make your changes permanent.  If you
-    mess up your settings so that flashcardz doesn't work properly, delete your
-    settings file and restart flashcardz.  The file will be recreated.
-
-    If you want to learn more about dictionaries, you can start here:
-    https://www.w3schools.com/python/python_dictionaries.asp
+    a dictionary are in pairs: a key and its value (key: value).  
     '''
     print(_setkey_.__doc__)
 
@@ -254,16 +180,16 @@ def _settallypenalty_():
     If tallypenalty = 0, then a deduction never occurs.  If tallypenalty is
     greater than or equal to the setting for "maxtally", then tally will
     be set back to zero when a word is missed.
-    """
+    """   
     global _settings
     print(_settallypenalty_.__doc__)
     _currently_at_('tallypenalty')
     tallypenalty = input('\n    tallypenalty (Enter nothing for no change) = ')
     if tallypenalty.strip():
-        tallypenalty = int(tallypenalty)
-    if (isinstance(tallypenalty, int) and ('tallypenalty' not in _settings)
-                                           or tallypenalty != int(_settings['tallypenalty'])):
-        _settings['tallypenalty'] = abs(tallypenalty)
+        tallypenalty = abs(int(tallypenalty))
+    if (isinstance(tallypenalty, int) and ('tallypenalty' not in _settings 
+                                           or tallypenalty != int(_settings['tallypenalty']))):
+        _settings['tallypenalty'] = tallypenalty
         _changed_to_('tallypenalty')
     else:
         _remains_at_('tallypenalty')
@@ -406,7 +332,11 @@ def settings():
     print('\nCurrent settings are:')
     for key, value in _settings.items():
         print(f'    {key}: {value}')
-    chgkey = input('\nSetting to change (Enter nothing for no change): ')
+        
+    print('\nSetting to change (Enter nothing for no change): ')
+    chgkey= input("> ")    
+        
+    #chgkey = input('\nSetting to change (Enter nothing for no change): ')
     print()
     chgkey = str(chgkey).strip().lower()
     if chgkey and chgkey not in _settings.keys():
@@ -422,10 +352,6 @@ def settings():
         _setpathname_()
     elif chgkey == 'maxtally':
         _setmaxtally_()
-# =============================================================================
-#     elif chgkey == 'abort':
-#         _setabort_()
-# =============================================================================
     elif chgkey == 'tallypenalty':
         _settallypenalty_()
     elif chgkey == 'show_intro':
@@ -443,13 +369,11 @@ def settings():
 
 def functions():
     ("Functions are:  add(), append(), cards() (or c()), delete() (or rm()),\n"
-      "functions(), go(), settings(), get_settings_fn(), save_settings(),\n"
-      "modify_text(), and version().\n\n"
+      "functions(), go(), settings(), modify_text(), and version().\n\n"
 
      "The primary functions are add(), cards(), and go().\n\n"
 
-     "Enter help(functionname) to learn more about a function.  Enter\n"
-     "print(__doc__) to see an overview of this program.\n\n"
+     "Enter help(functionname) to learn more about a function.\n\n"
 
      "Examples\n"
      "--------\n\n"
@@ -788,7 +712,7 @@ def cards(i=None, j=None):
     j : int or list 
        if int: Show cards up to, but excluding j.
        if list: The list must have one element, and it should be an integer.
-           The integer will refers to link 1, 2, etc. of a url link within a 
+           The integer will refer to link 1, 2, etc. of a url link within a 
            word's defintion. (that is, if a link exists)
        default = None
            
@@ -844,11 +768,12 @@ def go(shuffle=True):
     '''
     The go() function is the primary function for flashcardz.  It proceeds in
     this order:
-    1.  Words from each card are shown to the user one by one.  After each word
-        is shown, the user is asked if he/she knew the meaning.
+    1.  Words from each card are shown to the user one by one.  After a word
+        is shown, the word's definition is shown, and then the user is asked if
+        he/she knew the meaning.
     2.  If the max tally has been reached for any word, its card is removed
         from the deck.  
-    3.  After all words have been viewed, results saved, then closed.
+    3.  After all words have been viewed, results are saved.
 
     Parameters
     ----------
@@ -1147,7 +1072,9 @@ def modify_text(text):
     This function allows the user to show selected text as underlined, 
     italicized, and/or colored.  For example, if the add function is used like 
     this: 
+        
         add('my word', '''definition of my word is <g>blah blah blah<>''')
+        
     With the <g> and the <> present, the "blah blah blah" will be shown in
     green.
 
@@ -1161,12 +1088,15 @@ def modify_text(text):
     K=black, R=red, G=green, Y=yellow, B=blue, P=purple, C=cyan, W=white
 
     More than one code can be entered at a time, for example:
+        
         add('my word', '''definition of my word is <g1ui>blah blah blah<>''')
+        
     will make "blah blah blah" bright green, underlined, and with italicized 
     text.
 
     As you will have already noticed, the syntax is:
-    <code letters>text to modify<>
+        
+        <code letters>text to modify<>
 
     Note:  Altering text as described above may not work on your system.  It
     depends on whether your operating system, the version of your operating
@@ -1181,10 +1111,11 @@ def modify_text(text):
     -------
     string
         If the text entered entered into this function is '<1g>my text<>' 
-        (i.e.  modify_text('<1g>my text<>') then this will be returned:
-            \x1b[0;1;32mmy text\x1b[0m
+        (i.e.  modify_text('<1g>my text<>')) then this will be returned:
+            \\x1b[0;1;32mmy text\\x1b[0m
         To test this string do:
-            >>> print("\x1b[0;1;32mmy text\x1b[0m")
+            >>> print("\\x1b[0;1;32mmy text\\x1b[0m")
+            \x1b[0;1;32mmy text\x1b[0m
         You'll see that "my text" is shown bright green.                    
 
     Examples
