@@ -38,8 +38,9 @@ Use the *add* function to add new words:
 (moverse deprisa)     run vi
             (rush)    get a move on v expr
                       go quickly, go fast vi + adv''')
-			
-			
+```	
+	
+```			
 >>> add('mesa nf',
 '''
 (mueble con patas)   table n
