@@ -2,7 +2,11 @@
 
 ## **Intro**
 
-flashcardz is learning aid to learn foreign languages.  A word is shown on the screen, then followed by the word's definition.  A score is tallied whether you knew the word or not.  After multiple viewings of cards, once a card's maximum tally is reached, the card is removed.
+flashcardz is learning aid to help learn foreign languages.  The main thing that makes this program stand out above other similar programs is that there is no limit to the number of lines that can be put into a word's definition.  This is usefull when words have mutiple definitions. 
+ 
+A word is shown on the screen, then followed by the word's definition.  A score is tallied as to whether you knew the definition of the word or not.  After multiple viewings of cards, once a card's maximum tally is reached, the card is removed.
+
+In word definions, key words within definitions can be highlighted with different colored characters.  Also within definitions, links to web sites can be added.
 
 ## **Install Python**
 
