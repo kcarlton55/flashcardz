@@ -59,7 +59,7 @@ except:
         return False
 
 
-__version__ = '1.3'   # PEP 440 - describes versions
+__version__ = '1.4'   # PEP 440 - describes versions
 delimiter = '|'       # pipe symbol
 substitute = ';'      # See note in the add() function
 default_settings_ = {"maxtally": 10, "tallypenalty": 1, "show_intro": True,
@@ -197,14 +197,12 @@ def _setmaxtally_():
 
 def _setreplace_tabs_():
     '''
-    Replace each tab character with one or more space characters.  To set this
-    setting, enter an integer, e.g. 0, 1, 2, 3, etc..  With this setting set,
-    then 0, 1, 2, 3, etc. spaces will replace each tab character depending on
-    the integer that you entered.  This setting only effects the add() function
-    and only is activated when the final parenthesis is applied and the Enter
-    key has been pushed.
-
-    To make this setting inactive, set to -1.
+    When using the add() function, replace each tab character with zero or more
+    space characters.  To set this setting, enter an integer, e.g. 0, 1, 2, 3,
+    etc..  With this setting set, then 0, 1, 2, 3, etc. spaces will replace 
+    each tab character. 
+    
+    To not replace any tabs, set this value to -1.
     '''
     global _settings
     print(_setreplace_tabs_.__doc__)
@@ -224,7 +222,7 @@ def _setreplace_tabs_():
 def _setcolumns_():
     '''
     Set the number of columns that are displayed when the cards() function is
-    run.  Options are 1, 2, 3, or 4.  Default is 1.
+    run.  Options are 1, 2, 3, or 4.  Default is 2.
     '''
     global _settings
     print(_setcolumns_.__doc__)
@@ -247,9 +245,9 @@ def _setcol_width_():
     number of the columns the users want.  This setting, col_width, sets the
     width that the the word within the card (not the definition of the word)
     will fit.  For example, a value of 30 will allow a word within 30
-    characters.  If you wish to allow the program to set a value for you, a
-    value that will vary depending on the value of the columns settings, then
-    set this value to 1.  Default is 1.
+    characters.  If you wish to allow the program to set a value for you, a 
+    value which will depend on the value of the 'columns' setting, then set 
+    this value to 1.  Default is 1.
     '''
     global _settings
     print(_setcol_width_.__doc__)
@@ -268,12 +266,11 @@ def _setcol_width_():
 
 def _setpathname_():
     '''
-    Enter into your settings the name of the file that is to contain your card data.
+    Enter into your settings the name of the file that is to contain your card
+    data.
     '''
     global _settings
     print(_setpathname_.__doc__)
-    #print(f'(current working directory is: {Path().cwd()})')
-    #_currently_at_('pathname')
     print("Enter name of a new or existing file (e.g. C:\\mypath\\myfile.txt)")
     userinput = input(r'    Pathname (Enter nothing for no change) = ').strip()
     if not userinput:
@@ -659,9 +656,8 @@ def _open_(filename=None):
 
 
 def append(filename):
-    '''
-    If you have a separate file containing cards, you can append that file to
-    the current card set.
+    '''If you have a separate file containing cards, you can append that file
+    to the current card set.
 
     Parameters
     ----------
@@ -731,7 +727,7 @@ def cards(i=None, j=None):
     flag = False
     if (isinstance(i, int) or isinstance(i, float)) and i < 0:
         flag = True
-        i = abs(int(i))  # if i = -.1, then Flag = True and i then set to 0
+        i = abs(int(i))  # if i = -.1, then Flag set to True and i then set to 0
     if isinstance(j, int):
         j = abs(j)        
     try:
@@ -835,14 +831,12 @@ def go(shuffle=True):
             os.system('cls' if os.name == 'nt' else 'clear')
             print(f"{35*'-'} tally: {_cards_[k][2]} {35*'-'}")
             if msg and msg == 'help':
-                _go_help_()  # was _go_help_(abort), 9/14/2026
+                _go_help_()
                 msg = ''
             elif msg:
                 print(msg)
                 msg = ''
             print(f'{number} of {number_of_cards_}.  {_cards_[k][0]}')  # show word, i.e. _cards_[k][0]
-
-            # pause... ask user: meaning known?
             ans0 = input()
             
             if ans0 and ans0[0].strip().lower() in ['q', 'b', 'h']:    
@@ -854,7 +848,7 @@ def go(shuffle=True):
                 print(f'{desc}\n')
                 ans = input('Meaning known? (Y/n... or [k], h, b, or q): ')
 
-            if ans and ans[0] == '[':# and ans[1].isnumeric():
+            if ans and ans[0] == '[' and ans[1].isnumeric():
                 try:
                     webbrowser.open(_url_at_(_cards_[k][1], ans[1]))
                 except:
@@ -887,12 +881,12 @@ def go(shuffle=True):
             elif ans and ans[0].lower() == 'n':
                 _cards_[k][2] = max(0,  int(_cards_[k][2]) - _settings['tallypenalty'])
                 missed.append(_cards_[k])
-                loop = False                                           # OK, now break the loop
+                loop = False                              # OK, now break the loop
             elif ans and ans[0].lower() == 'y':
                 _cards_[k][2] = int(_cards_[k][2]) + 1    # _cards_[k][2] is "tally"
                 if _cards_[k][2] >= _settings['maxtally']:
-                    unwanted.append(k)                                 # OK, now break the loop
-                loop = False
+                    unwanted.append(k)                    
+                loop = False                              # OK, now break the loop
             elif ans:
                 msg = (f'    {75*"─"}                         \n' +
                         '     Incorrect answer                \n' +
@@ -901,11 +895,11 @@ def go(shuffle=True):
                 _cards_[k][2] = int(_cards_[k][2]) + 1
                 if _cards_[k][2] >= _settings['maxtally']:
                     unwanted.append(k)
-                loop = False                                           # OK, now break the loop
+                loop = False                              # OK, now break the loop
             print('\n\n\n\n')
         n += 1
 
-    clear_output() if _is_ipython_() else None # if jupyterlab is running
+    clear_output() if _is_ipython_() else None            # if jupyterlab is running
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f'\n{30*" "}=== End of cards === ')
 
@@ -988,7 +982,6 @@ def get_settings_fn():
               
     # settingsfn doesn't aready exist.  Create it.  Ask for fn of deck.  Put default_settings_ into setting file
     if not settingsfn.exists():
-    #if not settingsfn or (settingsfn and os.path.getsize(settingsfn) == 0):
         suggested_fn = Path.cwd()  / 'flashcardz.txt'
         print('\n\nIt appears that this is your first time running this program.  A file name\n'
               'for your data needs to be established.  Please provide a file name.')
@@ -1300,9 +1293,9 @@ def version_check():
         package = 'flashcardz'
         response = requests.get(f'https://pypi.org/pypi/{package}/json', timeout=5)
         latest_version = response.json()['info']['version']
-        current_version = version()         # e.g. like "1.2")
-        lv = [int(i) for i in latest_version.split('.')]   # create a list of integers
-        cv = [int(i) for i in current_version.split('.')]  # e.g. like [1, 2]
+        current_version = version()                         # e.g. like "1.2")
+        lv = [int(i) for i in latest_version.split('.')]    # create a list of integers
+        cv = [int(i) for i in current_version.split('.')]   # e.g. like [1, 2]
         if lv > cv:
             msg = (f'''
             <1b>Installed: flashcardz {current_version}<>
@@ -1323,17 +1316,38 @@ get_settings()
 _verify_settings_()
 
 
-if __name__=='__main__':
-    vi = sys.version_info
-    banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
-              'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
-              'Excecute "functions()" (w/o quotes) for info about running this program.\n')
-        
-    if _settings['show_intro']:
-        print(banner)
-        functions()
-        version_check()
+vi = sys.version_info
+banner = (f"\nflashcardz {__version__} running on python {vi[0]}.{vi[1]}.{vi[2]}.  Ctrl+D or quit() closes program.\n" +
+          'How-to instructions are at https://github.com/kcarlton55/flashcardz.\n' +
+          'Excecute "functions()" (w/o quotes) for info about running this program.\n')
+    
+if _settings['show_intro']:
+    print(banner)
+    functions()
+    version_check()
 
+        
+if __name__=='__main__':
+    print('\n\n')
+    print('Congratulations.  You have flashcardz installed.  To use it, you need to open')
+    print('a REPL window, i.e an interactive console where you can enter flashcardz')
+    print('commands.  To open up a REPL window, from the command prompt enter "py" if you')
+    print('are using a Windows operating system, or enter "python" otherwise, like this:')
+    print()
+    print('    C:\\windowsfolder> py')
+    print()
+    print('or:')
+    print()
+    print('    johndoe@linuxmachine$ python')
+    print()
+    print('Once the REPL is running, load flashcardz like this (wihout the >>>):')
+    print()
+    print('    >>> from flashcardz import *')      
+    print()
+    print('For a quick tutorial on how to used flashcardz, please visit')
+    print('https://github.com/kcarlton55/flashcardz')
+          
+    
     
 
 

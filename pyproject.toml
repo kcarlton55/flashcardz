@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flashcardz"
-version = "1.3"
+version = "1.4"
 authors = [
   {name="Ken Carlton", email="kencarlton55@gmail.com"},
 ]
@@ -32,4 +32,3 @@ license = {text = "GPLv3+"}
 
 [project.urls]
 Homepage = "https://github.com/kcarlton55/flashcardz"
-Tutorial = "https://github.com/kcarlton55/flashcardz"
